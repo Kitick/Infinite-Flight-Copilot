@@ -1,0 +1,21 @@
+body{
+	background:#202020;
+	color:#FFFFFF;
+	font-family:monospace;
+	text-align:center;
+	user-select:none;
+    margin-top:25vh;
+}
+
+input[type="radio"], input[type="checkbox"]{
+	vertical-align:text-top;
+}
+
+.mode{
+    float:left;
+    width:33%;
+}
+
+.off{color:#000000;}
+.armed{color:#FF8000;}
+.active{color:#00FF00;}
