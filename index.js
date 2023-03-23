@@ -310,6 +310,10 @@ class PID{
     get value(){return this._value;}
 
     run(){
+		if(!this.active){
+			return this.output;
+		}
+
         let diff = this.target - this.value;
         let deltaDiff = diff - this.delta * 4;
 
@@ -357,30 +361,30 @@ class Aircraft{
         this.spd.target = 220;
         this.spd.active = true;
 
-        this.roll = new PID("aircraft/0/systems/axes/roll", "api_joystick/axes/1/value", -1, 1, 1);
+        this.roll = new PID("aircraft/0/systems/axes/roll", "aircraft/0/bank", -1, 1, 1);
         this.roll.target = 0;
-        this.roll.active = true;
+        this.roll.active = false;
     }
 
     update(){
-        let pid = "roll";
+        let pids = ["spd", "roll"];
 
-        if(this[pid].active){
-            let getID = this.client.manifest[this[pid].source].id;
-            let setID = this.client.manifest[this[pid].control].id;
+		pids.forEach(pidName => {
+			let pid = this[pidName];
+			let getID = this.client.manifest[pid.source].id;
+			let setID = this.client.manifest[pid.control].id;
 
-            this[pid].value = this.client.getValue(getID);
-            let output = this[pid].run();
+			pid.value = this.client.getValue(getID);
+			let output = pid.run();
 
-            console.log(this[pid].value, this[pid].delta, this[pid].output)
-            //this.client.setState(setID, output);
-        }
+			this.client.setState(setID, output);
+		});
     }
 
     start(ups = 10){
         this.stop();
         PID.ups = ups;
-        this.interval = setInterval(() => {this.update();}, 1000 / ups);
+        this.interval = setInterval(() => {this.update();}, 100 / ups);
     }
 
     stop(){clearInterval(this.interval);}
