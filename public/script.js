@@ -1,5 +1,11 @@
 function loaded(){
 	statLog = document.getElementById("status");
+
+	// Tests Socket
+	socket.emit("test", response => {
+		statLog.innerText = response;
+		console.log(response);
+	});
 }
 
 function bridge(){
@@ -47,10 +53,4 @@ socket.on("ready", ip => {
 socket.on("log", response => {
     statLog.innerText = response;
     console.log(response);
-});
-
-// Tests Socket
-socket.emit("test", response => {
-    statLog.innerText = response;
-	console.log(response);
 });
