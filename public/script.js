@@ -22,6 +22,7 @@ function closeBridge(){
     document.getElementById("autopilot").hidden = true;
 
     socket.emit("break", address, response => {
+		document.getElementById("address").value = address;
         address = "";
         statLog.innerText = response;
         console.log(response);
@@ -36,9 +37,9 @@ function request(command){
     socket.emit("get", address, command);
 }
 
-const socket = io.connect();
 let statLog;
 let address = "";
+const socket = io.connect();
 
 socket.on("ready", ip => {
     address = ip;
