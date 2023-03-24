@@ -21,188 +21,111 @@ io.on("connection", socket => {
         console.log("New Client Connected");
 	});
 
-    socket.on("bridge", (address, callback) => {
-        console.log(address + " TCP Connection Requested");
+	socket.on("bridge", (address, callback) => {
+		console.log(address + " Connection Requested");
 
-        if(address === ""){
-            callback("Searching for UDP Packets");
-        }
-        else{
-            callback("Attempting TCP Connection on " + address);
-        }
+        Controller.bridge(address);
 
-        new TCP(address, socket.id);
-    });
+		callback();
+	});
 
-    socket.on("break", (address, callback) => {
-        const client = TCP.connections[address];
+	socket.on("break", (address, callback) => {
+		console.log(address + " Closure Requested");
 
-        if(client !== undefined){
-            client.close();
+		Controller.close(address);
 
-            callback("TCP Connection Closed for " + address);
-        }
-    });
-
-    socket.on("set", (address, command, value) => {
-        const client = TCP.connections[address];
-
-        if(client !== undefined){
-            client.setState(client.manifest[command].id, value);
-        }
-    });
-
-    socket.on("get", (address, command) => {
-        const client = TCP.connections[address];
-
-        if(client !== undefined){
-            client.getState(client.manifest[command].id);
-        }
-    });
+		callback();
+	});
 });
+class Client{
+	constructor(address = ""){
+		this.address = address;
+        this.socket = new Net.Socket();
 
-class TCP{
-    static connections = {};
-
-    // Functions to convert any of the possible 6 values into the raw binary buffer or vice versa
-    static readType = [
-        value => {return Boolean(value[0]);},
-        value => {return value.readInt32LE();},
-        value => {return value.readFloatLE();},
-        value => {return value.readDoubleLE();},
-        value => {return value.toString("utf8", 4);},
-        value => {return value.readBigInt64LE();},
-    ];
-
-    static writeType = [
-        value => {return Buffer.from([value]);},
-        value => {let buffer = Buffer.allocUnsafe(4); buffer.writeInt32LE(value); return buffer;},
-        value => {let buffer = Buffer.allocUnsafe(4); buffer.writeFloatLE(value); return buffer;},
-        value => {let buffer = Buffer.allocUnsafe(8); buffer.writeDoubleLE(value); return buffer;},
-        value => {let buffer = Buffer.allocUnsafe(4 + value.length); buffer.writeInt32LE(value.length); buffer.write(value, 4); return buffer;},
-        value => {let buffer = Buffer.allocUnsafe(8); buffer.writeBigInt64LE(value); return buffer;},
-    ];
-
-    // If no IP was specified on connect, try to find it from the UDP broadcast packets
-    static findIP(socket = undefined){
-        console.log("Searching for UDP Packets...");
-
-        const client = UDP.createSocket("udp4");
-
-        client.on("error", error => {
-            if(error.code === "EADDRINUSE"){
-                io.to(this.socket).emit("log", "Already Searching for UDP Packets");
-            }
-        });
-
-        client.on("message", (data, info) => {
-            const address = info.address;
-
-            console.log(address + " UDP Packet Found");
-
-            client.close();
-
-            new TCP(address, socket);
-        });
-
-        client.bind(15000);
-    }
-
-    // create a new cliet object, this is unique to the device, allowing multiple devices to be used with the same server.
-    constructor(ip, socket = undefined){
-        const currentTCP = TCP.connections[ip];
-        
-        if(ip === ""){
-            TCP.findIP(socket);
-            return;
-        }
-        else if(currentTCP !== undefined){
-            currentTCP.socket = socket;
-
-            io.to(socket).emit("ready", ip);
-            console.log(ip + " TCP Client Returned");
-
-            return currentTCP;
-        }
-
-        this.aircraft = new Aircraft(this);
-        this.socket = socket;
-
-        this.dataBuffer = [];
         this.manifest = {};
+		this.dataBuffer = [];
 
-        this.ip = ip;
-        this.client = new Net.Socket();
-
-        this.client.on("data", buffer => {
+		this.socket.on("data", buffer => {
+			for(let binary of buffer){
+				this.dataBuffer.push(binary);
+			}
             //console.log("Rx\t\t", buffer);
 
-            for(let number of buffer){
-                this.dataBuffer.push(number);
-            }
-    
-            this.validate();
-        });
+			this.validate();
+		});
 
-        this.client.on("error", error => {
+		this.socket.on("error", error => {
             if(error.code === "ECONNREFUSED"){
-                io.to(this.socket).emit("log", "TCP Request Refused for " + this.ip);
-                console.log(this.ip + " TCP Connection Refused");
-                this.close();
+                console.log(this.address + " TCP Connection Refused");
             }
         });
 
-        TCP.connections[ip] = this;
+		console.log(this.address + " TCP Socket Created");
+	}
 
-        console.log(this.ip + " TCP Client Created");
+	findAddress(callback = () => {}){
+		console.log("Searching for UDP Packets...");
 
-        this.connect();
-    }
+		const scan = UDP.createSocket("udp4");
 
-    // connect the client object to the phyiscal device
-    connect(){
-        if(this.client.address().address !== undefined){
-            io.to(this.socket).emit("ready", this.ip);
-            console.log(this.ip + " TCP Connection Re-Established");
+		scan.on("error", error => {
+            if(error.code === "EADDRINUSE"){
+                console.log("Already Searching for UDP Packets");
+            }
+        });
 
+		scan.on("message", (data, info) => {
+            this.address = info.address;
+
+            console.log(this.address + " UDP Packet Found");
+            scan.close();
+
+			callback();
+        });
+
+		scan.bind(15000);
+	}
+
+	connect(address, callback = () => {}){
+		if(this.address === ""){
+			console.log("No address specified");
+			this.findAddress(() => {this.connect("", callback);});
+			return;
+		}
+
+		this.address = address;
+
+		if(this.socket.address() !== undefined){
+			console.log(this.address + " TCP Already Active");
+			return;
+		}
+
+		this.socket.connect({host:this.address, port:10112}, () => {
+            console.log(this.address + " TCP Established");
+			callback();
+        });
+	}
+
+	close(callback = () => {}){
+		this.socket.end(() => {
+			console.log(this.address + " TCP Closed");
+			callback();
+		});
+	}
+
+	validate(){
+		if(this.dataBuffer.length < 9){
             return;
         }
 
-        this.client.connect({host:this.ip, port:10112}, () => {
-            console.log(this.ip + " TCP Connection Established");
-            console.log("Retrieving Manifest...");
-    
-            this.getState(-1);
-        });
-    }
-
-    // close connection and delete the TCP client
-    close(){
-        this.client.end(() => {
-            console.log(this.ip + " TCP Connection Closed");
-        });
-
-        TCP.connections[this.ip].aircraft.stop();
-
-        delete TCP.connections[this.ip];
-    }
-
-    // validate incomming data packets to usable data and then process
-    validate(){
-        if(this.dataBuffer.length < 9){
-            //console.log("IO", dataBuffer.length);
-            return;
-        }
-
-        let length = Buffer.from(this.dataBuffer.slice(4, 8)).readInt32LE() + 8;
+        const length = Buffer.from(this.dataBuffer.slice(4, 8)).readInt32LE() + 8;
     
         if(this.dataBuffer.length < length){
-            //console.log("ID", dataBuffer.length, length);
             return;
         }
     
-        let id = Buffer.from(this.dataBuffer.slice(0, 4)).readInt32LE();
-        let data = Buffer.from(this.dataBuffer.slice(8, length));
+        const id = Buffer.from(this.dataBuffer.slice(0, 4)).readInt32LE();
+        const data = Buffer.from(this.dataBuffer.slice(8, length));
     
         this.dataBuffer.splice(0, length);
     
@@ -211,183 +134,112 @@ class TCP{
         if(this.dataBuffer.length > 0){
             this.validate();
         }
-    }
+	}
 
-    // Process the validated packet into the usable data and store value in the manifest database
     processData(id, data){
         if(id === -1){
             data = data.toString().split("\n");
 
-            data.forEach(item => {
-                item = item.split(",");
+            data.forEach(itemRaw => {
+                itemRaw = itemRaw.split(",");
                 
-                let itemData = {
-                    id:item[0],
-                    type:item[1],
-                    name:item[2],
-                    value:undefined,
-                };
+                let item = new Item(itemRaw[0], itemRaw[1], itemRaw[2]);
 
-                this.manifest[itemData.id] = itemData;
-                this.manifest[itemData.name] = itemData;
+                this.addItem(item);
             });
 
-            this.aircraft.start();
-
-            io.to(this.socket).emit("ready", this.ip);
             console.log("Manifest Built");
         }
         else{
-            const item = this.manifest[id];
-            item.value = TCP.readType[item.type](data);
+            this.getItem(id).buffer = data;
         }
     }
 
-    // request a state from the API
-    getState(id){
+    initalBuffer(id, state){
         let buffer = Buffer.allocUnsafe(5);
 
         buffer.writeInt32LE(id);
-        buffer[4] = 0;
+        buffer[4] = state;
 
-        this.client.write(buffer, () => {
-            //console.log("Tx " + id + "\t\t", buffer);
-        });
+        return buffer;
     }
 
-    // Set a state in the API
-    setState(id, value){
-        this.value = value;
+    readState(id){
+        let buffer = this.initalBuffer(id, 0);
 
-        let buffer = Buffer.allocUnsafe(5);
+        this.socket.write(buffer);
+    }
+    // console.log("Tx " + id + "\t\t", buffer);
+    writeState(id){
+        let buffer = this.initalBuffer(id, 1);
+        const itemBuffer = this.getItem(id).buffer;
 
-        buffer.writeInt32LE(id);
-        buffer[4] = 1;
+        buffer = Buffer.concat(buffer, itemBuffer);
 
-        const type = this.manifest[id].type;
-        let valueBuffer = TCP.writeType[type](value);
-
-        buffer = Buffer.concat([buffer, valueBuffer]);
-
-        this.client.write(buffer, () => {
-            //console.log("Tx " + id + " " + value + "\t", buffer);
-        });
+        this.socket.write(buffer);
     }
 
-    // return current value, then update it for next tick
-    getValue(id){
-        this.getState(id);
-        return this.manifest[id].value;
+    addItem(item){
+        this.manifest[item.id] = item;
+        this.manifest[item.name] = item;
+    }
+
+    getItem(id){
+        return this.manifest[id];
     }
 }
 
-class PID{
-    static ups = 0;
+class Item{
+    static readBufferType = [
+        value => {return Boolean(value[0]);},
+        value => {return value.readInt32LE();},
+        value => {return value.readFloatLE();},
+        value => {return value.readDoubleLE();},
+        value => {return value.toString("utf8", 4);},
+        value => {return value.readBigInt64LE();},
+    ];
 
-    constructor(source, control, min, max, mod = 1, step = undefined){
-        this.active = false;
-        
-        this.source = source;
-        this.control = control;
-        this.min = min;
-        this.max = max;
-        this.mod = mod;
-        this.step = step === undefined ? (this.max - this.min) / 10 : step;
+    static writeBufferType = [
+        value => {return Buffer.from([value]);},
+        value => {let buffer = Buffer.allocUnsafe(4); buffer.writeInt32LE(value); return buffer;},
+        value => {let buffer = Buffer.allocUnsafe(4); buffer.writeFloatLE(value); return buffer;},
+        value => {let buffer = Buffer.allocUnsafe(8); buffer.writeDoubleLE(value); return buffer;},
+        value => {let buffer = Buffer.allocUnsafe(4 + value.length); buffer.writeInt32LE(value.length); buffer.write(value, 4); return buffer;},
+        value => {let buffer = Buffer.allocUnsafe(8); buffer.writeBigInt64LE(value); return buffer;},
+    ];
 
-        this.output = 0;
-        this.delta = 0;
-        this._value = 0;
-        this.target = 0;
+    constructor(id, type, name){
+        this.id = id;
+        this.type = type;
+        this.name = name;
+        this.value = undefined;
     }
 
-    set value(num){
-        num *= this.mod;
-
-        this.delta = (num - this.value) * PID.ups;
-        this._value = num;
+    get buffer(){
+        return Item.writeBufferType[this.type](this.value);
     }
 
-    get value(){return this._value;}
-
-    run(){
-		if(!this.active){
-			return this.output;
-		}
-
-        let diff = this.target - this.value;
-        let deltaDiff = diff - this.delta * 4;
-
-        let step = this.step;
-        if(Math.abs(diff) < 1){
-            if(Math.abs(this.delta) < 0.1){
-                if(Math.abs(diff) < 0.1 && Math.abs(this.delta) < 0.05){
-                    step = 0;
-                }
-                else{
-                    step /= 10;
-                }
-            }
-            else{
-                step /= 5;
-            }
-        }
-
-        let newOutput = Math.sign(deltaDiff) * step / PID.ups;
-
-        if(isNaN(newOutput)){
-            return;
-        }
-
-        this.output += newOutput;
-
-        if(this.output > this.max){
-            this.output = this.max;
-        }
-        else if(this.output < this.min){
-            this.output = this.min;
-        }
-
-        return this.output;
+    set buffer(data){
+        this.value = Item.readBufferType[this.type](data);
     }
 }
+class Controller{
+    static clients = {};
 
-class Aircraft{
-    constructor(client){
-        this.client = client;
-        this.interval;
+    static bridge(address){
+        let client = this.clients[address];
 
-        // axes/0|1|2|3/ = pitch|roll|yaw|throttle
-        this.spd = new PID("aircraft/0/indicated_airspeed", "simulator/throttle", -1000, 1000, 1.94384);
-        this.spd.target = 220;
-        this.spd.active = true;
+        if(client === undefined){
+            this.clients[address] = new Client(address);
+        }
 
-        this.roll = new PID("aircraft/0/systems/axes/roll", "aircraft/0/bank", -1, 1, 1);
-        this.roll.target = 0;
-        this.roll.active = false;
+        client.connect();
     }
 
-    update(){
-        let pids = ["spd", "roll"];
-
-		pids.forEach(pidName => {
-			let pid = this[pidName];
-			let getID = this.client.manifest[pid.source].id;
-			let setID = this.client.manifest[pid.control].id;
-
-			pid.value = this.client.getValue(getID);
-			let output = pid.run();
-
-			this.client.setState(setID, output);
-		});
+    static close(address){
+        this.clients[address].close();
+        delete this.clients[address];
     }
-
-    start(ups = 10){
-        this.stop();
-        PID.ups = ups;
-        this.interval = setInterval(() => {this.update();}, 100 / ups);
-    }
-
-    stop(){clearInterval(this.interval);}
 }
 
 console.log("Loading Complete, Server Ready");
