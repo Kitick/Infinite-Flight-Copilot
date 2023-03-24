@@ -227,13 +227,11 @@ class Controller{
 	static clients = {};
 
 	static bridge(address){
-		let client = this.clients[address];
-
-		if(client === undefined){
+		if(this.clients[address] === undefined){
 			this.clients[address] = new Client(address);
 		}
 
-		client.connect();
+        let client = this.clients[address].connect();
 	}
 
 	static close(address){
