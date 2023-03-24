@@ -17,14 +17,14 @@ app.get("/", (request, response) => {
 // Sockets
 io.on("connection", socket => {
 	socket.on("test", callback => {
-        callback("Connected to Server");
-        console.log("New Client Connected");
+		callback("Connected to Server");
+		console.log("New Client Connected");
 	});
 
 	socket.on("bridge", (address, callback) => {
 		console.log(address + " Connection Requested");
 
-        Controller.bridge(address);
+		Controller.bridge(address);
 
 		callback();
 	});
@@ -40,25 +40,25 @@ io.on("connection", socket => {
 class Client{
 	constructor(address = ""){
 		this.address = address;
-        this.socket = new Net.Socket();
+		this.socket = new Net.Socket();
 
-        this.manifest = {};
+		this.manifest = {};
 		this.dataBuffer = [];
 
 		this.socket.on("data", buffer => {
 			for(let binary of buffer){
 				this.dataBuffer.push(binary);
 			}
-            //console.log("Rx\t\t", buffer);
+			//console.log("Rx\t\t", buffer);
 
 			this.validate();
 		});
 
 		this.socket.on("error", error => {
-            if(error.code === "ECONNREFUSED"){
-                console.log(this.address + " TCP Connection Refused");
-            }
-        });
+			if(error.code === "ECONNREFUSED"){
+				console.log(this.address + " TCP Connection Refused");
+			}
+		});
 
 		console.log(this.address + " TCP Socket Created");
 	}
@@ -69,19 +69,19 @@ class Client{
 		const scan = UDP.createSocket("udp4");
 
 		scan.on("error", error => {
-            if(error.code === "EADDRINUSE"){
-                console.log("Already Searching for UDP Packets");
-            }
-        });
+			if(error.code === "EADDRINUSE"){
+				console.log("Already Searching for UDP Packets");
+			}
+		});
 
 		scan.on("message", (data, info) => {
-            this.address = info.address;
+			this.address = info.address;
 
-            console.log(this.address + " UDP Packet Found");
-            scan.close();
+			console.log(this.address + " UDP Packet Found");
+			scan.close();
 
 			callback();
-        });
+		});
 
 		scan.bind(15000);
 	}
@@ -101,9 +101,9 @@ class Client{
 		}
 
 		this.socket.connect({host:this.address, port:10112}, () => {
-            console.log(this.address + " TCP Established");
+			console.log(this.address + " TCP Established");
 			callback();
-        });
+		});
 	}
 
 	close(callback = () => {}){
@@ -115,131 +115,131 @@ class Client{
 
 	validate(){
 		if(this.dataBuffer.length < 9){
-            return;
-        }
+			return;
+		}
 
-        const length = Buffer.from(this.dataBuffer.slice(4, 8)).readInt32LE() + 8;
-    
-        if(this.dataBuffer.length < length){
-            return;
-        }
-    
-        const id = Buffer.from(this.dataBuffer.slice(0, 4)).readInt32LE();
-        const data = Buffer.from(this.dataBuffer.slice(8, length));
-    
-        this.dataBuffer.splice(0, length);
-    
-        this.processData(id, data);
-    
-        if(this.dataBuffer.length > 0){
-            this.validate();
-        }
+		const length = Buffer.from(this.dataBuffer.slice(4, 8)).readInt32LE() + 8;
+
+		if(this.dataBuffer.length < length){
+			return;
+		}
+
+		const id = Buffer.from(this.dataBuffer.slice(0, 4)).readInt32LE();
+		const data = Buffer.from(this.dataBuffer.slice(8, length));
+
+		this.dataBuffer.splice(0, length);
+
+		this.processData(id, data);
+
+		if(this.dataBuffer.length > 0){
+			this.validate();
+		}
 	}
 
-    processData(id, data){
-        if(id === -1){
-            data = data.toString().split("\n");
+	processData(id, data){
+		if(id === -1){
+			data = data.toString().split("\n");
 
-            data.forEach(itemRaw => {
-                itemRaw = itemRaw.split(",");
-                
-                let item = new Item(itemRaw[0], itemRaw[1], itemRaw[2]);
+			data.forEach(itemRaw => {
+				itemRaw = itemRaw.split(",");
+			
+				let item = new Item(itemRaw[0], itemRaw[1], itemRaw[2]);
 
-                this.addItem(item);
-            });
+				this.addItem(item);
+			});
 
-            console.log("Manifest Built");
-        }
-        else{
-            this.getItem(id).buffer = data;
-        }
-    }
+			console.log("Manifest Built");
+		}
+		else{
+			this.getItem(id).buffer = data;
+		}
+	}
 
-    initalBuffer(id, state){
-        let buffer = Buffer.allocUnsafe(5);
+	initalBuffer(id, state){
+		let buffer = Buffer.allocUnsafe(5);
 
-        buffer.writeInt32LE(id);
-        buffer[4] = state;
+		buffer.writeInt32LE(id);
+		buffer[4] = state;
 
-        return buffer;
-    }
+		return buffer;
+	}
 
-    readState(id){
-        let buffer = this.initalBuffer(id, 0);
+	readState(id){
+		let buffer = this.initalBuffer(id, 0);
 
-        this.socket.write(buffer);
-    }
-    // console.log("Tx " + id + "\t\t", buffer);
-    writeState(id){
-        let buffer = this.initalBuffer(id, 1);
-        const itemBuffer = this.getItem(id).buffer;
+		this.socket.write(buffer);
+	}
+	// console.log("Tx " + id + "\t\t", buffer);
+	writeState(id){
+		let buffer = this.initalBuffer(id, 1);
+		const itemBuffer = this.getItem(id).buffer;
 
-        buffer = Buffer.concat(buffer, itemBuffer);
+		buffer = Buffer.concat(buffer, itemBuffer);
 
-        this.socket.write(buffer);
-    }
+		this.socket.write(buffer);
+	}
 
-    addItem(item){
-        this.manifest[item.id] = item;
-        this.manifest[item.name] = item;
-    }
+	addItem(item){
+		this.manifest[item.id] = item;
+		this.manifest[item.name] = item;
+	}
 
-    getItem(id){
-        return this.manifest[id];
-    }
+	getItem(id){
+		return this.manifest[id];
+	}
 }
 
 class Item{
-    static readBufferType = [
-        value => {return Boolean(value[0]);},
-        value => {return value.readInt32LE();},
-        value => {return value.readFloatLE();},
-        value => {return value.readDoubleLE();},
-        value => {return value.toString("utf8", 4);},
-        value => {return value.readBigInt64LE();},
-    ];
+	static readBufferType = [
+		value => {return Boolean(value[0]);},
+		value => {return value.readInt32LE();},
+		value => {return value.readFloatLE();},
+		value => {return value.readDoubleLE();},
+		value => {return value.toString("utf8", 4);},
+		value => {return value.readBigInt64LE();},
+	];
 
-    static writeBufferType = [
-        value => {return Buffer.from([value]);},
-        value => {let buffer = Buffer.allocUnsafe(4); buffer.writeInt32LE(value); return buffer;},
-        value => {let buffer = Buffer.allocUnsafe(4); buffer.writeFloatLE(value); return buffer;},
-        value => {let buffer = Buffer.allocUnsafe(8); buffer.writeDoubleLE(value); return buffer;},
-        value => {let buffer = Buffer.allocUnsafe(4 + value.length); buffer.writeInt32LE(value.length); buffer.write(value, 4); return buffer;},
-        value => {let buffer = Buffer.allocUnsafe(8); buffer.writeBigInt64LE(value); return buffer;},
-    ];
+	static writeBufferType = [
+		value => {return Buffer.from([value]);},
+		value => {let buffer = Buffer.allocUnsafe(4); buffer.writeInt32LE(value); return buffer;},
+		value => {let buffer = Buffer.allocUnsafe(4); buffer.writeFloatLE(value); return buffer;},
+		value => {let buffer = Buffer.allocUnsafe(8); buffer.writeDoubleLE(value); return buffer;},
+		value => {let buffer = Buffer.allocUnsafe(4 + value.length); buffer.writeInt32LE(value.length); buffer.write(value, 4); return buffer;},
+		value => {let buffer = Buffer.allocUnsafe(8); buffer.writeBigInt64LE(value); return buffer;},
+	];
 
-    constructor(id, type, name){
-        this.id = id;
-        this.type = type;
-        this.name = name;
-        this.value = undefined;
-    }
+	constructor(id, type, name){
+		this.id = id;
+		this.type = type;
+		this.name = name;
+		this.value = undefined;
+	}
 
-    get buffer(){
-        return Item.writeBufferType[this.type](this.value);
-    }
+	get buffer(){
+		return Item.writeBufferType[this.type](this.value);
+	}
 
-    set buffer(data){
-        this.value = Item.readBufferType[this.type](data);
-    }
+	set buffer(data){
+		this.value = Item.readBufferType[this.type](data);
+	}
 }
 class Controller{
-    static clients = {};
+	static clients = {};
 
-    static bridge(address){
-        let client = this.clients[address];
+	static bridge(address){
+		let client = this.clients[address];
 
-        if(client === undefined){
-            this.clients[address] = new Client(address);
-        }
+		if(client === undefined){
+			this.clients[address] = new Client(address);
+		}
 
-        client.connect();
-    }
+		client.connect();
+	}
 
-    static close(address){
-        this.clients[address].close();
-        delete this.clients[address];
-    }
+	static close(address){
+		this.clients[address].close();
+		delete this.clients[address];
+	}
 }
 
 console.log("Loading Complete, Server Ready");
