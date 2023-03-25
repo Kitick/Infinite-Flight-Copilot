@@ -178,9 +178,7 @@ class Client{
 		else{
 			const item = this.getItem(id);
 			item.buffer = data;
-
 			item.callback();
-			item.callback = () => {};
 		}
 	}
 
@@ -199,7 +197,7 @@ class Client{
 
 	readState(itemID, callback = () => {}){
 		const item = this.getItem(itemID);
-		item.callback = callback;
+		item.callbacks.push(callback);
 
 		let buffer = this.initalBuffer(item.id, 0);
 
@@ -290,7 +288,7 @@ class Item{
 		this.name = name;
 		this.alias = Item.aliases[this.name];
 		this.value = undefined;
-		this.callback = () => {};
+		this.callbacks = [];
 	}
 
 	get buffer(){
@@ -299,6 +297,14 @@ class Item{
 
 	set buffer(data){
 		this.value = Item.readBufferType[this.type](data);
+	}
+
+	callback(){
+		this.callbacks.forEach(callback => {
+			callback();
+		});
+
+		this.callbacks = [];
 	}
 }
 class Controller{
