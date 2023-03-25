@@ -56,7 +56,7 @@ class Client{
 		this.dataBuffer = [];
 		this.initManifest();
 
-		this.device.on("data", buffer => { console.log("Rx\t\t", buffer);
+		this.device.on("data", buffer => {console.log(this.address + " Rx\t\t", buffer);
 			for(let binary of buffer){
 				this.dataBuffer.push(binary);
 			}
@@ -107,6 +107,8 @@ class Client{
 	}
 
 	connect(){
+		this.log(this.address + " Attempting TCP Connection");
+
 		if(this.address === ""){
 			this.findAddress(() => {this.connect();});
 			return;
@@ -119,7 +121,7 @@ class Client{
 		}
 
 		this.device.connect({host:this.address, port:10112}, () => {
-			this.log(this.address + " TCP Established");
+			this.log(this.address + " TCP Established, Requesting Manifest");
 
 			this.active = true;
 			this.readState("manifest");
@@ -202,7 +204,7 @@ class Client{
 		let buffer = this.initalBuffer(item.id, 0);
 
 		this.device.write(buffer);
-		console.log("Tx " + item.id + "\t\t", buffer);
+		console.log(this.address + " Tx " + item.id + "\t", buffer);
 	}
 
 	writeState(itemID){
@@ -212,7 +214,7 @@ class Client{
 		buffer = Buffer.concat([buffer, item.buffer]);
 
 		this.device.write(buffer);
-		console.log("Tx " + item.id + "\t\t", buffer);
+		console.log(this.address + " Tx " + item.id + "\t", buffer);
 	}
 
 	addItem(item){

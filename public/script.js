@@ -45,7 +45,7 @@ function write(command, value){
 
 function reset(){
 	document.getElementById("autopilot").hidden = true;
-	
+
 	clearInterval(slowInterval);
 	clearInterval(fastInterval);
 
