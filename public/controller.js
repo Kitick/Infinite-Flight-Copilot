@@ -1,3 +1,15 @@
+class Cache{
+	constructor(name, value){
+		this.name = name;
+		this.value = value;
+		this.callback;
+	}
+
+	request(){
+
+	}
+}
+
 class autofunction{
 	static cache = {};
 	
@@ -21,6 +33,7 @@ class autofunction{
 		}
 
 		for(let state in this.states){
+			
 			read(state, value => {
 				this.states[state] = value;
 				this.counter++;
@@ -40,6 +53,8 @@ class autofunction{
 }
 
 function slowupdate(){
+	autofunction.cache = {};
+
 	autotrim.start();
 	autolights.start();
 	autogear.start();
@@ -51,13 +66,18 @@ function fastupdate(){
 
 const autotrim = new autofunction(["pitch", "trim", "onground"], states => {
 	if(!states.onground){
-		const deadzone = 10;
+		const deadzone = 5;
+		let mod = 10;
+
+		if(pitch <= 50){
+			mod = 1;
+		}
 
 		if(states.pitch >= deadzone){
-			write("trim", states.trim + 10);
+			write("trim", states.trim + mod);
 		}
 		else if(states.pitch <= -deadzone){
-			write("trim", states.trim - 10);
+			write("trim", states.trim - mod);
 		}
 	}
 });
