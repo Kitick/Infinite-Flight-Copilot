@@ -240,6 +240,13 @@ class Item{
 		"aircraft/0/systems/flaps/state":"flaps", // 0, 1, 2, ...
 		"aircraft/0/systems/parking_brake/state":"parkingbrake", // bool
 
+		"aircraft/0/indicated_airspeed":"airspeed",
+		"aircraft/0/groundspeed":"groundspeed",
+		"aircraft/0/altitude_msl":"altitude",
+		"aircraft/0/altitude_agl":"altitudeAGL",
+		"aircraft/0/heading_magnetic":"heading",
+		"aircraft/0/vertical_speed":"verticalspeed",
+
 		"aircraft/0/systems/axes/pitch":"pitch",
 		"aircraft/0/systems/axes/roll":"roll",
 		"aircraft/0/systems/axes/yaw":"yaw",
