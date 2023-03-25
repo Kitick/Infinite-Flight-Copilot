@@ -231,11 +231,25 @@ class Client{
 
 class Item{
 	static aliases = {
-		"aircraft/0/systems/axes/elevator_trim":"trim", // 1% = 10
-		"aircraft/0/systems/spoilers/state":"spoilers", // 0, 1, 2
-		"aircraft/0/systems/auto_brakes/command_state":"autobrakes", // 0, 1, 2, 3
-		"aircraft/0/systems/parking_brake/state":"parkingbrake", // bool
+		"aircraft/0/name":"aircraft",
+
 		"simulator/throttle":"throttle", // 1000 -1000
+		"aircraft/0/systems/landing_gear/lever_state":"gear", // bool
+		"aircraft/0/systems/spoilers/state":"spoilers", // 0, 1, 2
+		"aircraft/0/systems/axes/elevator_trim":"trim", // 1% = 10
+		"aircraft/0/systems/flaps/state":"flaps", // 0, 1, 2, ...
+		"aircraft/0/systems/parking_brake/state":"parkingbrake", // bool
+
+		"aircraft/0/configuration/flaps/stops":"flapcount",
+		"aircraft/0/is_on_ground":"onground",
+		"aircraft/0/is_on_runway":"onrunway",
+
+		"aircraft/0/systems/auto_brakes/command_state":"autobrakes", // 0, 1, 2, 3
+
+		"aircraft/0/systems/electrical_switch/nav_lights_switch/state":"navlights", // 0, 1
+		"aircraft/0/systems/electrical_switch/strobe_lights_switch/state":"strobelights", // 0, 1
+		"aircraft/0/systems/electrical_switch/landing_lights_switch/state":"landinglights", // 0, 1
+		"aircraft/0/systems/electrical_switch/beacon_lights_switch/state":"beaconlights", // 0, 1
 	};
 
 	static readBufferType = [
