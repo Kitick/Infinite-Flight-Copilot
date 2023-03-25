@@ -29,8 +29,10 @@ function closeBridge(){
     });
 }
 
-function read(command){
-    socket.emit("read", command);
+function read(command, callback = () => {}){
+    socket.emit("read", command, value => {
+		callback(value);
+	});
 }
 
 function write(command, value){
@@ -40,10 +42,6 @@ function write(command, value){
 let statLog;
 let address = "";
 const socket = io.connect();
-
-socket.on("data", data => {
-	console.log(data);
-});
 
 socket.on("ready", ip => {
     address = ip;

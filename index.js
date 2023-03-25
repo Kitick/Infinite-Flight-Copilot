@@ -37,8 +37,8 @@ io.on("connection", socket => {
 		Controller.close(socket);
 	});
 
-	socket.on("read", (command) => {
-		Controller.read(socket, command);
+	socket.on("read", (command, callback) => {
+		Controller.read(socket, command, callback);
 	});
 
 	socket.on("write", (command, value) => {
@@ -181,12 +181,6 @@ class Client{
 		this.socket.emit("ready", this.address);
 	}
 
-	sendItem(itemID){
-		const value = this.getItem(itemID).value;
-
-		this.socket.emit("data", value);
-	}
-
 	initalBuffer(id, state){
 		let buffer = Buffer.allocUnsafe(5);
 
@@ -292,14 +286,26 @@ class Controller{
 		return true;
 	}
 
-	static read(socket, command){
+	static read(socket, command, callback){
 		const client = this.clients[socket.id];
 
-		client.readState(command, () => {client.sendItem(command);});
+		if(client.getItem(command) === undefined){
+			callback(undefined);
+			return;
+		}
+
+		client.readState(command, () => {
+			const value = client.getItem(command).value;
+			callback(value);
+		});
 	}
 
 	static write(socket, command, value){
 		const client = this.clients[socket.id];
+
+		if(client.getItem(command) === undefined){
+			return;
+		}
 
 		client.getItem(command).value = value;
 		client.writeState(command);
