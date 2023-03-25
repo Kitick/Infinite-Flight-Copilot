@@ -37,6 +37,15 @@ class autofunction{
 	}
 }
 
+function slowupdate(){
+	autotrim.start();
+	autolights.start();
+}
+
+function fastupdate(){
+
+}
+
 const autotrim = new autofunction(["pitch", "trim", "onground"], states => {
 	if(!states.onground){
 		const deadzone = 10;
@@ -50,10 +59,25 @@ const autotrim = new autofunction(["pitch", "trim", "onground"], states => {
 	}
 });
 
-function slowupdate(){
-	autotrim.start();
-}
+const autolights = new autofunction(["altitudeAGL", "onground", "onrunway"], states => {
+	write("master", true);
+	write("beaconlights", true);
+	
+	if(states.onground){
+		const runway = states.onrunway;
+		write("navlights", runway);
+		write("strobelights", runway);
+		write("landinglights", runway);
+	}
+	else{
+		write("navlights", true);
+		write("strobelights", true);
 
-function fastupdate(){
-
-}
+		if(states.altitudeAGL < 3000){
+			write("landinglights", true);
+		}
+		else{
+			write("landinglights", false);
+		}
+	}
+});

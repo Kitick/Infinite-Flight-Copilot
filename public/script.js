@@ -50,6 +50,7 @@ function reset(){
 	clearInterval(fastInterval);
 
 	autotrim.changeActive("trim", false);
+	autolights.changeActive("lights", false);
 }
 
 let statLog;
