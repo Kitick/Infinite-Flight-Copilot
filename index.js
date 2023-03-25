@@ -54,9 +54,7 @@ class Client{
 		this.active = false;
 
 		this.dataBuffer = [];
-		this.manifest = {};
-
-		this.addItem(new Item(-1, 4, "manifest"));
+		this.initManifest();
 
 		this.device.on("data", buffer => { console.log("Rx\t\t", buffer);
 			for(let binary of buffer){
@@ -73,6 +71,11 @@ class Client{
 		});
 
 		this.log(this.address + " TCP Socket Created");
+	}
+
+	initManifest(){
+		this.manifest = {};
+		this.addItem(new Item(-1, 4, "manifest"));
 	}
 
 	log(message){
@@ -155,6 +158,8 @@ class Client{
 
 	processData(id, data){
 		if(id === -1){
+			this.initManifest();
+
 			data = data.toString().split("\n");
 
 			data.forEach(itemRaw => {
@@ -226,7 +231,11 @@ class Client{
 
 class Item{
 	static alias = {
-		"aircraft/0/systems/axes/elevator_trim":"trim",
+		"aircraft/0/systems/axes/elevator_trim":"trim", // 1% = 10
+		"aircraft/0/systems/spoilers/state":"spoilers", // 0, 1, 2
+		"aircraft/0/systems/auto_brakes/command_state":"autobrakes", // 0, 1, 2, 3
+		"aircraft/0/systems/parking_brake/state":"parkingbrake", // bool
+		"simulator/throttle":"throttle", // 1000 -1000
 	};
 
 	static readBufferType = [
