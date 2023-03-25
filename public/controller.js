@@ -1,4 +1,6 @@
 class autofunction{
+	static cache = {};
+	
 	constructor(states, torun = () => {}){
 		this.states = {};
 		this.length = states.length;
@@ -86,10 +88,10 @@ const autogear = new autofunction(["gear", "altitudeAGL", "verticalspeed"], stat
 	let newState = states.gear;
 	let vs = states.verticalspeed * 196.85;
 
-	if(states.altitudeAGL < 500 || (vs <= -500 && states.altitudeAGL < 1500)){
+	if(states.altitudeAGL < 500 || (vs <= -1000 && states.altitudeAGL < 1500)){
 		newState = true;
 	}
-	else if(vs >= 500 || states.altitudeAGL >= 2000){
+	else if(vs >= 1000 || states.altitudeAGL >= 2000){
 		newState = false;
 	}
 
