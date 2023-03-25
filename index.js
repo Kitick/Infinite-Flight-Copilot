@@ -240,6 +240,10 @@ class Item{
 		"aircraft/0/systems/flaps/state":"flaps", // 0, 1, 2, ...
 		"aircraft/0/systems/parking_brake/state":"parkingbrake", // bool
 
+		"aircraft/0/systems/axes/pitch":"pitch",
+		"aircraft/0/systems/axes/roll":"roll",
+		"aircraft/0/systems/axes/yaw":"yaw",
+
 		"aircraft/0/configuration/flaps/stops":"flapcount",
 		"aircraft/0/is_on_ground":"onground",
 		"aircraft/0/is_on_runway":"onrunway",
