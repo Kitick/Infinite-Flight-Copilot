@@ -230,7 +230,7 @@ class Client{
 }
 
 class Item{
-	static alias = {
+	static aliases = {
 		"aircraft/0/systems/axes/elevator_trim":"trim", // 1% = 10
 		"aircraft/0/systems/spoilers/state":"spoilers", // 0, 1, 2
 		"aircraft/0/systems/auto_brakes/command_state":"autobrakes", // 0, 1, 2, 3
@@ -260,7 +260,7 @@ class Item{
 		this.id = parseInt(id);
 		this.type = parseInt(type);
 		this.name = name;
-		this.alias = Item.alias[this.name];
+		this.alias = Item.aliases[this.name];
 		this.value = undefined;
 		this.callback = () => {};
 	}
