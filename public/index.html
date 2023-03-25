@@ -14,7 +14,7 @@
 	</head>
     <body onload="loaded();">
         <h3>Status: <span id="status">offline</span></h3>
-        <label for="address">IP Address: 192.168.1.</label><input id="address" onkeypress="if(event.key === 'Enter'){bridge();}" type="number" value="">
+        <label for="address">IP Address: 192.168.1.</label><input id="address" onkeypress="if(event.key === 'Enter'){bridge();}" type="number" autocomplete="off" value="">
         <button onclick="bridge();">Connect</button>
         <button onclick="closeBridge();">Close</button>
         <br><br>

@@ -12,7 +12,7 @@ function bridge(){
     document.getElementById("autopilot").hidden = true;
     let address = document.getElementById("address").value;
 
-	if(address !== ""){
+	if(address !== "" && address.search(/\./) === -1){
 		address = "192.168.1." + address;
 	}
 
