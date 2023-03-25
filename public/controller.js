@@ -40,6 +40,7 @@ class autofunction{
 function slowupdate(){
 	autotrim.start();
 	autolights.start();
+	autogear.start();
 }
 
 function fastupdate(){
@@ -62,22 +63,37 @@ const autotrim = new autofunction(["pitch", "trim", "onground"], states => {
 const autolights = new autofunction(["altitudeAGL", "onground", "onrunway"], states => {
 	write("master", true);
 	write("beaconlights", true);
+	write("navlights", true);
 	
 	if(states.onground){
 		const runway = states.onrunway;
-		write("navlights", runway);
 		write("strobelights", runway);
 		write("landinglights", runway);
 	}
 	else{
-		write("navlights", true);
 		write("strobelights", true);
 
-		if(states.altitudeAGL < 3000){
+		if(states.altitudeAGL < 1500){
 			write("landinglights", true);
 		}
 		else{
 			write("landinglights", false);
 		}
+	}
+});
+
+const autogear = new autofunction(["gear", "altitudeAGL", "verticalspeed"], states => {
+	let newState = states.gear;
+	let vs = states.verticalspeed * 196.85;
+	
+	if(states.altitudeAGL < 1500 && vs <= -200){
+		newState = true;
+	}
+	else if(states.altitudeAGL >= 100 && vs >= 200){
+		newState = false;
+	}
+
+	if(states.gear !== newState){
+		read("commands/LandingGear");
 	}
 });
