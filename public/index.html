@@ -8,6 +8,7 @@
 
         <script src="socket.io/socket.io.js"></script>
         <script src="script.js"></script>
+		<script src="controller.js"></script>
 
 		<link href="style.css" rel="stylesheet">
 	</head>
@@ -23,7 +24,7 @@
             <h2>Master</h2>
             <button id="ap" class="off" disabled>AP</button>
             <button id="yd" class="off" disabled>YD</button>
-            <button id="trim" class="off">TRIM</button>
+            <button id="trim" onclick="autotrim.active = !autotrim.active;" class="off">TRIM</button>
             <br><br>
 <!--
             <div class="mode">

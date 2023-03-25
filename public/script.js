@@ -10,27 +10,39 @@ function loaded(){
 
 function bridge(){
     document.getElementById("autopilot").hidden = true;
-    let trialAddress = document.getElementById("address").value;
+    let address = document.getElementById("address").value;
 
-    socket.emit("bridge", trialAddress, response => {
+    socket.emit("bridge", address, response => {
         statLog.innerText = response;
         console.log(response);
     });
 }
 
 function closeBridge(){
-    document.getElementById("autopilot").hidden = true;
+	reset();
 
     socket.emit("break", response => {
-        address = "";
-
         statLog.innerText = response;
         console.log(response);
     });
 }
 
+function reset(){
+	document.getElementById("autopilot").hidden = true;
+	clearInterval(updateInterval);
+
+	autotrim.active = false;
+	update();
+}
+
 function read(command, callback = () => {}){
     socket.emit("read", command, value => {
+		callback(value);
+	});
+}
+
+function readAsync(command, callback = () => {}){
+    socket.emit("readAsync", command, value => {
 		callback(value);
 	});
 }
@@ -40,12 +52,12 @@ function write(command, value){
 }
 
 let statLog;
-let address = "";
+let updateInterval;
 const socket = io.connect();
 
 socket.on("ready", ip => {
-    address = ip;
     document.getElementById("autopilot").hidden = false;
+	updateInterval = setInterval(() => {update();}, 100);
 });
 
 socket.on("log", response => {

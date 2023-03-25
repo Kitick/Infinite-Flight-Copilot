@@ -16,6 +16,9 @@ input[type="radio"], input[type="checkbox"]{
     width:33%;
 }
 
-.off{color:#000000;}
-.armed{color:#FF8000;}
-.active{color:#00FF00;}
+.off, .armed, .active{
+	height:2em;
+}
+.off{background:#FFFFFF;}
+.armed{background:#FF8000;}
+.active{background:#00C000;}
