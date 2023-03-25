@@ -1,18 +1,4 @@
-class Cache{
-	constructor(name, value){
-		this.name = name;
-		this.value = value;
-		this.callback;
-	}
-
-	request(){
-
-	}
-}
-
 class autofunction{
-	static cache = {};
-	
 	constructor(states, torun = () => {}){
 		this.states = {};
 		this.length = states.length;
@@ -33,7 +19,6 @@ class autofunction{
 		}
 
 		for(let state in this.states){
-			
 			read(state, value => {
 				this.states[state] = value;
 				this.counter++;
@@ -53,8 +38,6 @@ class autofunction{
 }
 
 function slowupdate(){
-	autofunction.cache = {};
-
 	autotrim.start();
 	autolights.start();
 	autogear.start();
