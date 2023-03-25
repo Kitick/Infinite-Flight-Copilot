@@ -27,14 +27,6 @@ function closeBridge(){
     });
 }
 
-function reset(){
-	document.getElementById("autopilot").hidden = true;
-	clearInterval(updateInterval);
-
-	autotrim.active = false;
-	update();
-}
-
 function read(command, callback = () => {}){
     socket.emit("read", command, value => {
 		callback(value);
@@ -51,13 +43,24 @@ function write(command, value){
     socket.emit("write", command, value);
 }
 
+function reset(){
+	document.getElementById("autopilot").hidden = true;
+	
+	clearInterval(slowInterval);
+	clearInterval(fastInterval);
+
+	autotrim.changeActive("trim", false);
+}
+
 let statLog;
-let updateInterval;
+let slowInterval;
+let fastInterval;
 const socket = io.connect();
 
 socket.on("ready", ip => {
     document.getElementById("autopilot").hidden = false;
-	updateInterval = setInterval(() => {update();}, 100);
+	slowInterval = setInterval(() => {slowupdate();}, 1000);
+	fastInterval = setInterval(() => {fastupdate();}, 100);
 });
 
 socket.on("log", response => {

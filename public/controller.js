@@ -15,11 +15,8 @@ class autofunction{
 
 	start(){
 		if(!this.active){
-			document.getElementById("trim").className = "off";
 			return;
 		}
-
-		document.getElementById("trim").className = "active";
 
 		for(let state in this.states){
 			read(state, value => {
@@ -33,6 +30,11 @@ class autofunction{
 			});
 		}
 	}
+
+	changeActive(button, state = !this.active){
+		this.active = state;
+		document.getElementById(button).className = (this.active ? "active":"off");
+	}
 }
 
 const autotrim = new autofunction(["pitch", "trim", "onground"], states => {
@@ -40,14 +42,18 @@ const autotrim = new autofunction(["pitch", "trim", "onground"], states => {
 		const deadzone = 10;
 
 		if(states.pitch >= deadzone){
-			write("trim", states.trim + 1);
+			write("trim", states.trim + 10);
 		}
 		else if(states.pitch <= -deadzone){
-			write("trim", states.trim - 1);
+			write("trim", states.trim - 10);
 		}
 	}
 });
 
-function update(){
+function slowupdate(){
 	autotrim.start();
+}
+
+function fastupdate(){
+
 }
