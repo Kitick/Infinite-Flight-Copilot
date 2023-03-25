@@ -51,6 +51,7 @@ function reset(){
 
 	autotrim.changeActive("trim", false);
 	autolights.changeActive("lights", false);
+	autolights.changeActive("gear", false);
 }
 
 let statLog;

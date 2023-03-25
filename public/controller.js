@@ -85,11 +85,11 @@ const autolights = new autofunction(["altitudeAGL", "onground", "onrunway"], sta
 const autogear = new autofunction(["gear", "altitudeAGL", "verticalspeed"], states => {
 	let newState = states.gear;
 	let vs = states.verticalspeed * 196.85;
-	
-	if(states.altitudeAGL < 1500 && vs <= -200){
+
+	if(states.altitudeAGL < 500 || (vs <= -500 && states.altitudeAGL < 1500)){
 		newState = true;
 	}
-	else if(states.altitudeAGL >= 100 && vs >= 200){
+	else if(vs >= 500 || states.altitudeAGL >= 2000){
 		newState = false;
 	}
 
