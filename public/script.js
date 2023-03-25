@@ -12,6 +12,10 @@ function bridge(){
     document.getElementById("autopilot").hidden = true;
     let address = document.getElementById("address").value;
 
+	if(address !== ""){
+		address = "192.168.1." + address;
+	}
+
     socket.emit("bridge", address, response => {
         statLog.innerText = response;
         console.log(response);
