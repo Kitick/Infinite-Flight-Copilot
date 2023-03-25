@@ -21,33 +21,32 @@ function bridge(){
 function closeBridge(){
     document.getElementById("autopilot").hidden = true;
 
-    socket.emit("break", address, response => {
-		document.getElementById("address").value = address;
+    socket.emit("break", response => {
         address = "";
+
         statLog.innerText = response;
         console.log(response);
     });
 }
 
-function send(command, value){
-    socket.emit("set", address, command, value);
+function read(command){
+    socket.emit("read", command);
 }
 
-function request(command){
-    socket.emit("get", address, command);
+function write(command, value){
+    socket.emit("write", command, value);
 }
 
 let statLog;
 let address = "";
 const socket = io.connect();
 
+socket.on("data", data => {
+	console.log(data);
+});
+
 socket.on("ready", ip => {
     address = ip;
-
-    const text = "TCP Connection Established for " + address;
-    statLog.innerText = text;
-    console.log(text);
-
     document.getElementById("autopilot").hidden = false;
 });
 
