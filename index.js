@@ -193,10 +193,13 @@ class Client{
 
 	readState(itemID, callback = () => {}){
 		const item = this.getItem(itemID);
-		item.callbacks.push(callback);
 
-		if(item.callbacks.length > 1){
-			return;
+		if(item.type !== -1){
+			item.callbacks.push(callback);
+
+			if(item.callbacks.length > 1){
+				return;
+			}
 		}
 
 		let buffer = this.initalBuffer(item.id, 0);
