@@ -116,7 +116,7 @@ class Client{
 
 		if(this.active){
 			this.log(this.address + " TCP Already Active");
-			this.ready();
+			this.socket.emit("ready");
 			return;
 		}
 
@@ -173,17 +173,13 @@ class Client{
 			});
 
 			this.log(this.address + " Manifest Built, API Ready");
-			this.ready();
+			this.socket.emit("ready");
 		}
 		else{
 			const item = this.getItem(id);
 			item.buffer = data;
 			item.callback();
 		}
-	}
-
-	ready(){
-		this.socket.emit("ready", this.address);
 	}
 
 	initalBuffer(id, state){
