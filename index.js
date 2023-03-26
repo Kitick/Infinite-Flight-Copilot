@@ -205,7 +205,7 @@ class Client{
 			}
 		}
 
-		let buffer = this.initalBuffer(item.id, 0);
+		const buffer = this.initalBuffer(item.id, 0);
 
 		this.device.write(buffer);
 		console.log(this.address + " Tx " + item.id + "\t", buffer);
