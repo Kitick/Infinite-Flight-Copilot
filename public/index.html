@@ -27,13 +27,13 @@
 			<button id="gear" onclick="autogear.changeActive();" class="off">AUTO GEAR</button>
             <br><br>
 
-			<input id="flaplow" type="number" placeholder="Full Flaps">
-			<input id="flaphigh" type="number" placeholder="Clean">
-			<input id="flapto" type="number" placeholder="Flap TO">
+			<input id="flaplow" type="number" value="130">
+			<input id="flaphigh" type="number" value="200">
+			<input id="flapto" type="number" value="1">
 			<button id="flaps" onclick="autoflaps.changeActive();" class="off">AUTO FLAPS</button>
 			<br><br>
 
-			<p>AUTOFLAPS:<br>Full flaps is the airspeed at witch full flaps will be used.<br>(If you want less flaps, set this value lower than stall)<br><br>Clean is the airspeed for no flaps.<br><br>Flap TO is the flap number for takeoff. NOT the degree.<br>(in the CRJ-200 flaps 20 would be flaps 2 since its the second config)</p>
+			<p>AUTOFLAPS:<br>1. Speed for max flaps<br>2. Speed for clean config<br>3. Flap number for takeoff<br><br>(If you want a lower max flap, set the speed lower)<br>(in the CRJ-200, flaps 20 would be flap number 2 since its the second config)</p>
 <!--
             <div class="mode">
                 <h2>SPD</h2>
