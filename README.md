@@ -1,15 +1,22 @@
 Ensure you have Node installed on your system inorder for this to run. Either version is fine.
-https://nodejs.org/en
 
-Also Ensure you have the Infinite Flight Connect setting checked on
+Link: https://nodejs.org/en | You do not need to install anything else but Node itself
 
-Download the code and EXTRACT the folder
+Ensure you have the Infinite Flight Connect setting checked on
 
-Double click start
+Download the code by clicking the green CODE button, and download zip.
 
-open your browser and go to
-localhost:8080
+Extract the folder to wherever you like. If you are updating, delete the old folder first.
 
-If you know the IP address of your device, enter it. If you do not, just click connect. The server will detect the packets broadcasted and connect that way.
+Double click start.
+- You should see a message saying it is ready
 
-Enjoy, feel free to report any issues here on github
+Double click localhost.
+- You should see it say connected
+
+If you know the IP address of your device, enter the last digit.
+If you do not, just click connect. The server will detect the packets broadcasted and connect that way.
+
+Once it says it is ready and the options appear, Enjoy
+
+Feel free to report any issues here on github or dm them to me on discord. Kitick#5380
