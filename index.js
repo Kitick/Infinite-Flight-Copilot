@@ -194,7 +194,10 @@ class Client{
 	readState(itemID, callback = () => {}){
 		const item = this.getItem(itemID);
 
-		if(item.type !== -1){
+		if(item.type === -1){
+			callback();
+		}
+		else{
 			item.callbacks.push(callback);
 
 			if(item.callbacks.length > 1){
