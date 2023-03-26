@@ -1,6 +1,11 @@
 function loaded(){
 	statLog = document.getElementById("status");
 
+	autotrim.button = document.getElementById(autotrim.button);
+	autolights.button = document.getElementById(autolights.button);
+	autogear.button = document.getElementById(autogear.button);
+	autoflaps.button = document.getElementById(autoflaps.button);
+
 	// Tests Socket
 	socket.emit("test", response => {
 		statLog.innerText = response;

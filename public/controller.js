@@ -34,7 +34,7 @@ class autofunction{
 
 	changeActive(state = !this.active){
 		this.active = state;
-		document.getElementById(this.button).className = (this.active ? "active":"off");
+		this.button.className = (this.active ? "active":"off");
 	}
 }
 
