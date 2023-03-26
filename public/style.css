@@ -11,6 +11,10 @@ input[type="radio"], input[type="checkbox"]{
 	vertical-align:text-top;
 }
 
+input[type="number"]{
+	width:5em;
+}
+
 .mode{
     float:left;
     width:33%;
@@ -20,5 +24,6 @@ input[type="radio"], input[type="checkbox"]{
 	height:2em;
 }
 .off{background:#FFFFFF;}
-.armed{background:#FF8000;}
 .active{background:#00C000;}
+.armed{background:#FF8000;}
+.error{background:#FF0000;}
