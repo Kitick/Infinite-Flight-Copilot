@@ -53,7 +53,7 @@ const autotrim = new autofunction(["pitch", "trim", "onground"], states => {
 		let mod = 10;
 
 		if(states.pitch <= 50){
-			mod = 1;
+			mod = 5;
 		}
 
 		if(states.pitch >= deadzone){
