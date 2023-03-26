@@ -20,7 +20,7 @@ input[type="number"]{
     width:33%;
 }
 
-.off, .armed, .active{
+.off, .armed, .active, .error{
 	height:2em;
 }
 .off{background:#FFFFFF;}
