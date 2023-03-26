@@ -1,10 +1,9 @@
 function loaded(){
 	statLog = document.getElementById("status");
 
-	autotrim.button = document.getElementById(autotrim.button);
-	autolights.button = document.getElementById(autolights.button);
-	autogear.button = document.getElementById(autogear.button);
-	autoflaps.button = document.getElementById(autoflaps.button);
+	autofunctions.forEach(autof => {
+		autof.button = document.getElementById(autof.button);
+	});
 
 	// Tests Socket
 	socket.emit("test", response => {
@@ -58,10 +57,9 @@ function reset(){
 	clearInterval(slowInterval);
 	clearInterval(fastInterval);
 
-	autotrim.changeActive(false);
-	autolights.changeActive(false);
-	autogear.changeActive(false);
-	autoflaps.changeActive(false);
+	autofunctions.forEach(autof => {
+		autof.changeActive(false);
+	});
 }
 
 let statLog;

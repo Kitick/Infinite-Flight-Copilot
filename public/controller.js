@@ -6,7 +6,6 @@ class autofunction{
 		this.counter = 0;
 
 		this.active = false;
-
 		this.run = torun;
 
 		states.forEach(state => {
@@ -146,3 +145,5 @@ const autoflaps = new autofunction("flaps", ["flaps", "airspeed", "altitudeAGL",
 		}
 	}
 });
+
+const autofunctions = [autotrim, autolights, autogear, autoflaps];
