@@ -99,7 +99,7 @@ const autogear = new autofunction("gear", ["gear", "altitudeAGL", "verticalspeed
 		newState = false;
 	}
 
-	if(states.gear !== newState){
+	if(newState !== states.gear){
 		read("commands/LandingGear");
 	}
 });
