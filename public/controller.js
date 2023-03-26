@@ -1,6 +1,7 @@
 class autofunction{
-	constructor(states, torun = () => {}){
+	constructor(button, states, torun = () => {}){
 		this.states = {};
+		this.button = button;
 		this.length = states.length;
 		this.counter = 0;
 
@@ -31,9 +32,9 @@ class autofunction{
 		}
 	}
 
-	changeActive(button, state = !this.active){
+	changeActive(state = !this.active){
 		this.active = state;
-		document.getElementById(button).className = (this.active ? "active":"off");
+		document.getElementById(this.button).className = (this.active ? "active":"off");
 	}
 }
 
@@ -41,13 +42,14 @@ function slowupdate(){
 	autotrim.start();
 	autolights.start();
 	autogear.start();
+	autoflaps.start();
 }
 
 function fastupdate(){
 
 }
 
-const autotrim = new autofunction(["pitch", "trim", "onground"], states => {
+const autotrim = new autofunction("trim", ["pitch", "trim", "onground"], states => {
 	if(!states.onground){
 		const deadzone = 5;
 		let mod = 10;
@@ -65,7 +67,7 @@ const autotrim = new autofunction(["pitch", "trim", "onground"], states => {
 	}
 });
 
-const autolights = new autofunction(["altitudeAGL", "onground", "onrunway"], states => {
+const autolights = new autofunction("lights", ["altitudeAGL", "onground", "onrunway"], states => {
 	write("master", true);
 	write("beaconlights", true);
 	write("navlights", true);
@@ -87,9 +89,9 @@ const autolights = new autofunction(["altitudeAGL", "onground", "onrunway"], sta
 	}
 });
 
-const autogear = new autofunction(["gear", "altitudeAGL", "verticalspeed"], states => {
+const autogear = new autofunction("gear", ["gear", "altitudeAGL", "verticalspeed"], states => {
 	let newState = states.gear;
-	let vs = states.verticalspeed * 196.85;
+	const vs = states.verticalspeed * 196.85;
 
 	if(states.altitudeAGL < 500 || (vs <= -1000 && states.altitudeAGL < 1500)){
 		newState = true;
@@ -100,5 +102,47 @@ const autogear = new autofunction(["gear", "altitudeAGL", "verticalspeed"], stat
 
 	if(states.gear !== newState){
 		read("commands/LandingGear");
+	}
+});
+
+const autoflaps = new autofunction("flaps", ["flaps", "airspeed", "altitudeAGL", "flapcount", "onground", "onrunway"], states => {
+	const low = parseInt(document.getElementById("flaplow").value);
+	const high = parseInt(document.getElementById("flaphigh").value);
+	const to = parseInt(document.getElementById("flapto").value);
+
+	if(isNaN(low) || isNaN(high) || isNaN(to)){
+		autoflaps.active = false;
+		document.getElementById("flaps").className = "error";
+
+		setTimeout(() => {
+			autoflaps.changeActive(false);
+		}, 3000);
+	}
+
+	if(states.onground){
+		if(states.onrunway){
+			write("flaps", to);
+		}
+		else{
+			write("flaps", 0);
+		}
+	}
+	else if(states.altitudeAGL >= 500){
+		const airspeed = states.airspeed * 1.94384;
+		const count = states.flapcount - 1;
+
+		const mod = (high - low) / count;
+		let newFlaps = Math.round((high - airspeed) / mod);
+
+		if(newFlaps < 0){
+			newFlaps = 0;
+		}
+		else if(newFlaps > count){
+			newFlaps = count;
+		}
+
+		if(newFlaps !== states.flaps){
+			write("flaps", newFlaps);
+		}
 	}
 });

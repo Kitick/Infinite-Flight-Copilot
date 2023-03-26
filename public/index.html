@@ -22,10 +22,18 @@
             <h1>Autopilot</h1>
 
             <h2>Auto Functions</h2>
-            <button id="trim" onclick="autotrim.changeActive(this.id);" class="off">AUTO TRIM</button>
-			<button id="lights" onclick="autolights.changeActive(this.id);" class="off">AUTO LIGHTS</button>
-			<button id="gear" onclick="autogear.changeActive(this.id);" class="off">AUTO GEAR</button>
+            <button id="trim" onclick="autotrim.changeActive();" class="off">AUTO TRIM</button>
+			<button id="lights" onclick="autolights.changeActive();" class="off">AUTO LIGHTS</button>
+			<button id="gear" onclick="autogear.changeActive();" class="off">AUTO GEAR</button>
             <br><br>
+
+			<input id="flaplow" type="number" placeholder="Full Flaps">
+			<input id="flaphigh" type="number" placeholder="Clean">
+			<input id="flapto" type="number" placeholder="Flap TO">
+			<button id="flaps" onclick="autoflaps.changeActive();" class="off">AUTO FLAPS</button>
+			<br><br>
+
+			<p>AUTOFLAPS:<br>Full flaps is the airspeed at witch full flaps will be used.<br>(If you want less flaps, set this value lower than stall)<br><br>Clean is the airspeed for no flaps.<br><br>Flap TO is the flap number for takeoff. NOT the degree.<br>(in the CRJ-200 flaps 20 would be flaps 2 since its the second config)</p>
 <!--
             <div class="mode">
                 <h2>SPD</h2>

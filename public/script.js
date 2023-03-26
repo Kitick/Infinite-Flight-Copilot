@@ -53,9 +53,10 @@ function reset(){
 	clearInterval(slowInterval);
 	clearInterval(fastInterval);
 
-	autotrim.changeActive("trim", false);
-	autolights.changeActive("lights", false);
-	autolights.changeActive("gear", false);
+	autotrim.changeActive(false);
+	autolights.changeActive(false);
+	autogear.changeActive(false);
+	autoflaps.changeActive(false);
 }
 
 let statLog;
@@ -63,7 +64,7 @@ let slowInterval;
 let fastInterval;
 const socket = io.connect();
 
-socket.on("ready", ip => {
+socket.on("ready", () => {
     document.getElementById("autopilot").hidden = false;
 	slowInterval = setInterval(() => {slowupdate();}, 1000);
 	fastInterval = setInterval(() => {fastupdate();}, 100);
