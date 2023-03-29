@@ -170,6 +170,7 @@ const takeoffconfig = new autofunction("takeoff", -1, [], states => {
 
 	write("spoilers", 2);
 	write("autobrakes", 3);
+	write("parkingbrake", false);
 });
 
 const autofunctions = [autotrim, autolights, autogear, autoflaps, takeoffconfig];
