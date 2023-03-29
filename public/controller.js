@@ -7,6 +7,7 @@ class autofunction{
 		this.counter = 0;
 
 		this.active = false;
+		this.override = false;
 		this.run = torun;
 
 		states.forEach(state => {
@@ -15,7 +16,9 @@ class autofunction{
 	}
 
 	start(override = false){
-		if(!this.active && !override){
+		this.override = override;
+
+		if(!this.active && !this.override){
 			return;
 		}
 
@@ -42,8 +45,12 @@ class autofunction{
 	recurse(){
 		this.run(this.states);
 
-		if(this.timeout === -1){
-			this.changeActive(false);
+		if(this.override || this.timeout === -1){
+			this.override = false;
+			
+			if(this.timeout === -1){
+				this.changeActive(false);
+			}
 		}
 		else{
 			setTimeout(() => {this.start();}, this.timeout);
