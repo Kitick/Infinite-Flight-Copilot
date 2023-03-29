@@ -54,17 +54,12 @@ function write(command, value){
 function reset(){
 	document.getElementById("autopilot").hidden = true;
 
-	clearInterval(slowInterval);
-	clearInterval(fastInterval);
-
 	autofunctions.forEach(autof => {
 		autof.changeActive(false);
 	});
 }
 
 let statLog;
-let slowInterval;
-let fastInterval;
 const socket = io.connect();
 
 socket.on("ready", () => {
