@@ -20,11 +20,11 @@ class autofunction{
 		}
 
 		for(let state in this.states){
-			read(state, value => {this.callback(value);});
+			read(state, (state, value) => {this.callback(state, value);});
 		}
 	}
 
-	callback(value){
+	callback(state, value){
 		this.states[state] = value;
 		this.counter++;
 
