@@ -86,7 +86,7 @@ const autogear = new autofunction("gear", 1000, ["gear", "altitudeAGL", "vertica
 	let newState = states.gear;
 	const vs = states.verticalspeed * 196.85;
 
-	if(states.altitudeAGL < 500 || (vs <= -1000 && states.altitudeAGL < 1500)){
+	if(states.altitudeAGL < 250 || (vs <= -1000 && states.altitudeAGL < 1500)){
 		newState = true;
 	}
 	else if(vs >= 1000 || states.altitudeAGL >= 2000){
@@ -122,7 +122,7 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 			newFlaps = 0;
 		}
 	}
-	else if(states.altitudeAGL >= 500){
+	else if(states.altitudeAGL >= 250){
 		const airspeed = states.airspeed * 1.94384;
 		const count = states.flapcount - 1;
 
