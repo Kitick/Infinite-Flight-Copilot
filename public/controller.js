@@ -14,13 +14,18 @@ class autofunction{
 		});
 	}
 
-	start(){
-		if(!this.active){
+	start(override = false){
+		if(!this.active && !override){
 			return;
 		}
 
-		for(let state in this.states){
-			read(state, value => {this.callback(state, value);});
+		if(this.length === 0){
+			this.recurse();
+		}
+		else{
+			for(let state in this.states){
+				read(state, value => {this.callback(state, value);});
+			}
 		}
 	}
 
@@ -30,7 +35,17 @@ class autofunction{
 
 		if(this.counter === this.length){
 			this.counter = 0;
-			this.run(this.states);
+			this.recurse();
+		}
+	}
+
+	recurse(){
+		this.run(this.states);
+
+		if(this.timeout === -1){
+			this.changeActive(false);
+		}
+		else{
 			setTimeout(() => {this.start();}, this.timeout);
 		}
 	}
@@ -142,4 +157,12 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 	}
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps];
+const takeoffconfig = new autofunction("takeoff", -1, [], states => {
+	autoflaps.start(true);
+	autolights.start(true);
+
+	write("spoilers", 2);
+	write("autobrakes", 3);
+});
+
+const autofunctions = [autotrim, autolights, autogear, autoflaps, takeoffconfig];
