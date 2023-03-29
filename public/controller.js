@@ -1,8 +1,9 @@
 class autofunction{
-	constructor(button, states, torun = () => {}){
+	constructor(button, timeout, states, torun = () => {}){
 		this.states = {};
 		this.button = button;
 		this.length = states.length;
+		this.timeout = timeout;
 		this.counter = 0;
 
 		this.active = false;
@@ -19,15 +20,18 @@ class autofunction{
 		}
 
 		for(let state in this.states){
-			read(state, value => {
-				this.states[state] = value;
-				this.counter++;
+			read(state, value => {this.callback(value);});
+		}
+	}
 
-				if(this.counter === this.length){
-					this.counter = 0;
-					this.run(this.states);
-				}
-			});
+	callback(value){
+		this.states[state] = value;
+		this.counter++;
+
+		if(this.counter === this.length){
+			this.counter = 0;
+			this.run(this.states);
+			setTimeout(() => {this.start();}, this.timeout);
 		}
 	}
 
@@ -38,18 +42,7 @@ class autofunction{
 	}
 }
 
-function slowupdate(){
-	autotrim.start();
-	autolights.start();
-	autogear.start();
-	autoflaps.start();
-}
-
-function fastupdate(){
-
-}
-
-const autotrim = new autofunction("trim", ["pitch", "trim", "onground"], states => {
+const autotrim = new autofunction("trim", 1000, ["pitch", "trim", "onground"], states => {
 	if(!states.onground){
 		const deadzone = 5;
 		let mod = 10;
@@ -67,11 +60,11 @@ const autotrim = new autofunction("trim", ["pitch", "trim", "onground"], states 
 	}
 });
 
-const autolights = new autofunction("lights", ["altitudeAGL", "onground", "onrunway"], states => {
+const autolights = new autofunction("lights", 1000, ["altitudeAGL", "onground", "onrunway"], states => {
 	write("master", true);
 	write("beaconlights", true);
 	write("navlights", true);
-	
+
 	if(states.onground){
 		const runway = states.onrunway;
 		write("strobelights", runway);
@@ -89,7 +82,7 @@ const autolights = new autofunction("lights", ["altitudeAGL", "onground", "onrun
 	}
 });
 
-const autogear = new autofunction("gear", ["gear", "altitudeAGL", "verticalspeed"], states => {
+const autogear = new autofunction("gear", 1000, ["gear", "altitudeAGL", "verticalspeed"], states => {
 	let newState = states.gear;
 	const vs = states.verticalspeed * 196.85;
 
@@ -105,7 +98,7 @@ const autogear = new autofunction("gear", ["gear", "altitudeAGL", "verticalspeed
 	}
 });
 
-const autoflaps = new autofunction("flaps", ["flaps", "airspeed", "altitudeAGL", "flapcount", "onground", "onrunway"], states => {
+const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitudeAGL", "flapcount", "onground", "onrunway"], states => {
 	const low = parseInt(document.getElementById("flaplow").value);
 	const high = parseInt(document.getElementById("flaphigh").value);
 	const to = parseInt(document.getElementById("flapto").value);

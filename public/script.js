@@ -69,8 +69,6 @@ const socket = io.connect();
 
 socket.on("ready", () => {
     document.getElementById("autopilot").hidden = false;
-	slowInterval = setInterval(() => {slowupdate();}, 1000);
-	fastInterval = setInterval(() => {fastupdate();}, 100);
 });
 
 socket.on("log", response => {
