@@ -34,6 +34,7 @@ class autofunction{
 	changeActive(state = !this.active){
 		this.active = state;
 		this.button.className = (this.active ? "active":"off");
+		this.start();
 	}
 }
 
@@ -111,7 +112,7 @@ const autoflaps = new autofunction("flaps", ["flaps", "airspeed", "altitudeAGL",
 
 	if(isNaN(low) || isNaN(high) || isNaN(to)){
 		autoflaps.active = false;
-		document.getElementById("flaps").className = "error";
+		autoflaps.button.className = "error";
 
 		setTimeout(() => {
 			autoflaps.changeActive(false);
