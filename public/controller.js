@@ -20,7 +20,7 @@ class autofunction{
 		}
 
 		for(let state in this.states){
-			read(state, (state, value) => {this.callback(state, value);});
+			read(state, value => {this.callback(state, value);});
 		}
 	}
 
