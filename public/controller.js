@@ -118,12 +118,14 @@ const autoflaps = new autofunction("flaps", ["flaps", "airspeed", "altitudeAGL",
 		}, 3000);
 	}
 
+	let newFlaps = states.flaps;
+
 	if(states.onground){
 		if(states.onrunway){
-			write("flaps", to);
+			newFlaps = to;
 		}
 		else{
-			write("flaps", 0);
+			newFlaps = 0;
 		}
 	}
 	else if(states.altitudeAGL >= 500){
@@ -131,7 +133,7 @@ const autoflaps = new autofunction("flaps", ["flaps", "airspeed", "altitudeAGL",
 		const count = states.flapcount - 1;
 
 		const mod = (high - low) / count;
-		let newFlaps = Math.round((high - airspeed) / mod);
+		newFlaps = Math.round((high - airspeed) / mod);
 
 		if(newFlaps < 0){
 			newFlaps = 0;
@@ -139,10 +141,10 @@ const autoflaps = new autofunction("flaps", ["flaps", "airspeed", "altitudeAGL",
 		else if(newFlaps > count){
 			newFlaps = count;
 		}
+	}
 
-		if(newFlaps !== states.flaps){
-			write("flaps", newFlaps);
-		}
+	if(newFlaps !== states.flaps){
+		write("flaps", newFlaps);
 	}
 });
 
