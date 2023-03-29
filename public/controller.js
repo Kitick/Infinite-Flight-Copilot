@@ -95,7 +95,7 @@ const autolights = new autofunction("lights", 1000, ["altitudeAGL", "onground", 
 	else{
 		write("strobelights", true);
 
-		if(states.altitudeAGL < 1500){
+		if(states.altitudeAGL <= 1500){
 			write("landinglights", true);
 		}
 		else{
