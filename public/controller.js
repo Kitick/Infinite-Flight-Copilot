@@ -130,7 +130,7 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 	const high = parseInt(document.getElementById("flaphigh").value);
 	const to = parseInt(document.getElementById("flapto").value);
 
-	if(isNaN(low) || isNaN(high) || isNaN(to)){
+	if(isNaN(low) || isNaN(high) || isNaN(to) || (to < 0 || to > states.flapcount - 1) || (high < low)){
 		autoflaps.error();
 		return;
 	}
