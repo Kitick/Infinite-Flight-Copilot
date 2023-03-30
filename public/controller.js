@@ -9,7 +9,6 @@ class autofunction{
 		this.counter = 0;
 
 		this.active = false;
-		this.override = false;
 		this.run = torun;
 
 		states.forEach(state => {
@@ -18,9 +17,7 @@ class autofunction{
 	}
 
 	start(override = false){
-		this.override = override;
-
-		if(!this.active && !this.override){
+		if(!this.active && !override){
 			return;
 		}
 
@@ -34,15 +31,6 @@ class autofunction{
 		}
 	}
 
-	error(){
-		this.active = false;
-		this.button.className = "error";
-
-		setTimeout(() => {
-			this.changeActive(false);
-		}, 2000);
-	}
-
 	callback(state, value){
 		this.states[state] = value;
 		this.counter++;
@@ -54,16 +42,13 @@ class autofunction{
 	}
 
 	recurse(){
+		if(this.timeout === -1){
+			this.changeActive(false);
+		}
+
 		this.run(this.states);
 
-		if(this.override || this.timeout === -1){
-			this.override = false;
-			
-			if(this.timeout === -1){
-				this.changeActive(false);
-			}
-		}
-		else{
+		if(this.active){
 			setTimeout(() => {this.start();}, this.timeout);
 		}
 	}
@@ -73,6 +58,15 @@ class autofunction{
 		this.stage = 0;
 		this.button.className = (this.active ? "active":"off");
 		this.start();
+	}
+
+	error(){
+		this.active = false;
+		this.button.className = "error";
+
+		setTimeout(() => {
+			this.changeActive(false);
+		}, 2000);
 	}
 }
 
