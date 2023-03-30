@@ -253,6 +253,17 @@ class Item{
 		"aircraft/0/heading_magnetic":"heading",
 		"aircraft/0/vertical_speed":"verticalspeed",
 
+		"aircraft/0/systems/autopilot/on":"autopilot",
+		"aircraft/0/systems/autopilot/alt/on":"alton",
+		"aircraft/0/systems/autopilot/vs/on":"vson",
+		"aircraft/0/systems/autopilot/spd/on":"spdon",
+		"aircraft/0/systems/autopilot/hdg/on":"hdgon",
+
+		"aircraft/0/systems/autopilot/alt/target":"alt",
+		"aircraft/0/systems/autopilot/vs/target":"vs",
+		"aircraft/0/systems/autopilot/spd/target":"spd",
+		"aircraft/0/systems/autopilot/hdg/target":"hdg",
+
 		"aircraft/0/systems/axes/pitch":"pitch",
 		"aircraft/0/systems/axes/roll":"roll",
 		"aircraft/0/systems/axes/yaw":"yaw",
@@ -268,6 +279,12 @@ class Item{
 		"aircraft/0/systems/electrical_switch/strobe_lights_switch/state":"strobelights", // 0, 1
 		"aircraft/0/systems/electrical_switch/landing_lights_switch/state":"landinglights", // 0, 1
 		"aircraft/0/systems/electrical_switch/beacon_lights_switch/state":"beaconlights", // 0, 1
+	};
+
+	static conversions = {
+		"airspeed":1.94384, // m/s to kts
+		"verticalspeed":196.85, // m/s to fpm
+		"hdg":180/Math.PI, // rad to deg
 	};
 
 	static readBufferType = [
@@ -294,15 +311,26 @@ class Item{
 		this.name = name;
 		this.alias = Item.aliases[this.name];
 		this.value = undefined;
+		this.conversion = Item.conversions[this.alias];
 		this.callbacks = [];
 	}
 
 	get buffer(){
-		return Item.writeBufferType[this.type](this.value);
+		let value = this.value;
+		
+		if(this.conversion !== undefined){
+			value /= this.conversion;
+		}
+
+		return Item.writeBufferType[this.type](value);
 	}
 
 	set buffer(data){
 		this.value = Item.readBufferType[this.type](data);
+
+		if(this.conversion !== undefined){
+			this.value *= this.conversion;
+		}
 	}
 
 	callback(){

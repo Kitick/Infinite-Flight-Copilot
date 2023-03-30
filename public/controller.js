@@ -106,12 +106,11 @@ const autolights = new autofunction("lights", 1000, ["altitudeAGL", "onground", 
 
 const autogear = new autofunction("gear", 1000, ["gear", "altitudeAGL", "verticalspeed"], states => {
 	let newState = states.gear;
-	const vs = states.verticalspeed * 196.85;
 
-	if(states.altitudeAGL < 250 || (vs <= -1000 && states.altitudeAGL < 1500)){
+	if(states.altitudeAGL < 250 || (states.verticalspeed <= -1000 && states.altitudeAGL < 1500)){
 		newState = true;
 	}
-	else if(vs >= 1000 || states.altitudeAGL >= 2000){
+	else if(states.verticalspeed >= 1000 || states.altitudeAGL >= 2000){
 		newState = false;
 	}
 
@@ -145,11 +144,10 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 		}
 	}
 	else if(states.altitudeAGL >= 250){
-		const airspeed = states.airspeed * 1.94384;
 		const count = states.flapcount - 1;
 
 		const mod = (high - low) / count;
-		newFlaps = Math.round((high - airspeed) / mod);
+		newFlaps = Math.round((high - states.airspeed) / mod);
 
 		if(newFlaps < 0){
 			newFlaps = 0;
@@ -164,7 +162,7 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 	}
 });
 
-const takeoffconfig = new autofunction("takeoff", -1, [], states => {
+const takeoffconfig = new autofunction("takeoffconfig", -1, [], states => {
 	autoflaps.start(true);
 	autolights.start(true);
 
@@ -173,4 +171,11 @@ const takeoffconfig = new autofunction("takeoff", -1, [], states => {
 	write("parkingbrake", false);
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, takeoffconfig];
+const autotakeoff = new autofunction("autotakeoff", 500, ["airspeed", "altitudeAGL"], states => {
+	takeoffconfig.start(true);
+	
+	autogear.changeActive(true);
+	autoflaps.changeActive(true);
+});
+
+const autofunctions = [autotrim, autolights, autogear, autoflaps, takeoffconfig, autotakeoff];
