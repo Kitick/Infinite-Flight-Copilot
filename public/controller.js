@@ -4,6 +4,8 @@ class autofunction{
 		this.button = button;
 		this.length = states.length;
 		this.timeout = timeout;
+		
+		this.stage = 0;
 		this.counter = 0;
 
 		this.active = false;
@@ -59,6 +61,7 @@ class autofunction{
 
 	changeActive(state = !this.active){
 		this.active = state;
+		this.stage = 0;
 		this.button.className = (this.active ? "active":"off");
 		this.start();
 	}
@@ -171,11 +174,21 @@ const takeoffconfig = new autofunction("takeoffconfig", -1, [], states => {
 	write("parkingbrake", false);
 });
 
-const autotakeoff = new autofunction("autotakeoff", 500, ["airspeed", "altitudeAGL"], states => {
-	takeoffconfig.start(true);
+const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "airspeed", "altitudeAGL"], states => {
+	const stage = autotakeoff.stage;
 	
-	autogear.changeActive(true);
-	autoflaps.changeActive(true);
+	if(stage === 0){
+		takeoffconfig.start(true);
+		autogear.changeActive(true);
+		autoflaps.changeActive(true);
+		stage++;
+	}
+	else if(stage === 1){
+		stage++;
+	}
+	else{
+		autotakeoff.changeActive(false);
+	}
 });
 
 const autofunctions = [autotrim, autolights, autogear, autoflaps, takeoffconfig, autotakeoff];
