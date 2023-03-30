@@ -283,8 +283,13 @@ class Item{
 
 	static conversions = {
 		"airspeed":1.94384, // m/s to kts
-		"verticalspeed":196.85, // m/s to fpm
+		"groundspeed":1.94384, // m/s to kts
+		"verticalspeed":196.8504, // m/s to fpm
+
+		"spd":1.94384, // m/s to kts
 		"hdg":180/Math.PI, // rad to deg
+		"alt":3.28084, // m to ft
+		"vs":3.28084, // m/m to fpm
 	};
 
 	static readBufferType = [
