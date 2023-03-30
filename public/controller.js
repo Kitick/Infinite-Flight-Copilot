@@ -34,6 +34,15 @@ class autofunction{
 		}
 	}
 
+	error(){
+		this.active = false;
+		this.button.className = "error";
+
+		setTimeout(() => {
+			this.changeActive(false);
+		}, 2000);
+	}
+
 	callback(state, value){
 		this.states[state] = value;
 		this.counter++;
@@ -128,12 +137,8 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 	const to = parseInt(document.getElementById("flapto").value);
 
 	if(isNaN(low) || isNaN(high) || isNaN(to)){
-		autoflaps.active = false;
-		autoflaps.button.className = "error";
-
-		setTimeout(() => {
-			autoflaps.changeActive(false);
-		}, 3000);
+		autoflaps.error();
+		return;
 	}
 
 	let newFlaps = states.flaps;
@@ -174,21 +179,97 @@ const takeoffconfig = new autofunction("takeoffconfig", -1, [], states => {
 	write("parkingbrake", false);
 });
 
-const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "airspeed", "altitudeAGL"], states => {
-	const stage = autotakeoff.stage;
-	
-	if(stage === 0){
-		takeoffconfig.start(true);
-		autogear.changeActive(true);
-		autoflaps.changeActive(true);
-		stage++;
-	}
-	else if(stage === 1){
-		stage++;
-	}
-	else{
-		autotakeoff.changeActive(false);
+const rejecttakeoff = new autofunction("reject", -1, ["onrunway"], states => {
+	if(states.onrunway){
+		autotakeoff.error();
+		write("throttle", -100);
 	}
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, takeoffconfig, autotakeoff];
+const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "airspeed", "altitude", "altitudeAGL", "heading"], states => {
+	let stage = autotakeoff.stage;
+
+	const flaplow = parseInt(document.getElementById("flaplow").value);
+	const flaphigh = parseInt(document.getElementById("flaphigh").value);
+	const short = document.getElementById("short").checked;
+
+	if(isNaN(flaplow) || isNaN(flaphigh)){
+		autotakeoff.error();
+		return;
+	}
+	
+	if(stage === 0){
+		if(!states.onrunway){
+			autotakeoff.error();
+			return;
+		}
+
+		takeoffconfig.start(true);
+		autogear.changeActive(true);
+		autoflaps.changeActive(true);
+
+		write("alt", Math.round(states.altitude / 100) * 100 + 3000);
+		write("vs", 0);
+		write("spd", flaphigh);
+		write("hdg", states.heading);
+
+		write("autopilot", true);
+		write("alton", true);
+		write("vson", true);
+		write("hdgon", true);
+
+		if(short){
+			write("parkingbrake", true);
+			write("throttle", 100);
+		}
+		else{
+			write("throttle", -20);
+		}
+
+		stage++;
+	}
+	else if(stage === 1){
+		if(short){
+			if(states.n1 >= 100){
+				write("parkingbrake", false);
+				stage++;
+			}
+		}
+		else{
+			if(states.n1 >= 50){
+				write("throttle", 80);
+				stage++;
+			}
+		}
+	}
+	else if(stage === 2){
+		if(states.airspeed >= flaplow - 20){
+			write("vs", (short ? 1000:500));
+			stage++;
+		}
+	}
+	else if(stage === 3){
+		if(states.altitudeAGL >= 100){
+			write("vs", (short ? 2000:1200));
+			stage++;
+		}
+	}
+	else if(stage === 4){
+		if(states.altitudeAGL >= 500){
+			write("vs", (short ? 3000:2000));
+			stage++;
+		}
+	}
+	else{
+		write("spdon", true);
+		autotakeoff.changeActive(false);
+	}
+
+	if(stage > 1 && Math.abs(flaphigh - states.airspeed) < 10){
+		write("spdon", true);
+	}
+
+	autotakeoff.stage = stage;
+});
+
+const autofunctions = [autotrim, autolights, autogear, autoflaps, takeoffconfig, autotakeoff, rejecttakeoff];

@@ -34,7 +34,12 @@
 			<br><br>
 
 			<button id="takeoffconfig" onclick="takeoffconfig.changeActive();" class="off">CONFIGURE TAKEOFF</button>
+			<br><br>
 			<button id="autotakeoff" onclick="autotakeoff.changeActive();" class="off">AUTO TAKEOFF</button>
+			<button id="reject" onclick="rejecttakeoff.changeActive();" class="off">REJECT TAKEOFF</button>
+			<br><br>
+			<input id="short" type="checkbox">
+			<label for="short">Shortfield</label>
 			<br><br>
 
 			<p>COLOR KEY<br>
@@ -43,6 +48,8 @@
 				Orange: Armed<br>
 				Red: Error<br>
 			</p>
+
+			<p>AUTO TAKEOFF<br>NOTE: You must still input rudder to maintian centerline.<br>This is the only thing the API cannot control.</p>
 
 			<p>AUTOFLAPS<br>1. Speed for max flaps<br>2. Speed for clean config<br>3. Flap number for takeoff<br><br>(If you want a lower max flap, set the speed lower)<br>(in the CRJ-200, flaps 20 would be flap number 2 since its the second config)</p>
 <!--
