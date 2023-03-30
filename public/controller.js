@@ -170,7 +170,12 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 	}
 });
 
-const takeoffconfig = new autofunction("takeoffconfig", -1, [], states => {
+const takeoffconfig = new autofunction("takeoffconfig", -1, ["onground"], states => {
+	if(!states.onground){
+		takeoffconfig.error();
+		return;
+	}
+
 	autoflaps.start(true);
 	autolights.start(true);
 
