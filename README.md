@@ -15,10 +15,10 @@ Double click start.
 Double click localhost.
 - You should see it say connected
 
-If you know the IP address of your device, enter the last two digits.
-- It will autofill 192.168 if you enter the last two digits and also add .1. if you only put the very last.
-If you do not, just click connect. The server will detect the packets broadcasted and connect that way.
+If you know the IP address of your device, enter it. If you don't, just click connect.
+- You need to use private addresses, i.e. the ones starting with 192.168. Public addresses do not distinguish individual devices.
+- It will autofill 192.168 if you only enter the last two digits and also add .1. if you only put the very last.
 
 Once it says it is ready and the options appear, Enjoy.
 
-Feel free to report any issues here on github or dm them to me on discord. Kitick#5380
+Feel free to report any issues here on github or dm them to me on discord at Kitick#5380.
