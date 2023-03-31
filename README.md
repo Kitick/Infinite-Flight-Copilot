@@ -15,7 +15,8 @@ Double click start.
 Double click localhost.
 - You should see it say connected
 
-If you know the IP address of your device, enter the last digit.
+If you know the IP address of your device, enter the last two digits.
+- It will autofill 192.168 if you enter the last two digits and also add .1. if you only put the very last.
 If you do not, just click connect. The server will detect the packets broadcasted and connect that way.
 
 Once it says it is ready and the options appear, Enjoy.
