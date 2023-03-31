@@ -14,10 +14,20 @@ function loaded(){
 
 function bridge(){
     document.getElementById("autopilot").hidden = true;
-    let address = document.getElementById("address").value;
 
-	if(address !== "" && address.search(/\./) === -1){
-		address = "192.168.1." + address;
+	let address = document.getElementById("address").value;
+	let parts = address.split(".");
+
+	if(address !== ""){
+		if(parts.length < 2){
+			address = "1." + address;
+		}
+		if(parts.length < 3){
+			address = "168." + address;
+		}
+		if(parts.length < 4){
+			address = "192." + address;
+		}
 	}
 
     socket.emit("bridge", address, response => {

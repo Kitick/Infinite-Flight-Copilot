@@ -14,10 +14,13 @@
 	</head>
     <body onload="loaded();">
         <h3>Status: <span id="status">offline</span></h3>
-        <label for="address">IP Address: 192.168.1.</label><input id="address" onkeypress="if(event.key === 'Enter'){bridge();}" type="number" autocomplete="off" value="">
+        <label for="address">IP Address: </label>
+		<input id="address" onkeypress="if(event.key === 'Enter'){bridge();}" type="text" autocomplete="off" value="">
         <button onclick="bridge();">Connect</button>
         <button onclick="closeBridge();">Close</button>
         <br><br>
+		<p>Note: You can type a partal address starting from the end.</p>
+		<br>
         <div id="autopilot" hidden>
             <h1>Autopilot</h1>
 
