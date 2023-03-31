@@ -16,7 +16,7 @@ function bridge(){
     document.getElementById("autopilot").hidden = true;
 
 	let address = document.getElementById("address").value;
-	let parts = address.split(".");
+	const parts = address.split(".");
 
 	if(address !== ""){
 		if(parts.length < 2){
