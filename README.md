@@ -19,6 +19,6 @@ If you know the IP address of your device, enter it. If you don't, just click co
 - You need to use private addresses, i.e. the ones starting with 192.168. Public addresses do not distinguish individual devices.
 - It will autofill 192.168 if you only enter the last two digits and also add .1. if you only put the very last.
 
-Once it says it is ready and the options appear, Enjoy.
+Once it says it's ready and the options appear, Enjoy.
 
 Feel free to report any issues here on github or dm them to me on discord at Kitick#5380.
