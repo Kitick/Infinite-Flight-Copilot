@@ -18,10 +18,9 @@
 		<input id="address" onkeypress="if(event.key === 'Enter'){bridge();}" type="text" autocomplete="off" value="">
         <button onclick="bridge();">Connect</button>
         <button onclick="closeBridge();">Close</button>
-        <br><br>
+        <h3>NOTE: Ensure you are loaded into a flight before connecting!</h3>
         <div id="autopilot" hidden>
-            <h1>Autopilot</h1>
-
+			<h3>NOTE: Restart the connection if you start a new flight.</h3>
             <h2>Auto Functions</h2>
             <button id="trim" onclick="autotrim.changeActive();" class="off">TRIM</button>
 			<button id="lights" onclick="autolights.changeActive();" class="off">LIGHTS</button>
