@@ -51,6 +51,7 @@ class Client{
 
 		this.socket = socket;
 		this.device = new Net.Socket();
+		this.scanner = UDP.createSocket("udp4");
 		this.active = false;
 
 		this.dataBuffer = [];
@@ -86,24 +87,22 @@ class Client{
 	findAddress(callback = () => {}){
 		this.log("Searching for UDP Packets...");
 
-		const scan = UDP.createSocket("udp4");
-
-		scan.on("error", error => {
+		this.scanner.on("error", error => {
 			if(error.code === "EADDRINUSE"){
 				this.log("Already Searching for UDP Packets");
 			}
 		});
 
-		scan.on("message", (data, info) => {
+		this.scanner.on("message", (data, info) => {
 			this.address = info.address;
 
 			this.log(this.address + " UDP Packet Found");
-			scan.close();
+			this.scanner.close();
 
 			callback();
 		});
 
-		scan.bind(15000);
+		this.scanner.bind(15000);
 	}
 
 	connect(){
