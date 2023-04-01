@@ -80,7 +80,10 @@ const autotrim = new autofunction("trim", 1000, ["pitch", "trim", "onground"], s
 
 	const deadzone = 5;
 
-	if(Math.abs(states.pitch) <= 50){
+	if(Math.abs(states.pitch) <= 10){
+		autotrim.timeout = 3000;
+	}
+	else if(Math.abs(states.pitch) <= 50){
 		autotrim.timeout = 2000;
 	}
 	else{
