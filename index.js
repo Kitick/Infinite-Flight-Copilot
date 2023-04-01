@@ -1,3 +1,5 @@
+"use strict";
+
 const Express = require("express");
 const app = new Express();
 const server = app.listen(8080);
