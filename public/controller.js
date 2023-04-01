@@ -202,7 +202,7 @@ const levelchange = new autofunction("levelchange", 1000, ["onground", "airspeed
 
 	let mod = 1;
 	if(Math.abs(deltaSPD - lastDeltaSPD) > deadzone && (deltaSPD > 0 !== (deltaSPD - lastDeltaSPD > 0))){
-		mod = -1;
+		//mod = -1;
 	}
 
 	lastDeltaSPD = deltaSPD;
