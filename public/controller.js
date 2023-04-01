@@ -79,17 +79,19 @@ const autotrim = new autofunction("trim", 1000, ["pitch", "trim", "onground"], s
 	autotrim.button.className = "active";
 
 	const deadzone = 5;
-	let mod = 10;
 
-	if(states.pitch <= 50){
-		mod = 5;
+	if(Math.abs(states.pitch) <= 50){
+		autotrim.timeout = 2000;
+	}
+	else{
+		autotrim.timeout = 1000;
 	}
 
 	if(states.pitch >= deadzone){
-		write("trim", states.trim + mod);
+		write("trim", states.trim + 10);
 	}
 	else if(states.pitch <= -deadzone){
-		write("trim", states.trim - mod);
+		write("trim", states.trim - 10);
 	}
 });
 
