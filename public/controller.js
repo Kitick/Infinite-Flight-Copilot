@@ -78,23 +78,22 @@ const autotrim = new autofunction("trim", 1000, ["pitch", "trim", "onground"], s
 
 	autotrim.button.className = "active";
 
-	const deadzone = 5;
+	const deadzone = 2;
+	const pitchDirection = states.pitch > 0 ? 1:-1;
+	let mod = 10;
 
-	if(Math.abs(states.pitch) <= 10){
-		autotrim.timeout = 3000;
+	if(Math.abs(states.pitch) < 10){
+		mod = 1;
 	}
-	else if(Math.abs(states.pitch) <= 50){
-		autotrim.timeout = 2000;
-	}
-	else{
-		autotrim.timeout = 1000;
+	else if(Math.abs(states.pitch) < 50){
+		mod = 5;
 	}
 
-	if(states.pitch >= deadzone){
-		write("trim", states.trim + 10);
-	}
-	else if(states.pitch <= -deadzone){
-		write("trim", states.trim - 10);
+	if(Math.abs(states.pitch) >= deadzone){
+		let newTrim = states.trim + mod * pitchDirection;
+		newTrim = Math.round(newTrim / mod) * mod;
+
+		write("trim", newTrim);
 	}
 });
 
@@ -174,12 +173,12 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 	}
 });
 
+let lastDeltaSPD = 0;
 const levelchange = new autofunction("levelchange", 1000, ["onground", "airspeed", "altitude", "alt", "spd", "vs", "vson"], states => {
 	if(levelchange.stage === 0){
 		write("alton", true);
 		levelchange.stage++;
 	}
-
 	if(!states.vson){
 		write("vson", true);
 	}
@@ -189,21 +188,28 @@ const levelchange = new autofunction("levelchange", 1000, ["onground", "airspeed
 		return;
 	}
 
-	levelchange.button.className = "active";
-
 	const deltaSPD = states.spd - states.airspeed;
 	const deltaALT = states.alt - states.altitude;
 	const spdDirection = deltaSPD > 0 ? 1:-1;
-	const altDirection = deltaALT > 0 ? 1:-1;
 	const deadzone = 1;
-	const newVS = states.vs + 100 * -spdDirection;
 
 	if(Math.abs(deltaALT) < 100){
 		levelchange.changeActive(false);
 		return;
 	}
 
-	if(newVS > 0 !== altDirection > 0){
+	levelchange.button.className = "active";
+
+	let mod = 1;
+	if(Math.abs(deltaSPD - lastDeltaSPD) > deadzone && (deltaSPD > 0 !== (deltaSPD - lastDeltaSPD > 0))){
+		mod = -1;
+	}
+
+	lastDeltaSPD = deltaSPD;
+
+	const newVS = states.vs + 100 * -spdDirection * mod;
+
+	if(newVS > 0 !== deltaALT > 0){
 		if(states.vs !== 0){
 			write("vs", 0);
 		}
