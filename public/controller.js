@@ -56,7 +56,7 @@ class autofunction{
 	changeActive(state = !this.active){
 		this.active = state;
 		this.stage = 0;
-		this.button.className = (this.active ? "active":"off");
+		this.button.className = this.active ? "active":"off";
 		this.start();
 	}
 
@@ -71,20 +71,25 @@ class autofunction{
 }
 
 const autotrim = new autofunction("trim", 1000, ["pitch", "trim", "onground"], states => {
-	if(!states.onground){
-		const deadzone = 5;
-		let mod = 10;
+	if(states.onground){
+		autotrim.button.className = "armed";
+		return;
+	}
 
-		if(states.pitch <= 50){
-			mod = 5;
-		}
+	autotrim.button.className = "active";
 
-		if(states.pitch >= deadzone){
-			write("trim", states.trim + mod);
-		}
-		else if(states.pitch <= -deadzone){
-			write("trim", states.trim - mod);
-		}
+	const deadzone = 5;
+	let mod = 10;
+
+	if(states.pitch <= 50){
+		mod = 5;
+	}
+
+	if(states.pitch >= deadzone){
+		write("trim", states.trim + mod);
+	}
+	else if(states.pitch <= -deadzone){
+		write("trim", states.trim - mod);
 	}
 });
 
@@ -164,6 +169,45 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 	}
 });
 
+const levelchange = new autofunction("levelchange", 1000, ["onground", "airspeed", "altitude", "alt", "spd", "vs", "vson"], states => {
+	if(levelchange.stage === 0){
+		write("alton", true);
+		levelchange.stage++;
+	}
+
+	if(!states.vson){
+		write("vson", true);
+	}
+
+	if(states.onground){
+		levelchange.button.className = "armed";
+		return;
+	}
+
+	levelchange.button.className = "active";
+
+	const deltaSPD = states.spd - states.airspeed;
+	const deltaALT = states.alt - states.altitude;
+	const spdDirection = deltaSPD > 0 ? 1:-1;
+	const altDirection = deltaALT > 0 ? 1:-1;
+	const deadzone = 1;
+	const newVS = states.vs + 100 * -spdDirection;
+
+	if(Math.abs(deltaALT) < 100){
+		levelchange.changeActive(false);
+		return;
+	}
+
+	if(newVS > 0 !== altDirection > 0){
+		if(states.vs !== 0){
+			write("vs", 0);
+		}
+	}
+	else if(Math.abs(deltaSPD) >= deadzone){
+		write("vs", newVS);
+	}
+});
+
 const takeoffconfig = new autofunction("takeoffconfig", -1, ["onground"], states => {
 	if(!states.onground){
 		takeoffconfig.error();
@@ -206,6 +250,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		takeoffconfig.start(true);
 		autogear.changeActive(true);
 		autoflaps.changeActive(true);
+		levelchange.changeActive(true);
 
 		write("alt", Math.round(states.altitude / 100) * 100 + 3000);
 		write("vs", 0);
@@ -214,7 +259,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 
 		write("autopilot", true);
 		write("alton", true);
-		write("vson", true);
+		write("vson", false);
 		write("hdgon", true);
 
 		if(short){
@@ -228,6 +273,8 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		stage++;
 	}
 	else if(stage === 1){
+		write("vson", true);
+
 		if(short){
 			if(states.n1 >= 100){
 				write("parkingbrake", false);
@@ -243,19 +290,12 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	}
 	else if(stage === 2){
 		if(states.airspeed >= flaplow - 20){
-			write("vs", (short ? 1000:500));
+			write("vs", short ? 1000:500);
 			stage++;
 		}
 	}
 	else if(stage === 3){
-		if(states.altitudeAGL >= 100){
-			write("vs", (short ? 2000:1200));
-			stage++;
-		}
-	}
-	else if(stage === 4){
-		if(states.altitudeAGL >= 500){
-			write("vs", (short ? 3000:2000));
+		if(states.altitudeAGL >= 2000){
 			stage++;
 		}
 	}
@@ -264,11 +304,11 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		autotakeoff.changeActive(false);
 	}
 
-	if(stage > 1 && Math.abs(flaphigh - states.airspeed) < 10){
+	if(Math.abs(flaphigh - states.airspeed) < 10){
 		write("spdon", true);
 	}
 
 	autotakeoff.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, takeoffconfig, autotakeoff, rejecttakeoff];
+const autofunctions = [autotrim, autolights, autogear, autoflaps, takeoffconfig, autotakeoff, rejecttakeoff, levelchange];
