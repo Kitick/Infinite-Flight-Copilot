@@ -21,27 +21,38 @@
         <h3>NOTE: Ensure you are loaded into a flight before connecting!</h3>
         <div id="autopilot" hidden>
 			<h3>NOTE: Restart the connection if you start a new flight.</h3>
+			<br>
             <h2>Auto Functions</h2>
             <button id="trim" onclick="autotrim.changeActive();" class="off">TRIM</button>
 			<button id="lights" onclick="autolights.changeActive();" class="off">LIGHTS</button>
 			<button id="gear" onclick="autogear.changeActive();" class="off">GEAR</button>
-            <br><br>
+            <br><br><br>
 
-			<input id="flaplow" type="number" value="120">
-			<input id="flaphigh" type="number" value="200">
-			<input id="flapto" type="number" value="2">
+			<label for="flaplow">1. Max Flaps Speed | </label>
+			<label for="flaphigh">2. Clean Speed | </label>
+			<label for="flapto">3. Takeoff Flap Number</label>
+			<br><br>
+			<input id="flaplow" type="number" value="120" step="10">
+			<input id="flaphigh" type="number" value="200" step="10">
+			<input id="flapto" type="number" value="2" step="1">
 			<button id="flaps" onclick="autoflaps.changeActive();" class="off">FLAPS</button>
-			<br><br>
+			<br><br><br>
 
-			<button id="takeoffconfig" onclick="takeoffconfig.changeActive();" class="off">CONFIGURE TAKEOFF</button>
+			<button id="takeoffconfig" onclick="takeoffconfig.changeActive();" class="off">BEFORE TAKEOFF CONFIG</button>
 			<button id="levelchange" onclick="levelchange.changeActive();" class="off">LEVEL CHANGE</button>
+			<br><br><br>
+
+			<label for="climbrate">1. Climb Gradient in ft/nm for Takeoff</label>
 			<br><br>
+			<input id="climbrate" type="number" value="500" step="100">
 			<button id="autotakeoff" onclick="autotakeoff.changeActive();" class="off">AUTO TAKEOFF</button>
 			<button id="reject" onclick="rejecttakeoff.changeActive();" class="off">REJECT TAKEOFF</button>
 			<br><br>
 			<input id="short" type="checkbox">
 			<label for="short">Shortfield</label>
-			<br><br>
+			<br>
+
+			<p>NOTE: You must still input rudder to maintian centerline.<br>This is the only thing the API cannot control.</p>
 
 			<p>COLOR KEY<br>
 				White: Inactive<br>
@@ -49,47 +60,6 @@
 				Orange: Armed<br>
 				Red: Error<br>
 			</p>
-
-			<p>AUTO TAKEOFF<br>NOTE: You must still input rudder to maintian centerline.<br>This is the only thing the API cannot control.</p>
-
-			<p>AUTOFLAPS<br>1. Speed for max flaps<br>2. Speed for clean config<br>3. Flap number for takeoff<br><br>(If you want a lower max flap, set the speed lower)<br>(in the CRJ-200, flaps 20 would be flap number 2 since its the second config)</p>
-<!--
-            <div class="mode">
-                <h2>SPD</h2>
-                <label for="spd">SPD/GND </label><input id="spd" type="number" min="0" max="500" step="10" value="0">
-                <br><br>
-                <button id="spdsel" class="off">SPD SEL</button>
-                <button id="machsel" class="off">MACH SEL</button>
-                <br><br>
-                <button id="gndsel" class="off">GND SEL</button>
-                <br><br>
-            </div>
-            <div class="mode">
-                <h2>HDG</h2>
-                <label for="hdg">HDG/TRK </label><input id="hdg" type="number" min="5" max="360" step="5" value="0">
-                <input id="crs" type="number" min="5" max="360" step="5" value="0"><label for="crs"> Course</label>
-                <br><br>
-                <label for="bank">Bank </label><input id="bank" type="number" min="5" max="90" step="5" value="20">
-                <br><br>
-                <button id="hdgsel" class="off">HDG SEL</button>
-                <button id="trksel" class="off">TRK SEL</button>
-                <br><br>
-                <button id="gps" class="off" disabled>GPS NAV</button>
-                <button id="nav" class="off" disabled>VOR/LOC</button>
-                <br><bR>
-            </div>
-            <div class="mode">
-                <h2>ALT</h2>
-                <label for="alt">ALT </label><input id="alt" type="number" min="0" max="50000" step="500" value="0">
-                <input id="vs" type="number" min="-5000" max="5000" step="100" value="0"><label for="vs"> VS/VPA</label>
-                <br><br>
-                <button id="altsel" class="off">ALT HOLD</button>
-                <button id="flc" class="off">FLC</button>
-                <br><br>
-                <button id="vssel" class="off">VS</button>
-                <button id="vpa" class="off">VPA</button>
-                <br><br>
-            </div>-->
         </div>
     </body>
 </html>

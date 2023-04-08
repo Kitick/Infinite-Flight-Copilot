@@ -1,18 +1,23 @@
 {
-  "name": "if-node-v2",
+  "name": "ifapi",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin":"index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "pkg":{
+	"assets":"public/*",
+	"targets":["node18-win-x64", "node18-linux-x64", "node18-mac-x64"],
+	"outputPath":"executables"
   },
   "author": "Kevin Munson",
   "license": "ISC",
   "dependencies": {
-    "dgram": "^1.0.1",
-    "express": "^4.18.1",
-    "fs": "^0.0.1-security",
+    "express": "^4.18.2",
     "net": "^1.0.2",
+    "pkg": "^5.8.1",
     "socket.io": "^4.6.1"
   }
 }

@@ -1,3 +1,5 @@
+"use strict";
+
 const Express = require("express");
 const app = new Express();
 const server = app.listen(8080);
@@ -52,6 +54,7 @@ class Client{
 		this.socket = socket;
 		this.device = new Net.Socket();
 		this.scanner = UDP.createSocket("udp4");
+		this.scanning = false;
 		this.active = false;
 
 		this.dataBuffer = [];
@@ -85,23 +88,24 @@ class Client{
 	}
 
 	findAddress(callback = () => {}){
-		this.log("Searching for UDP Packets...");
+		if(this.scanning){
+			this.log("Already Searching for UDP Packets");
+			return;
+		}
 
-		this.scanner.on("error", error => {
-			if(error.code === "EADDRINUSE"){
-				this.log("Already Searching for UDP Packets");
-			}
-		});
+		this.log("Searching for UDP Packets...");
 
 		this.scanner.on("message", (data, info) => {
 			this.address = info.address;
-
 			this.log(this.address + " UDP Packet Found");
+
 			this.scanner.close();
+			this.scanning = false;
 
 			callback();
 		});
 
+		this.scanning = true;
 		this.scanner.bind(15000);
 	}
 
@@ -128,10 +132,17 @@ class Client{
 	}
 
 	close(){
-		this.device.end(() => {
+		if(this.scanning){
+			this.scanner.close();
+			this.scanning = false;
+		}
+
+		if(this.active){
+			this.device.end(() => {
+				this.log(this.address + " TCP Closed");
+			});
 			this.active = false;
-			this.log(this.address + " TCP Closed");
-		});
+		}
 	}
 
 	validate(){
