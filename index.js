@@ -8,13 +8,7 @@ const io = require("socket.io")(server);
 const Net = require("net");
 const UDP = require("dgram");
 
-app.use(Express.static("public"));
-const dir = __dirname + "/public/";
-
-// Pages
-app.get("/", (request, response) => {
-	response.sendFile(dir + "index.html");
-});
+app.use(Express.static(__dirname + "/public"));
 
 // Sockets
 io.on("connection", socket => {
