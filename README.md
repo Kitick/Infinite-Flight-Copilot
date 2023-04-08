@@ -4,20 +4,16 @@ Ensure:
 - Both devices are connected to the same network.
 
 IF YOU WANT TO USE AN EXE FILE
-
-Open the /executables folder and find your system exe.
-
-Open it and click download. If your system gives you crap about running an unsigned exe you can run it anyway
-
-Unless you don't trust me, then don't. You can also look at the code yourself if you wish. OR run it with node directly.
+- Open the /executables folder and find your system exe.
+- Open it and click download. If your system gives you crap about running an unsigned exe you can run it anyway
+- Unless you don't trust me, then don't. You can also look at the code yourself if you wish. OR run it with node directly.
 
 IF YOU WANT TO RUN USING NODE
+- Dowload node.js: https://nodejs.org/en | You do not need to install anything else but Node itself.
+- Download the code by clicking the green CODE button, and download zip.
+- Extract the folder to wherever you like. If you are updating, delete the old folder first.
 
-Dowload node.js: https://nodejs.org/en | You do not need to install anything else but Node itself.
-
-Download the code by clicking the green CODE button, and download zip.
-
-Extract the folder to wherever you like. If you are updating, delete the old folder first.
+USAGE INSTRUCTIONS
 
 Double click your exe OR run "node index.js" in your terminal in the folder you extracted.
 - You should see a message saying it is ready
