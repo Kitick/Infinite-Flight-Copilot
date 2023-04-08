@@ -61,11 +61,11 @@ class autofunction{
 	}
 
 	error(){
-		this.active = false;
+		this.changeActive(false);
 		this.button.className = "error";
 
 		setTimeout(() => {
-			this.changeActive(false);
+			this.button.className = this.active ? "active":"off";
 		}, 2000);
 	}
 }
@@ -122,7 +122,7 @@ const autolights = new autofunction("lights", 1000, ["altitudeAGL", "onground", 
 const autogear = new autofunction("gear", 1000, ["gear", "altitudeAGL", "verticalspeed"], states => {
 	let newState = states.gear;
 
-	if(states.altitudeAGL < 250 || (states.verticalspeed <= -500 && states.altitudeAGL < 1500)){
+	if(states.altitudeAGL < 200 || (states.verticalspeed <= -500 && states.altitudeAGL < 1500)){
 		newState = true;
 	}
 	else if(states.verticalspeed >= 500 || states.altitudeAGL >= 2000){
@@ -275,7 +275,6 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		takeoffconfig.start(true);
 		autogear.changeActive(true);
 		autoflaps.changeActive(true);
-		//levelchange.changeActive(true);
 
 		write("alt", Math.round(states.altitude / 100) * 100 + 3000);
 		write("vs", 0);
