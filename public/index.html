@@ -32,10 +32,22 @@
 			<label for="flaphigh">2. Clean Speed | </label>
 			<label for="flapto">3. Takeoff Flap Number</label>
 			<br><br>
-			<input id="flaplow" type="number" value="120" step="10">
-			<input id="flaphigh" type="number" value="200" step="10">
+			<input id="flaplow" type="number" value="120" step="5">
+			<input id="flaphigh" type="number" value="200" step="5">
 			<input id="flapto" type="number" value="2" step="1">
 			<button id="flaps" onclick="autoflaps.changeActive();" class="off">FLAPS</button>
+			<br><br><br>
+
+			<label for="lat">1. Latitude Refrence | </label>
+			<label for="long">2. Longitude Refrence | </label>
+			<label for="hdg">3. Heading Refrence</label>
+			<br><br>
+			<input id="lat" type="number" value="39.51367">
+			<input id="long" type="number" value="-119.76675">
+			<input id="hdg" type="number" value="166.4">
+			<br><br>
+			<button id="flyto" onclick="flyto.changeActive();" class="off">FLY TO</button>
+			<button id="setposition" onclick="setposition.changeActive();" class="off">SET POSITION</button>
 			<br><br><br>
 
 			<button id="takeoffconfig" onclick="takeoffconfig.changeActive();" class="off">BEFORE TAKEOFF CONFIG</button>

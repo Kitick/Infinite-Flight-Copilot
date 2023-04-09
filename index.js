@@ -272,6 +272,10 @@ class Item{
 		"aircraft/0/systems/axes/roll":"roll",
 		"aircraft/0/systems/axes/yaw":"yaw",
 
+		"aircraft/0/latitude":"latitude",
+		"aircraft/0/longitude":"longitude",
+		"aircraft/0/magnetic_variation":"variation",
+
 		"aircraft/0/configuration/flaps/stops":"flapcount",
 		"aircraft/0/systems/engines/0/n1":"n1",
 		"aircraft/0/is_on_ground":"onground",
@@ -291,8 +295,10 @@ class Item{
 		"groundspeed":1.94384, // m/s to kts
 		"heading":180/Math.PI,
 		"verticalspeed":196.8504, // m/s to fpm
+		
 		"throttle":0.1, // 1000s to 100s
 		"n1":100,
+		"variation":180/Math.PI,
 
 		"spd":1.94384, // m/s to kts
 		"hdg":180/Math.PI, // rad to deg
