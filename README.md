@@ -5,7 +5,7 @@ Ensure:
 
 IF YOU WANT TO USE AN EXE FILE
 - Open the /executables folder and find your system exe.
-- Open it and click download. If your system gives you crap about running an unsigned exe you can run it anyway
+- Open it and click download. If your system gives you crap about running an unsigned exe you can run it anyway.
 - Unless you don't trust me, then don't. You can also look at the code yourself if you wish. OR run it with node directly.
 
 IF YOU WANT TO RUN USING NODE
@@ -16,10 +16,10 @@ IF YOU WANT TO RUN USING NODE
 USAGE INSTRUCTIONS
 
 Double click your exe OR run "node index.js" in your terminal in the folder you extracted.
-- You should see a message saying it is ready
+- You should see a message saying it is ready.
 
-Double click localhost.
-- You should see it say connected
+Open your browser and go to localhost:8080. Or double click localhost.
+- You should see it say connected.
 
 If you know the IP address of your device, enter it. If you don't, just click connect.
 - You need to use private addresses, i.e. the ones starting with 192.168. Public addresses do not distinguish individual devices.
