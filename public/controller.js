@@ -377,6 +377,29 @@ const setposition = new autofunction("setposition", -1, ["latitude", "longitude"
 	document.getElementById("hdg").value = Math.round(states.heading * 10) / 10;
 });
 
+const setrefrence = new autofunction("setrefrence", -1, ["route", "coordinates"], states => {
+	const route = states.route.split(",");
+	let rwIndex = -1;
+
+	for(let i = 0, length = route.length; i < length; i++){
+		if(route[i].search(/RW\d\d.*/) === 0){
+			rwIndex = i;
+			break;
+		}
+	}
+
+	if(rwIndex === -1){
+		setrefrence.error();
+		return;
+	}
+
+	const runwayCoords = states.coordinates.split(" ")[rwIndex].split(",");
+
+	document.getElementById("lat").value = runwayCoords[0];
+	document.getElementById("long").value = runwayCoords[1];
+	document.getElementById("hdg").value = parseInt(route[rwIndex][2] + route[rwIndex][3] + "0");
+});
+
 const toDeg = 180 / Math.PI;
 const toRad = Math.PI / 180;
 
@@ -392,24 +415,37 @@ const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variati
 
 	const deltaY = 60 * (latTarget - states.latitude);
 	const deltaX = 60 * (longTarget - states.longitude) * Math.cos((latTarget + states.latitude) * 0.5 * toRad);
+	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
+
+	if(distance <= 1){
+		flyto.changeActive(false);
+		return;
+	}
+
 	let course = cyclical(Math.atan2(deltaX, deltaY) * toDeg - states.variation);
 
 	if(!isNaN(hdgTarget)){
-		const diffrence = course - hdgTarget;
-        const correction = 2 * diffrence;
+		let diffrence = hdgTarget - course;
+		let sign = diffrence >= 0 ? 1:-1;
 
-        if(course + correction < hdgTarget - 90){
-            course = hdgTarget - 90;
-        }
-        else if(course + correction > hdgTarget + 90){
-            course = hdgTarget + 90;
-        }
-        else{
-            course += correction;
-        }
+		if(diffrence > 180){
+			diffrence -= 360;
+		}
+		else if(diffrence < -180){
+			diffrence += 360;
+		}
+
+		if(Math.abs(diffrence) <= 3){
+			course -= 3 * diffrence;
+		}
+		else{
+			course -= 30 * sign;
+		}
 	}
+
+	course = cyclical(course);
 
 	write("hdg", course);
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, takeoffconfig, autotakeoff, rejecttakeoff, setposition, flyto];
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, takeoffconfig, autotakeoff, rejecttakeoff, setposition, setrefrence, flyto];

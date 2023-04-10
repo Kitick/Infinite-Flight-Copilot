@@ -276,6 +276,9 @@ class Item{
 		"aircraft/0/longitude":"longitude",
 		"aircraft/0/magnetic_variation":"variation",
 
+		"aircraft/0/flightplan/route":"route",
+		"aircraft/0/flightplan/coordinates":"coordinates",
+
 		"aircraft/0/configuration/flaps/stops":"flapcount",
 		"aircraft/0/systems/engines/0/n1":"n1",
 		"aircraft/0/is_on_ground":"onground",
