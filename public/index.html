@@ -37,12 +37,12 @@
 				<button id="gear" onclick="autogear.changeActive();" class="off">GEAR</button>
 				<br><br>
 
-				<input id="flaplow" type="number" value="120" step="5">
+				<input id="flaplow" type="number" value="110" step="5">
 				<input id="flaphigh" type="number" value="200" step="5">
 				<input id="flapto" type="number" value="2" step="1">
 				<button id="flaps" onclick="autoflaps.changeActive();" class="off">FLAPS</button>
 				<br>
-				
+
 				<ol>
 					<li><label for="flaplow">Max Flaps Speed</label></li>
 					<li><label for="flaphigh">Clean Speed</label></li>
@@ -54,25 +54,33 @@
 			</div>
 			<div class="mode">
 				<h3>Auto Takeoff</h3>
-				<button id="takeoffconfig" onclick="takeoffconfig.changeActive();" class="off">BEFORE TAKEOFF CONFIG</button>
+				<input id="rotate" type="number" value="130" step="5">
+				<input id="climbspd" type="number" value="200" step="5">
+				<input id="climbrate" type="number" value="500" step="50">
+				<input id="climbalt" type="number" value="3000" step="100">
 				<br><br>
 
-				<input id="climbrate" type="number" value="500" step="100">
-				<input id="short" type="checkbox">
-				<label for="short">Max Thrust</label>
+				<button id="takeoffconfig" onclick="takeoffconfig.changeActive();" class="off">CONFIGURE FOR TAKEOFF</button>
 				<br><br>
 
 				<button id="autotakeoff" onclick="autotakeoff.changeActive();" class="off">AUTO TAKEOFF</button>
 				<button id="reject" onclick="rejecttakeoff.changeActive();" class="off">REJECT TAKEOFF</button>
+				<br><br>
+
+				<input id="short" type="checkbox">
+				<label for="short">Max Thrust</label>
+				<input id="takeoffmsl" type="checkbox">
+				<label for="takeoffmsl">Use MSL</label>
 				<br>
 
 				<ol>
-					<li><label for="climbrate">Climb Gradient for Takeoff (ft/nm)</label></li>
+					<li><label for="rotate">Rotate (VR)</label></li>
+					<li><label for="climbspd">Climb Speed</label></li>
+					<li><label for="climbrate">Climb Gradient (ft/nm)</label></li>
+					<li><label for="climbalt">Top Altitude</label></li>
 				</ol>
 				<ul>
 					<li>You must still input rudder to maintian centerline.</li>
-					<br>
-					<li>BTC will configure aircraft for takeoff. If used on a runway, flaps and lights will be configured as well.</li>
 				</ul>
 			</div>
 			<div class="mode">

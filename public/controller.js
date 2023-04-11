@@ -236,20 +236,6 @@ const levelchange = new autofunction("levelchange", 1000, ["onground", "airspeed
 	write("vs", newVS);
 });
 
-const takeoffconfig = new autofunction("takeoffconfig", -1, ["onground"], states => {
-	if(!states.onground){
-		takeoffconfig.error();
-		return;
-	}
-
-	autoflaps.start(true);
-	autolights.start(true);
-
-	write("spoilers", 2);
-	write("autobrakes", 3);
-	write("parkingbrake", false);
-});
-
 const rejecttakeoff = new autofunction("reject", -1, ["onrunway"], states => {
 	if(states.onrunway){
 		autotakeoff.error();
@@ -260,18 +246,49 @@ const rejecttakeoff = new autofunction("reject", -1, ["onrunway"], states => {
 	}
 });
 
-const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "airspeed", "altitude", "altitudeAGL", "heading"], states => {
+const takeoffconfig = new autofunction("takeoffconfig", -1, ["onrunway", "heading", "altitude"], states => {
+	if(!states.onrunway){
+		takeoffconfig.error();
+		return;
+	}
+
+	const climbalt = parseInt(document.getElementById("climbalt").value);
+
+	if(isNaN(climbalt)){
+		takeoffconfig.error();
+		return;
+	}
+
+	const usemsl = document.getElementById("takeoffmsl").checked;
+
+	autoflaps.start(true);
+	autolights.start(true);
+
+	const altitude = Math.round(states.altitude / 100) * 100;
+	write("alt", climbalt + (usemsl ? 0 : altitude));
+	write("hdg", states.heading);
+	write("vs", 0);
+
+	write("spoilers", 2);
+	write("autobrakes", 3);
+	write("parkingbrake", false);
+});
+
+const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "airspeed", "altitude", "altitudeAGL"], states => {
 	let stage = autotakeoff.stage;
 
-	const flaplow = parseInt(document.getElementById("flaplow").value);
-	const flaphigh = parseInt(document.getElementById("flaphigh").value);
+	const rotate = parseInt(document.getElementById("rotate").value);
+	const climbspd = parseInt(document.getElementById("climbspd").value);
 	const climbrate = parseInt(document.getElementById("climbrate").value);
-	const short = document.getElementById("short").checked;
+	const climbalt = parseInt(document.getElementById("climbalt").value);
 
-	if(isNaN(flaplow) || isNaN(flaphigh) || isNaN(climbrate)){
+	if(isNaN(rotate) || isNaN(climbspd) || isNaN(climbrate) || isNaN(climbalt)){
 		autotakeoff.error();
 		return;
 	}
+
+	const short = document.getElementById("short").checked;
+	const usemsl = document.getElementById("takeoffmsl").checked;
 	
 	if(stage === 0){
 		if(!states.onrunway){
@@ -282,12 +299,8 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		takeoffconfig.start(true);
 		autogear.changeActive(true);
 		autoflaps.changeActive(true);
-
-		write("alt", Math.round(states.altitude / 100) * 100 + 3000);
-		write("vs", 0);
-		write("spd", flaphigh);
-		write("hdg", states.heading);
-
+		
+		write("spd", climbspd);
 		write("autopilot", true);
 		write("alton", true);
 		write("vson", false);
@@ -324,7 +337,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		}
 	}
 	else if(stage === 2){
-		if(states.airspeed >= flaplow){
+		if(states.airspeed >= rotate){
 			stage++;
 		}
 	}
@@ -333,7 +346,9 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 
 		write("vs", fpm);
 
-		if(states.altitudeAGL >= 2000){
+		const MSL = states.altitude >= climbalt - 100;
+		const AGL = states.altitudeAGL >= (climbalt > 2000 ? 2000 : climbalt - 100);
+		if(AGL || (usemsl && MSL)){
 			stage++;
 		}
 	}
@@ -342,7 +357,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		autotakeoff.changeActive(false);
 	}
 
-	if(Math.abs(flaphigh - states.airspeed) < 10){
+	if(Math.abs(climbspd - states.airspeed) < 10){
 		write("spdon", true);
 	}
 
@@ -417,7 +432,7 @@ const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variati
 	const deltaX = 60 * (longTarget - states.longitude) * Math.cos((latTarget + states.latitude) * 0.5 * toRad);
 	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
 
-	if(distance <= 1){
+	if(distance < 1){
 		flyto.changeActive(false);
 		return;
 	}
