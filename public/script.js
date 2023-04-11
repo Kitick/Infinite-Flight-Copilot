@@ -72,7 +72,7 @@ function reset(){
 }
 
 let statLog;
-const socket = io.connect();
+const socket = io();
 
 socket.on("ready", () => {
     document.getElementById("autopilot").hidden = false;

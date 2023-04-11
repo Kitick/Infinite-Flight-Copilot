@@ -4,7 +4,7 @@ class autofunction{
 		this.button = button;
 		this.length = states.length;
 		this.timeout = timeout;
-		
+
 		this.stage = 0;
 		this.counter = 0;
 
@@ -218,7 +218,7 @@ const levelchange = new autofunction("levelchange", 1000, ["onground", "airspeed
 	// IF Throttle avalable, increase vs
 	// IF speed delta is increasing in the same direction as change, increase vs
 	// BUT if speed delata is increaseing in the oposite direction as change, decrease vs TO a minumum change rate
-	
+
 
 	let newVS = states.vs + 100 * -spdDirection;
 
@@ -269,7 +269,7 @@ const takeoffconfig = new autofunction("takeoffconfig", -1, ["onrunway", "headin
 	write("hdg", states.heading);
 	write("vs", 0);
 
-	write("spoilers", 2);
+	write("spoilers", 0);
 	write("autobrakes", 3);
 	write("parkingbrake", false);
 });
@@ -289,7 +289,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 
 	const short = document.getElementById("short").checked;
 	const usemsl = document.getElementById("takeoffmsl").checked;
-	
+
 	if(stage === 0){
 		if(!states.onrunway){
 			autotakeoff.error();
@@ -299,8 +299,10 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		takeoffconfig.start(true);
 		autogear.changeActive(true);
 		autoflaps.changeActive(true);
-		
+
 		write("spd", climbspd);
+		write("spoilers", 2);
+
 		write("autopilot", true);
 		write("alton", true);
 		write("vson", false);
@@ -432,7 +434,7 @@ const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variati
 	const deltaX = 60 * (longTarget - states.longitude) * Math.cos((latTarget + states.latitude) * 0.5 * toRad);
 	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
 
-	if(distance < 1){
+	if(distance < 0.5){
 		flyto.changeActive(false);
 		return;
 	}

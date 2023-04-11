@@ -6,7 +6,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width">
 
-        <script src="socket.io/socket.io.js"></script>
+        <script src="socket.io.min.js"></script>
         <script src="script.js"></script>
 		<script src="controller.js"></script>
 
@@ -111,7 +111,26 @@
 			</div>
 			<div class="mode">
 				<h3>Altitude Modes</h3>
+				<ul>
+					<li><input id="spdMode" name="changemode" type="radio"><label>AIRSPEED (kts)</label></li>
+					<li><input id="gradeMode" name="changemode" type="radio" checked><label>GRADIENT (ft/nm)</label></li>
+					<li><input id="vpaMode" name="changemode" type="radio"><label>VPA (deg)</label></li>
+				</ul>
+
+				<input id="change" type="number" value="500" step="1">
 				<button id="levelchange" onclick="levelchange.changeActive();" class="off">LEVEL CHANGE</button>
+				<br>
+
+				<ol>
+					<li><label for="change">Input for levelchange</label></li>
+				</ol>
+				<ul>
+					<li>All modes use autopilot ALT as target.</li>
+					<br>
+					<li>Airspeed mode uses autopilot SPD as reference.</li>
+					<br>
+					<li>Airspeed mode also requires manual input of power for now.</li>
+				</ul>
 			</div>
         </div>
     </body>

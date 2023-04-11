@@ -388,7 +388,7 @@ class Controller{
 	static read(socket, command, callback){
 		const client = this.clients[socket.id];
 
-		if(client.getItem(command) === undefined){
+		if(client?.getItem(command) === undefined){
 			callback(undefined);
 			return;
 		}
@@ -402,7 +402,7 @@ class Controller{
 	static write(socket, command, value){
 		const client = this.clients[socket.id];
 
-		if(client.getItem(command) === undefined){
+		if(client?.getItem(command) === undefined){
 			return;
 		}
 
