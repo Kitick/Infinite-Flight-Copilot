@@ -374,10 +374,10 @@ function calcLLfromHD(lat, long, hdg, dist){
 const setposition = new autofunction("setposition", -1, ["latitude", "longitude", "heading"], states => {
 	document.getElementById("lat").value = states.latitude;
 	document.getElementById("long").value = states.longitude;
-	document.getElementById("hdg").value = Math.round(states.heading * 10) / 10;
+	document.getElementById("hdg").value = Math.round(states.heading);
 });
 
-const setrefrence = new autofunction("setrefrence", -1, ["route", "coordinates"], states => {
+const setrunway = new autofunction("setrunway", -1, ["route", "coordinates"], states => {
 	const route = states.route.split(",");
 	let rwIndex = -1;
 
@@ -389,7 +389,7 @@ const setrefrence = new autofunction("setrefrence", -1, ["route", "coordinates"]
 	}
 
 	if(rwIndex === -1){
-		setrefrence.error();
+		setrunway.error();
 		return;
 	}
 
@@ -448,4 +448,4 @@ const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variati
 	write("hdg", course);
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, takeoffconfig, autotakeoff, rejecttakeoff, setposition, setrefrence, flyto];
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, takeoffconfig, autotakeoff, rejecttakeoff, setposition, setrunway, flyto];

@@ -19,60 +19,92 @@
         <button onclick="bridge();">Connect</button>
         <button onclick="closeBridge();">Close</button>
         <h3>NOTE: Ensure you are loaded into a flight before connecting!</h3>
-        <div id="autopilot" hidden>
+        <div id="autopilot" >
 			<h3>NOTE: Restart the connection if you start a new flight.</h3>
 			<br>
-            <h2>Auto Functions</h2>
-            <button id="trim" onclick="autotrim.changeActive();" class="off">TRIM</button>
-			<button id="lights" onclick="autolights.changeActive();" class="off">LIGHTS</button>
-			<button id="gear" onclick="autogear.changeActive();" class="off">GEAR</button>
-            <br><br><br>
-
-			<label for="flaplow">1. Max Flaps Speed | </label>
-			<label for="flaphigh">2. Clean Speed | </label>
-			<label for="flapto">3. Takeoff Flap Number</label>
-			<br><br>
-			<input id="flaplow" type="number" value="120" step="5">
-			<input id="flaphigh" type="number" value="200" step="5">
-			<input id="flapto" type="number" value="2" step="1">
-			<button id="flaps" onclick="autoflaps.changeActive();" class="off">FLAPS</button>
-			<br><br><br>
-
-			<label for="lat">1. Latitude Refrence | </label>
-			<label for="long">2. Longitude Refrence | </label>
-			<label for="hdg">3. Heading Refrence</label>
-			<br><br>
-			<input id="lat" type="number" value="39.51367">
-			<input id="long" type="number" value="-119.76675">
-			<input id="hdg" type="number" value="167" step="1">
-			<br><br>
-			<button id="flyto" onclick="flyto.changeActive();" class="off">FLY TO</button>
-			<button id="setposition" onclick="setposition.changeActive();" class="off">SET POSITION</button>
-			<button id="setrefrence" onclick="setrefrence.changeActive();" class="off">SET REFRENCE</button>
-			<br><br><br>
-
-			<button id="takeoffconfig" onclick="takeoffconfig.changeActive();" class="off">BEFORE TAKEOFF CONFIG</button>
-			<button id="levelchange" onclick="levelchange.changeActive();" class="off">LEVEL CHANGE</button>
-			<br><br><br>
-
-			<label for="climbrate">1. Climb Gradient in ft/nm for Takeoff</label>
-			<br><br>
-			<input id="climbrate" type="number" value="500" step="100">
-			<button id="autotakeoff" onclick="autotakeoff.changeActive();" class="off">AUTO TAKEOFF</button>
-			<button id="reject" onclick="rejecttakeoff.changeActive();" class="off">REJECT TAKEOFF</button>
-			<br><br>
-			<input id="short" type="checkbox">
-			<label for="short">Shortfield</label>
+            <h2>IFAPI Controller</h2>
+			<div>
+				<button class="off">Standby</button>
+				<button class="active">Active</button>
+				<button class="armed">Armed</button>
+				<button class="error">Error</button>
+			</div>
 			<br>
+			<div class="mode">
+				<h3>Auto Functions</h3>
+				<button id="trim" onclick="autotrim.changeActive();" class="off">TRIM</button>
+				<button id="lights" onclick="autolights.changeActive();" class="off">LIGHTS</button>
+				<button id="gear" onclick="autogear.changeActive();" class="off">GEAR</button>
+				<br><br>
 
-			<p>NOTE: You must still input rudder to maintian centerline.<br>This is the only thing the API cannot control.</p>
+				<input id="flaplow" type="number" value="120" step="5">
+				<input id="flaphigh" type="number" value="200" step="5">
+				<input id="flapto" type="number" value="2" step="1">
+				<button id="flaps" onclick="autoflaps.changeActive();" class="off">FLAPS</button>
+				<br>
+				
+				<ol>
+					<li><label for="flaplow">Max Flaps Speed</label></li>
+					<li><label for="flaphigh">Clean Speed</label></li>
+					<li><label for="flapto">Takeoff Flap Number</label></li>
+				</ol>
+				<ul>
+					<li>Takeoff flap is the config setting, not the degree.</li>
+				</ul>
+			</div>
+			<div class="mode">
+				<h3>Auto Takeoff</h3>
+				<button id="takeoffconfig" onclick="takeoffconfig.changeActive();" class="off">BEFORE TAKEOFF CONFIG</button>
+				<br><br>
 
-			<p>COLOR KEY<br>
-				White: Inactive<br>
-				Green: Active<br>
-				Orange: Armed<br>
-				Red: Error<br>
-			</p>
+				<input id="climbrate" type="number" value="500" step="100">
+				<input id="short" type="checkbox">
+				<label for="short">Max Thrust</label>
+				<br><br>
+
+				<button id="autotakeoff" onclick="autotakeoff.changeActive();" class="off">AUTO TAKEOFF</button>
+				<button id="reject" onclick="rejecttakeoff.changeActive();" class="off">REJECT TAKEOFF</button>
+				<br>
+
+				<ol>
+					<li><label for="climbrate">Climb Gradient for Takeoff (ft/nm)</label></li>
+				</ol>
+				<ul>
+					<li>You must still input rudder to maintian centerline.</li>
+					<br>
+					<li>BTC will configure aircraft for takeoff. If used on a runway, flaps and lights will be configured as well.</li>
+				</ul>
+			</div>
+			<div class="mode">
+				<h3>Auto Flight</h3>
+				<input id="lat" type="number" value="39.51367">
+				<input id="long" type="number" value="-119.76675">
+				<input id="hdg" type="number" value="167" step="1">
+				<button id="flyto" onclick="flyto.changeActive();" class="off">FLY TO</button>
+				<br><br>
+
+				<button id="setposition" onclick="setposition.changeActive();" class="off">SET POSITION</button>
+				<button id="setrunway" onclick="setrunway.changeActive();" class="off">SET RUNWAY</button>
+				<br>
+
+				<ol>
+					<li><label for="lat">Latitude</label></li>
+					<li><label for="long">Longitude</label></li>
+					<li><label for="hdg">Heading</label></li>
+				</ol>
+				<ul>
+					<li>Leave heading blank for direct to.</li>
+					<br>
+					<li>Position will set your current location as the target.</li>
+					<li>Runway will set the first RWXX in your FPL as the target.</li>
+					<br>
+					<li>You must still update the heading to the exact runway heading.</li>
+				</ul>
+			</div>
+			<div class="mode">
+				<h3>Altitude Modes</h3>
+				<button id="levelchange" onclick="levelchange.changeActive();" class="off">LEVEL CHANGE</button>
+			</div>
         </div>
     </body>
 </html>
