@@ -29,7 +29,7 @@
 				<button class="armed">Armed</button>
 				<button class="error">Error</button>
 			</div>
-			<br>
+			<br><br>
 			<div class="mode">
 				<h3>Auto Functions</h3>
 				<button id="trim" onclick="autotrim.changeActive();" class="off">TRIM</button>
@@ -37,17 +37,18 @@
 				<button id="gear" onclick="autogear.changeActive();" class="off">GEAR</button>
 				<br><br>
 
-				<input id="flaplow" type="number" value="110" step="5">
+				<input id="flaplow" type="number" value="120" step="5">
 				<input id="flaphigh" type="number" value="200" step="5">
 				<input id="flapto" type="number" value="2" step="1">
 				<button id="flaps" onclick="autoflaps.changeActive();" class="off">FLAPS</button>
-				<br>
+				<br><br>
 
 				<ol>
 					<li><label for="flaplow">Max Flaps Speed</label></li>
 					<li><label for="flaphigh">Clean Speed</label></li>
 					<li><label for="flapto">Takeoff Flap Number</label></li>
 				</ol>
+
 				<ul>
 					<li>Takeoff flap is the config setting, not the degree.</li>
 				</ul>
@@ -71,13 +72,13 @@
 				<label for="short">Max Thrust</label>
 				<input id="takeoffmsl" type="checkbox">
 				<label for="takeoffmsl">Use MSL</label>
-				<br>
+				<br><br>
 
 				<ol>
-					<li><label for="rotate">Rotate (VR)</label></li>
-					<li><label for="climbspd">Climb Speed</label></li>
+					<li><label for="rotate">Rotate (kts)(VR)</label></li>
+					<li><label for="climbspd">Climb Speed (kts)</label></li>
 					<li><label for="climbrate">Climb Gradient (ft/nm)</label></li>
-					<li><label for="climbalt">Top Altitude</label></li>
+					<li><label for="climbalt">Top Altitude (ft)</label></li>
 				</ol>
 				<ul>
 					<li>You must still input rudder to maintian centerline.</li>
@@ -85,51 +86,86 @@
 			</div>
 			<div class="mode">
 				<h3>Auto Flight</h3>
+				<select id="flcmode">
+					<option value="a">Airspeed (kts)</option>
+					<option value="g">Gradient (ft/nm)</option>
+					<option value="v">VPA (deg)</option>
+				</select>
+				<input id="flcinput" type="number" value="500" step="1">
+				<button id="levelchange" onclick="levelchange.changeActive();" class="off" disabled>LEVEL CHANGE</button>
+				<br><br>
+
 				<input id="lat" type="number" value="39.51367">
 				<input id="long" type="number" value="-119.76675">
 				<input id="hdg" type="number" value="167" step="1">
 				<button id="flyto" onclick="flyto.changeActive();" class="off">FLY TO</button>
 				<br><br>
 
-				<button id="setposition" onclick="setposition.changeActive();" class="off">SET POSITION</button>
-				<button id="setrunway" onclick="setrunway.changeActive();" class="off">SET RUNWAY</button>
-				<br>
-
 				<ol>
-					<li><label for="lat">Latitude</label></li>
-					<li><label for="long">Longitude</label></li>
-					<li><label for="hdg">Heading</label></li>
+					<li><label for="flcmode">Reference Mode</label></li>
+					<li><label for="flcinput">Reference Parameter</label></li>
+				</ol>
+				<ol>
+					<li><label for="lat">Latitude (deg)</label></li>
+					<li><label for="long">Longitude (deg)</label></li>
+					<li><label for="hdg">Heading (deg)</label></li>
 				</ol>
 				<ul>
 					<li>Leave heading blank for direct to.</li>
-					<br>
-					<li>Position will set your current location as the target.</li>
-					<li>Runway will set the first RWXX in your FPL as the target.</li>
-					<br>
-					<li>You must still update the heading to the exact runway heading.</li>
 				</ul>
 			</div>
 			<div class="mode">
-				<h3>Altitude Modes</h3>
-				<ul>
-					<li><input id="spdMode" name="changemode" type="radio"><label>AIRSPEED (kts)</label></li>
-					<li><input id="gradeMode" name="changemode" type="radio" checked><label>GRADIENT (ft/nm)</label></li>
-					<li><input id="vpaMode" name="changemode" type="radio"><label>VPA (deg)</label></li>
-				</ul>
+				<h3>Pattern Work</h3>
+				<input id="updist" type="number" value="3" step="1">
+				<input id="downwidth" type="number" value="4" step="1">
+				<input id="finallength" type="number" value="5" step="1">
+				<br><br>
 
-				<input id="change" type="number" value="500" step="1">
-				<button id="levelchange" onclick="levelchange.changeActive();" class="off">LEVEL CHANGE</button>
-				<br>
+				<input id="latref" type="number" value="39.51367">
+				<input id="longref" type="number" value="-119.76675">
+				<input id="hdgref" type="number" value="167" step="1">
+				<input id="altref" type="number" value="0" step="1">
+				<br><br>
+
+				<select id="direction">
+					<option value="l">Left</option>
+					<option value="r">Right</option>
+				</select>
+				<select id="leg">
+					<option value="u">Upwind</option>
+					<option value="c">Crosswind</option>
+					<option value="d">Downwind</option>
+					<option value="b">Base</option>
+					<option value="f">Final</option>
+				</select>
+				<button id="flypattern" onclick="flypattern.changeActive();" class="off">FLY PATTERN</button>
+				<br><br>
+
+				<button id="markposition" onclick="markposition.changeActive();" class="off">MARK POSITION</button>
+				<button id="setrunway" onclick="setrunway.changeActive();" class="off">SET RUNWAY</button>
+				<br><br>
 
 				<ol>
-					<li><label for="change">Input for levelchange</label></li>
+					<li><label for="updist">Upwind Distance (nm)</label></li>
+					<li><label for="downwidth">Downwind Width (nm)</label></li>
+					<li><label for="finallength">Final Distance (nm)</label></li>
+				</ol>
+				<ol>
+					<li><label for="latref">Latitude Reference (deg)</label></li>
+					<li><label for="longref">Longitude Reference (deg)</label></li>
+					<li><label for="altref">Altitude Reference (ft)</label></li>
+					<li><label for="hdgref">Heading Reference (deg)</label></li>
+				</ol>
+				<ol>
+					<li><label for="dir">Traffic Direction</label></li>
+					<li><label for="leg">Current Leg</label></li>
 				</ol>
 				<ul>
-					<li>All modes use autopilot ALT as target.</li>
+					<li>Configure AutoTakeoff first.</li>
 					<br>
-					<li>Airspeed mode uses autopilot SPD as reference.</li>
+					<li>Runway will set the first RWXX in your FPL as the target.</li>
 					<br>
-					<li>Airspeed mode also requires manual input of power for now.</li>
+					<li>You must still update the heading to the exact runway heading.</li>
 				</ul>
 			</div>
         </div>
