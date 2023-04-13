@@ -275,6 +275,8 @@ class Item{
 		"aircraft/0/latitude":"latitude",
 		"aircraft/0/longitude":"longitude",
 		"aircraft/0/magnetic_variation":"variation",
+		"environment/wind_velocity":"wind",
+		"environment/wind_direction_true":"winddir",
 
 		"aircraft/0/flightplan/route":"route",
 		"aircraft/0/flightplan/coordinates":"coordinates",
@@ -301,6 +303,9 @@ class Item{
 		
 		"throttle":0.1, // 1000s to 100s
 		"n1":100,
+
+		"wind":1.94384,
+		"winddir":180/Math.PI,
 		"variation":180/Math.PI,
 
 		"spd":1.94384, // m/s to kts

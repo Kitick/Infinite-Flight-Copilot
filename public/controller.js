@@ -384,7 +384,7 @@ function calcLLfromHD(lat, long, hdg, dist, magvar = 0){
 const toDeg = 180 / Math.PI;
 const toRad = Math.PI / 180;
 
-const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variation"], states => {
+const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variation", "airspeed", "wind", "winddir"], states => {
 	const latTarget = parseFloat(document.getElementById("lat").value);
 	const longTarget = parseFloat(document.getElementById("long").value);
 	const hdgTarget = cyclical(parseInt(document.getElementById("hdg").value));
@@ -404,7 +404,7 @@ const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variati
 	}
 
 	let course = cyclical(Math.atan2(deltaX, deltaY) * toDeg - states.variation);
-
+	
 	if(!isNaN(hdgTarget)){
 		let diffrence = hdgTarget - course;
 		let sign = diffrence >= 0 ? 1:-1;
@@ -417,29 +417,39 @@ const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variati
 		}
 
 		if(Math.abs(diffrence) <= 3){
-			course -= 3 * diffrence;
+			course -= 5 * diffrence;
 		}
 		else{
 			course -= 30 * sign;
 		}
 	}
 
-	course = cyclical(course);
+	let courseMath = -course + 90;
+	let windMath = -states.winddir + 90 - states.variation;
+
+	courseMath *= toRad;
+	windMath *= toRad;
+
+	const courseX = states.airspeed * Math.cos(courseMath);
+	const courseY = states.airspeed * Math.sin(courseMath);
+	const windX = (states.wind / 2) * Math.cos(windMath);
+	const windY = (states.wind / 2) * Math.sin(windMath);
+	
+	course = cyclical(Math.atan2(courseX + windX, courseY + windY) * toDeg);
 
 	write("hdg", course);
 });
 
-const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude", "variation", "onrunway"], states => {
+const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude", "variation", "onrunway", "groundspeed"], states => {
 	const lat = parseFloat(document.getElementById("latref").value);
 	const long = parseFloat(document.getElementById("longref").value);
-	const alt = parseInt(document.getElementById("altref").value);
 	const hdg = cyclical(document.getElementById("hdgref").value);
 
 	const updist = parseFloat(document.getElementById("updist").value);
 	const downwidth = parseFloat(document.getElementById("downwidth").value);
 	const finallength = parseFloat(document.getElementById("finallength").value);
 
-	if(isNaN(lat) || isNaN(long) || isNaN(alt) || isNaN(hdg)){
+	if(isNaN(lat) || isNaN(long) || isNaN(hdg)){
 		flypattern.error();
 		return;
 	}
@@ -452,15 +462,15 @@ const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude"
 	let pattern = [];
 	pattern[0] = calcLLfromHD(lat, long, hdg, updist + 1.5, states.variation);
 	pattern[1] = calcLLfromHD(pattern[0][0], pattern[0][1], hdg + 90 * dir, downwidth, states.variation);
-	pattern[3] = calcLLfromHD(lat, long, hdg + 180, 5, states.variation);
-	pattern[2] = calcLLfromHD(pattern[3][0], pattern[3][1], hdg + 90 * dir, finallength, states.variation);
+	pattern[3] = calcLLfromHD(lat, long, hdg + 180, finallength, states.variation);
+	pattern[2] = calcLLfromHD(pattern[3][0], pattern[3][1], hdg + 90 * dir, downwidth, states.variation);
 	pattern[4] = [lat, long];
 
 	const deltaY = 60 * (pattern[leg][0] - states.latitude);
 	const deltaX = 60 * (pattern[leg][1] - states.longitude) * Math.cos((pattern[leg][0] + states.latitude) * 0.5 * toRad);
 	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
 
-	if(distance < 2){
+	if(distance < states.groundspeed / 100){
 		leg = (leg + 1) % 5;
 	}
 
