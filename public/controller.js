@@ -482,10 +482,6 @@ const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude"
 	if(!flyto.active){
 		flyto.changeActive(true);
 	}
-
-	if(states.onrunway && !autotakeoff.active){
-		autotakeoff.changeActive(true);
-	}
 });
 
 const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, takeoffconfig, autotakeoff, rejecttakeoff, markposition, setrunway, flyto, flypattern];
