@@ -455,15 +455,18 @@ const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude"
 	}
 
 	const legs = ['u', 'c', 'd', 'b', 'f'];
-	const hdgs = [hdg, hdg + 90, hdg + 180, hdg - 90, hdg];
+
 	let leg = legs.indexOf(document.getElementById("leg").value);
 	const dir = document.getElementById("direction").value === 'r' ? 1:-1;
 
+	const hdg90 = hdg + 90 * dir;
+	const hdgs = [hdg, hdg90, hdg + 180, hdg90 + 180, hdg];
+
 	let pattern = [];
 	pattern[0] = calcLLfromHD(lat, long, hdg, updist + 1.5, states.variation);
-	pattern[1] = calcLLfromHD(pattern[0][0], pattern[0][1], hdg + 90 * dir, downwidth, states.variation);
+	pattern[1] = calcLLfromHD(pattern[0][0], pattern[0][1], hdg90, downwidth, states.variation);
 	pattern[3] = calcLLfromHD(lat, long, hdg + 180, finallength, states.variation);
-	pattern[2] = calcLLfromHD(pattern[3][0], pattern[3][1], hdg + 90 * dir, downwidth, states.variation);
+	pattern[2] = calcLLfromHD(pattern[3][0], pattern[3][1], hdg90, downwidth, states.variation);
 	pattern[4] = [lat, long];
 
 	const deltaY = 60 * (pattern[leg][0] - states.latitude);
