@@ -1,5 +1,4 @@
 Ensure:
-- You have Node installed on your system inorder for this to run. Either version is fine.
 - You have the Infinite Flight Connect setting checked on.
 - Both devices are connected to the same network.
 
