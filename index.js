@@ -113,7 +113,7 @@ class Client{
 
 		if(this.active){
 			this.log(this.address + " TCP Already Active");
-			this.socket.emit("ready");
+			this.socket.emit("ready", this.address);
 			return;
 		}
 
@@ -177,7 +177,7 @@ class Client{
 			});
 
 			this.log(this.address + " Manifest Built, API Ready");
-			this.socket.emit("ready");
+			this.socket.emit("ready", this.address);
 		}
 		else{
 			const item = this.getItem(id);

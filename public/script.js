@@ -74,7 +74,8 @@ function reset(){
 let statLog;
 const socket = io();
 
-socket.on("ready", () => {
+socket.on("ready", address => {
+	document.getElementById("address").value = address;
     document.getElementById("autopilot").hidden = false;
 });
 
