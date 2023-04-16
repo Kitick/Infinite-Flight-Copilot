@@ -87,7 +87,6 @@ const autotrim = new autofunction("trim", 1000, ["pitch", "trim", "onground"], s
 	autotrim.button.className = "active";
 
 	const deadzone = 2;
-	const pitchDirection = states.pitch > 0 ? 1:-1;
 	let mod = 10;
 
 	if(Math.abs(states.pitch) < 10){
@@ -98,7 +97,7 @@ const autotrim = new autofunction("trim", 1000, ["pitch", "trim", "onground"], s
 	}
 
 	if(Math.abs(states.pitch) >= deadzone){
-		let newTrim = states.trim + mod * pitchDirection;
+		let newTrim = states.trim + mod * Math.sign(states.pitch);
 		newTrim = Math.round(newTrim / mod) * mod;
 
 		write("trim", newTrim);
@@ -130,7 +129,7 @@ const autolights = new autofunction("lights", 1000, ["altitudeAGL", "onground", 
 const autogear = new autofunction("gear", 1000, ["gear", "altitudeAGL", "verticalspeed"], states => {
 	let newState = states.gear;
 
-	if(states.altitudeAGL < 200 || (states.verticalspeed <= -500 && states.altitudeAGL < 1500)){
+	if(states.altitudeAGL < 200 || (states.verticalspeed <= -500 && states.altitudeAGL < 1000)){
 		newState = true;
 	}
 	else if(states.verticalspeed >= 500 || states.altitudeAGL >= 2000){
@@ -207,15 +206,174 @@ const levelchange = new autofunction("levelchange", 1000, ["airspeed", "altitude
 	}
 
 	const mode = document.getElementById("flcmode").value;
-	const dir = diffrence >= 0 ? 1:-1;
-	const ktm = states.airspeed / 60;
 
 	if(mode === 'v'){
 		input = 6076.12 * Math.sin(input * toRad) / Math.sin((90 - input) * toRad);
 	}
 
-	const fpm = input * dir * states.airspeed / 60;
+	const fpm = input * Math.sign(diffrence) * states.airspeed / 60;
 	write("vs", fpm);
+});
+
+const markposition = new autofunction("markposition", -1, ["latitude", "longitude", "altitude", "heading"], states => {
+	document.getElementById("latref").value = states.latitude;
+	document.getElementById("longref").value = states.longitude;
+	document.getElementById("altref").value = Math.round(states.altitude);
+	document.getElementById("hdgref").value = Math.round(states.heading);
+});
+
+const setrunway = new autofunction("setrunway", -1, ["route", "coordinates"], states => {
+	const route = states.route.split(",");
+	let rwIndex = -1;
+
+	for(let i = 0, length = route.length; i < length; i++){
+		if(route[i].search(/RW\d\d.*/) === 0){
+			rwIndex = i;
+			break;
+		}
+	}
+
+	if(rwIndex === -1){
+		setrunway.error();
+		return;
+	}
+
+	const runwayCoords = states.coordinates.split(" ")[rwIndex].split(",");
+
+	document.getElementById("latref").value = runwayCoords[0];
+	document.getElementById("longref").value = runwayCoords[1];
+	document.getElementById("hdgref").value = parseInt(route[rwIndex][2] + route[rwIndex][3] + "0");
+});
+
+function cyclical(value, range = 360){
+    value = ((value % range) + range) % range;
+    return value;
+}
+
+function dms(deg, min = 0, sec = 0){
+	return Math.sign(deg) * (Math.abs(deg) + (min / 60) + (sec / 3600));
+}
+
+function calcLLfromHD(lat, long, hdg, dist, magvar = 0){
+    dist /= 60;
+
+    hdg = -hdg + 90 - magvar;
+    hdg *= toRad;
+
+    const lat2 = dist * Math.sin(hdg) + lat;
+    const long2 = dist * Math.cos(hdg) * Math.cos(toRad * (lat + lat2) * 0.5) ** -1 + long;
+
+    return [lat2, long2];
+}
+
+const toDeg = 180 / Math.PI;
+const toRad = Math.PI / 180;
+
+const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variation", "airspeed", "wind", "winddir"], states => {
+	const latTarget = parseFloat(document.getElementById("lat").value);
+	const longTarget = parseFloat(document.getElementById("long").value);
+	const hdgTarget = cyclical(parseInt(document.getElementById("hdg").value));
+
+	if(isNaN(latTarget) || isNaN(longTarget)){
+		flyto.error();
+		return;
+	}
+
+	const deltaY = 60 * (latTarget - states.latitude);
+	const deltaX = 60 * (longTarget - states.longitude) * Math.cos((latTarget + states.latitude) * 0.5 * toRad);
+	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
+
+	if(distance < 1){
+		flyto.changeActive(false);
+		return;
+	}
+
+	let course = cyclical(Math.atan2(deltaX, deltaY) * toDeg - states.variation);
+
+	if(!isNaN(hdgTarget)){
+		let diffrence = hdgTarget - course;
+
+		if(diffrence > 180){
+			diffrence -= 360;
+		}
+		else if(diffrence < -180){
+			diffrence += 360;
+		}
+
+		if(Math.abs(diffrence) < 6){
+			course -= 5 * diffrence;
+		}
+		else{
+			course -= 30 * Math.sign(diffrence);
+		}
+	}
+
+	let courseMath = -course + 90;
+	let windMath = -states.winddir + 90 - states.variation;
+
+	courseMath *= toRad;
+	windMath *= toRad;
+
+	const courseX = states.airspeed * Math.cos(courseMath);
+	const courseY = states.airspeed * Math.sin(courseMath);
+	const windX = (states.wind / 2) * Math.cos(windMath);
+	const windY = (states.wind / 2) * Math.sin(windMath);
+
+	course = cyclical(Math.atan2(courseX + windX, courseY + windY) * toDeg);
+
+	write("hdg", course);
+});
+
+const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude", "variation", "onrunway", "groundspeed"], states => {
+	const lat = parseFloat(document.getElementById("latref").value);
+	const long = parseFloat(document.getElementById("longref").value);
+	const hdg = cyclical(document.getElementById("hdgref").value);
+
+	const updist = parseFloat(document.getElementById("updist").value);
+	const downwidth = parseFloat(document.getElementById("downwidth").value);
+	const finallength = parseFloat(document.getElementById("finallength").value);
+
+	if(isNaN(lat) || isNaN(long) || isNaN(hdg)){
+		flypattern.error();
+		return;
+	}
+
+	const legs = ['u', 'c', 'd', 'b', 'f'];
+
+	let leg = legs.indexOf(document.getElementById("leg").value);
+	const direction = document.getElementById("direction").value === 'r' ? 1:-1;
+
+	const hdg90 = hdg + 90 * direction;
+	const hdgs = [hdg, hdg90, hdg + 180, hdg90 + 180, hdg];
+
+	let pattern = [];
+	pattern[0] = calcLLfromHD(lat, long, hdg, updist + 1.5, states.variation);
+	pattern[1] = calcLLfromHD(pattern[0][0], pattern[0][1], hdg90, downwidth, states.variation);
+	pattern[3] = calcLLfromHD(lat, long, hdg + 180, finallength, states.variation);
+	pattern[2] = calcLLfromHD(pattern[3][0], pattern[3][1], hdg90, downwidth, states.variation);
+	pattern[4] = [lat, long];
+
+	const deltaY = 60 * (pattern[leg][0] - states.latitude);
+	const deltaX = 60 * (pattern[leg][1] - states.longitude) * Math.cos((pattern[leg][0] + states.latitude) * 0.5 * toRad);
+	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
+
+	const speed = states.groundspeed / 60; // kts to nm/m
+	const turnrate = 1.5 * 60 * toRad; // deg/s to rad/m
+
+	if(distance < speed / turnrate){
+		if(leg !== 4 || (leg === 4 && distance < 1)){
+			leg = (leg + 1) % 5;
+		}
+	}
+
+	document.getElementById("leg").value = legs[leg];
+	document.getElementById("lat").value = pattern[leg][0];
+	document.getElementById("long").value = pattern[leg][1];
+	document.getElementById("hdg").value = cyclical(hdgs[leg]);
+
+	if(!flyto.active){
+		flyto.changeActive(true);
+	}
 });
 
 const rejecttakeoff = new autofunction("reject", -1, ["onrunway"], states => {
@@ -277,6 +435,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		}
 
 		takeoffconfig.start(true);
+		levelchange.changeActive(false);
 
 		autotrim.changeActive(true);
 		autolights.changeActive(true);
@@ -341,162 +500,4 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	autotakeoff.stage = stage;
 });
 
-const markposition = new autofunction("markposition", -1, ["latitude", "longitude", "altitude", "heading"], states => {
-	document.getElementById("latref").value = states.latitude;
-	document.getElementById("longref").value = states.longitude;
-	document.getElementById("altref").value = Math.round(states.altitude);
-	document.getElementById("hdgref").value = Math.round(states.heading);
-});
-
-const setrunway = new autofunction("setrunway", -1, ["route", "coordinates"], states => {
-	const route = states.route.split(",");
-	let rwIndex = -1;
-
-	for(let i = 0, length = route.length; i < length; i++){
-		if(route[i].search(/RW\d\d.*/) === 0){
-			rwIndex = i;
-			break;
-		}
-	}
-
-	if(rwIndex === -1){
-		setrunway.error();
-		return;
-	}
-
-	const runwayCoords = states.coordinates.split(" ")[rwIndex].split(",");
-
-	document.getElementById("latref").value = runwayCoords[0];
-	document.getElementById("longref").value = runwayCoords[1];
-	document.getElementById("hdgref").value = parseInt(route[rwIndex][2] + route[rwIndex][3] + "0");
-});
-
-function cyclical(value, range = 360){
-    value = ((value % range) + range) % range;
-    return value;
-}
-
-function dms(deg, min = 0, sec = 0){
-    const sign = deg >= 0 ? 1:-1;
-	return sign * (Math.abs(deg) + (min / 60) + (sec / 3600));
-}
-
-function calcLLfromHD(lat, long, hdg, dist, magvar = 0){
-    dist /= 60;
-
-    hdg = -hdg + 90 - magvar;
-    hdg *= toRad;
-
-    const lat2 = dist * Math.sin(hdg) + lat;
-    const long2 = dist * Math.cos(hdg) * Math.cos(toRad * (lat + lat2) * 0.5) ** -1 + long;
-
-    return [lat2, long2];
-}
-
-const toDeg = 180 / Math.PI;
-const toRad = Math.PI / 180;
-
-const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variation", "airspeed", "wind", "winddir"], states => {
-	const latTarget = parseFloat(document.getElementById("lat").value);
-	const longTarget = parseFloat(document.getElementById("long").value);
-	const hdgTarget = cyclical(parseInt(document.getElementById("hdg").value));
-
-	if(isNaN(latTarget) || isNaN(longTarget)){
-		flyto.error();
-		return;
-	}
-
-	const deltaY = 60 * (latTarget - states.latitude);
-	const deltaX = 60 * (longTarget - states.longitude) * Math.cos((latTarget + states.latitude) * 0.5 * toRad);
-	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
-
-	if(distance < 0.5){
-		flyto.changeActive(false);
-		return;
-	}
-
-	let course = cyclical(Math.atan2(deltaX, deltaY) * toDeg - states.variation);
-	
-	if(!isNaN(hdgTarget)){
-		let diffrence = hdgTarget - course;
-		let sign = diffrence >= 0 ? 1:-1;
-
-		if(diffrence > 180){
-			diffrence -= 360;
-		}
-		else if(diffrence < -180){
-			diffrence += 360;
-		}
-
-		if(Math.abs(diffrence) <= 3){
-			course -= 5 * diffrence;
-		}
-		else{
-			course -= 30 * sign;
-		}
-	}
-
-	let courseMath = -course + 90;
-	let windMath = -states.winddir + 90 - states.variation;
-
-	courseMath *= toRad;
-	windMath *= toRad;
-
-	const courseX = states.airspeed * Math.cos(courseMath);
-	const courseY = states.airspeed * Math.sin(courseMath);
-	const windX = (states.wind / 2) * Math.cos(windMath);
-	const windY = (states.wind / 2) * Math.sin(windMath);
-	
-	course = cyclical(Math.atan2(courseX + windX, courseY + windY) * toDeg);
-
-	write("hdg", course);
-});
-
-const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude", "variation", "onrunway", "groundspeed"], states => {
-	const lat = parseFloat(document.getElementById("latref").value);
-	const long = parseFloat(document.getElementById("longref").value);
-	const hdg = cyclical(document.getElementById("hdgref").value);
-
-	const updist = parseFloat(document.getElementById("updist").value);
-	const downwidth = parseFloat(document.getElementById("downwidth").value);
-	const finallength = parseFloat(document.getElementById("finallength").value);
-
-	if(isNaN(lat) || isNaN(long) || isNaN(hdg)){
-		flypattern.error();
-		return;
-	}
-
-	const legs = ['u', 'c', 'd', 'b', 'f'];
-
-	let leg = legs.indexOf(document.getElementById("leg").value);
-	const dir = document.getElementById("direction").value === 'r' ? 1:-1;
-
-	const hdg90 = hdg + 90 * dir;
-	const hdgs = [hdg, hdg90, hdg + 180, hdg90 + 180, hdg];
-
-	let pattern = [];
-	pattern[0] = calcLLfromHD(lat, long, hdg, updist + 1.5, states.variation);
-	pattern[1] = calcLLfromHD(pattern[0][0], pattern[0][1], hdg90, downwidth, states.variation);
-	pattern[3] = calcLLfromHD(lat, long, hdg + 180, finallength, states.variation);
-	pattern[2] = calcLLfromHD(pattern[3][0], pattern[3][1], hdg90, downwidth, states.variation);
-	pattern[4] = [lat, long];
-
-	const deltaY = 60 * (pattern[leg][0] - states.latitude);
-	const deltaX = 60 * (pattern[leg][1] - states.longitude) * Math.cos((pattern[leg][0] + states.latitude) * 0.5 * toRad);
-	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
-
-	if(distance < states.groundspeed / 100){
-		leg = (leg + 1) % 5;
-	}
-
-	document.getElementById("leg").value = legs[leg];
-	document.getElementById("lat").value = pattern[leg][0];
-	document.getElementById("long").value = pattern[leg][1];
-	document.getElementById("hdg").value = cyclical(hdgs[leg]);
-
-	if(!flyto.active){
-		flyto.changeActive(true);
-	}
-});
-
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, takeoffconfig, autotakeoff, rejecttakeoff, markposition, setrunway, flyto, flypattern];
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff];

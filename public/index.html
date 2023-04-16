@@ -88,6 +88,12 @@
 			</div>
 			<div class="mode">
 				<h3>Auto Flight</h3>
+				<input id="lat" type="number" value="39.51367">
+				<input id="long" type="number" value="-119.76675">
+				<input id="hdg" type="number" value="167" step="1">
+				<button id="flyto" onclick="flyto.changeActive();" class="off">FLY TO</button>
+				<br><br>
+
 				<select id="flcmode" onchange="fixflcinput(this.value);">
 					<option value="g">Gradient (ft/nm)</option>
 					<option value="v">VPA (deg)</option>
@@ -96,20 +102,14 @@
 				<button id="levelchange" onclick="levelchange.changeActive();" class="off">LEVEL CHANGE</button>
 				<br><br>
 
-				<input id="lat" type="number" value="39.51367">
-				<input id="long" type="number" value="-119.76675">
-				<input id="hdg" type="number" value="167" step="1">
-				<button id="flyto" onclick="flyto.changeActive();" class="off">FLY TO</button>
-				<br><br>
-
-				<ol>
-					<li><label for="flcmode">Change Mode</label></li>
-					<li><label for="flcinput">Change Rate</label></li>
-				</ol>
 				<ol>
 					<li><label for="lat">Latitude (deg)</label></li>
 					<li><label for="long">Longitude (deg)</label></li>
 					<li><label for="hdg">Heading (deg)</label></li>
+				</ol>
+				<ol>
+					<li><label for="flcmode">Change Mode</label></li>
+					<li><label for="flcinput">Change Rate</label></li>
 				</ol>
 				<ul>
 					<li>Leave heading blank for direct to.</li>
@@ -118,13 +118,17 @@
 			<div class="mode">
 				<h3>Pattern Work</h3>
 				<input id="updist" type="number" value="2" step="0.5">
-				<input id="downwidth" type="number" value="4" step="0.5">
-				<input id="finallength" type="number" value="5" step="0.5">
+				<input id="downwidth" type="number" value="5" step="0.5">
+				<input id="finallength" type="number" value="6" step="0.5">
 				<br><br>
 
 				<input id="latref" type="number" value="39.51367">
 				<input id="longref" type="number" value="-119.76675">
 				<input id="hdgref" type="number" value="167" step="1">
+				<br><br>
+
+				<button id="markposition" onclick="markposition.changeActive();" class="off">MARK POSITION</button>
+				<button id="setrunway" onclick="setrunway.changeActive();" class="off">SET RUNWAY</button>
 				<br><br>
 
 				<select id="direction">
@@ -139,10 +143,6 @@
 					<option value="f">Final</option>
 				</select>
 				<button id="flypattern" onclick="flypattern.changeActive();" class="off">FLY PATTERN</button>
-				<br><br>
-
-				<button id="markposition" onclick="markposition.changeActive();" class="off">MARK POSITION</button>
-				<button id="setrunway" onclick="setrunway.changeActive();" class="off">SET RUNWAY</button>
 				<br><br>
 
 				<ol>
