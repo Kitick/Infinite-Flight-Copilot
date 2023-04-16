@@ -57,7 +57,6 @@
 				<h3>Auto Takeoff</h3>
 				<input id="rotate" type="number" value="130" step="5">
 				<input id="climbspd" type="number" value="200" step="5">
-				<input id="climbrate" type="number" value="500" step="50">
 				<input id="climbalt" type="number" value="3000" step="100">
 				<br><br>
 
@@ -77,10 +76,11 @@
 				<ol>
 					<li><label for="rotate">Rotate (kts)(VR)</label></li>
 					<li><label for="climbspd">Climb Speed (kts)</label></li>
-					<li><label for="climbrate">Climb Gradient (ft/nm)</label></li>
 					<li><label for="climbalt">Top Altitude (ft)</label></li>
 				</ol>
 				<ul>
+					<li>This will use the climb rate set in the autoflight pannel.</li>
+					<br>
 					<li>You must still input rudder to maintian centerline.</li>
 					<br>
 					<li>You must be on a runway for these to work.</li>
@@ -88,13 +88,12 @@
 			</div>
 			<div class="mode">
 				<h3>Auto Flight</h3>
-				<select id="flcmode">
-					<option value="a">Airspeed (kts)</option>
+				<select id="flcmode" onchange="fixflcinput(this.value);">
 					<option value="g">Gradient (ft/nm)</option>
 					<option value="v">VPA (deg)</option>
 				</select>
-				<input id="flcinput" type="number" value="500" step="1">
-				<button id="levelchange" onclick="levelchange.changeActive();" class="off" disabled>LEVEL CHANGE</button>
+				<input id="flcinput" type="number" value="500" min="0" step="100">
+				<button id="levelchange" onclick="levelchange.changeActive();" class="off">LEVEL CHANGE</button>
 				<br><br>
 
 				<input id="lat" type="number" value="39.51367">
@@ -104,8 +103,8 @@
 				<br><br>
 
 				<ol>
-					<li><label for="flcmode">Reference Mode</label></li>
-					<li><label for="flcinput">Reference Parameter</label></li>
+					<li><label for="flcmode">Change Mode</label></li>
+					<li><label for="flcinput">Change Rate</label></li>
 				</ol>
 				<ol>
 					<li><label for="lat">Latitude (deg)</label></li>

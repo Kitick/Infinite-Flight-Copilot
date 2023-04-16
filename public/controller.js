@@ -185,18 +185,37 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 	}
 });
 
-const levelchange = new autofunction("levelchange", 1000, ["airspeed", "altitude", "alt", "spd", "vs", "throttle", "vson"], states => {
+function fixflcinput(mode){
+	const flcinput = document.getElementById('flcinput');
+	flcinput.step = mode === 'g' ? 100:0.5;
+	flcinput.value = mode === 'g' ? 500:3;
+}
+
+const levelchange = new autofunction("levelchange", 1000, ["airspeed", "altitude", "alt"], states => {
+	let input = parseFloat(document.getElementById("flcinput").value);
+
+	if(isNaN(input)){
+		levelchange.error();
+		return;
+	}
+
+	const diffrence = states.alt - states.altitude;
+
+	if(Math.abs(diffrence) < 100){
+		levelchange.changeActive(false);
+		return;
+	}
+
 	const mode = document.getElementById("flcmode").value;
+	const dir = diffrence >= 0 ? 1:-1;
+	const ktm = states.airspeed / 60;
 
-	if(mode === 'a'){
-
+	if(mode === 'v'){
+		input = 6076.12 * Math.sin(input * toRad) / Math.sin((90 - input) * toRad);
 	}
-	else if(mode === 'g'){
 
-	}
-	else if(mode === 'v'){
-
-	}
+	const fpm = input * dir * states.airspeed / 60;
+	write("vs", fpm);
 });
 
 const rejecttakeoff = new autofunction("reject", -1, ["onrunway"], states => {
@@ -242,16 +261,14 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 
 	const rotate = parseInt(document.getElementById("rotate").value);
 	const climbspd = parseInt(document.getElementById("climbspd").value);
-	const climbrate = parseInt(document.getElementById("climbrate").value);
-	const climbalt = parseInt(document.getElementById("climbalt").value);
+	const flcinput = parseFloat(document.getElementById("flcinput").value);
 
-	if(isNaN(rotate) || isNaN(climbspd) || isNaN(climbrate) || isNaN(climbalt)){
+	if(isNaN(rotate) || isNaN(climbspd) || isNaN(flcinput)){
 		autotakeoff.error();
 		return;
 	}
 
 	const short = document.getElementById("short").checked;
-	const usemsl = document.getElementById("takeoffmsl").checked;
 
 	if(stage === 0){
 		if(!states.onrunway){
@@ -260,6 +277,9 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		}
 
 		takeoffconfig.start(true);
+
+		autotrim.changeActive(true);
+		autolights.changeActive(true);
 		autogear.changeActive(true);
 		autoflaps.changeActive(true);
 
@@ -303,27 +323,19 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	}
 	else if(stage === 2){
 		if(states.airspeed >= rotate){
+			levelchange.changeActive(true);
 			stage++;
 		}
 	}
 	else if(stage === 3){
-		const fpm = climbrate * states.airspeed / 60;
-
-		write("vs", fpm);
-
-		const MSL = states.altitude >= climbalt - 100;
-		const AGL = states.altitudeAGL >= (climbalt > 2000 ? 2000 : climbalt - 100);
-		if(AGL || (usemsl && MSL)){
+		if(Math.abs(climbspd - states.airspeed) < 10){
+			write("spdon", true);
 			stage++;
 		}
 	}
 	else{
 		write("spdon", true);
 		autotakeoff.changeActive(false);
-	}
-
-	if(Math.abs(climbspd - states.airspeed) < 10){
-		write("spdon", true);
 	}
 
 	autotakeoff.stage = stage;
