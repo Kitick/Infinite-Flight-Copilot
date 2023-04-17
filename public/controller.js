@@ -208,7 +208,7 @@ const levelchange = new autofunction("levelchange", 1000, ["airspeed", "altitude
 	const mode = document.getElementById("flcmode").value;
 
 	if(mode === 'v'){
-		input = 6076.12 * Math.sin(input * toRad) / Math.sin((90 - input) * toRad);
+		input = 6076.12 * Math.tan(input * toRad);
 	}
 
 	const fpm = input * Math.sign(diffrence) * states.airspeed / 60;
@@ -332,8 +332,9 @@ const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude"
 	const updist = parseFloat(document.getElementById("updist").value);
 	const downwidth = parseFloat(document.getElementById("downwidth").value);
 	const finallength = parseFloat(document.getElementById("finallength").value);
+	const turnconst = parseInt(document.getElementById("turnconst").value);
 
-	if(isNaN(lat) || isNaN(long) || isNaN(hdg)){
+	if(isNaN(lat) || isNaN(long) || isNaN(hdg) || isNaN(turnconst)){
 		flypattern.error();
 		return;
 	}
@@ -358,7 +359,7 @@ const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude"
 	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
 
 	const speed = states.groundspeed / 60; // kts to nm/m
-	const turnrate = 1.5 * 60 * toRad; // deg/s to rad/m
+	const turnrate = (turnconst / states.groundspeed) * 60 * toRad; // deg/s to rad/m
 
 	if(distance < speed / turnrate){
 		if(leg !== 4 || (leg === 4 && distance < 1)){

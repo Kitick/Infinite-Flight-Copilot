@@ -120,6 +120,7 @@
 				<input id="updist" type="number" value="2" step="0.5">
 				<input id="downwidth" type="number" value="5" step="0.5">
 				<input id="finallength" type="number" value="6" step="0.5">
+				<input id="turnconst" type="number" value="350" step="5">
 				<br><br>
 
 				<input id="latref" type="number" value="39.51367">
@@ -149,6 +150,7 @@
 					<li><label for="updist">Upwind Distance (nm)</label></li>
 					<li><label for="downwidth">Downwind Width (nm)</label></li>
 					<li><label for="finallength">Final Distance (nm)</label></li>
+					<li><label for="turnconst">Turn Constant (degkts)</label></li>
 				</ol>
 				<ol>
 					<li><label for="latref">Latitude Reference (deg)</label></li>
@@ -160,11 +162,11 @@
 					<li><label for="leg">Current Leg</label></li>
 				</ol>
 				<ul>
-					<li>Configure AutoTakeoff first.</li>
-					<br>
 					<li>Runway will set the first RWXX in your FPL as the target.</li>
 					<br>
 					<li>You must still update the heading to the exact runway heading.</li>
+					<br>
+					<li>Info about the turn constant is on the issues page of the github.</li>
 				</ul>
 			</div>
         </div>
