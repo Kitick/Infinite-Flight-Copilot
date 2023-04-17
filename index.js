@@ -8,13 +8,7 @@ const io = require("socket.io")(server);
 const Net = require("net");
 const UDP = require("dgram");
 
-app.use(Express.static("public"));
-const dir = __dirname + "/public/";
-
-// Pages
-app.get("/", (request, response) => {
-	response.sendFile(dir + "index.html");
-});
+app.use(Express.static(__dirname + "/public"));
 
 // Sockets
 io.on("connection", socket => {
@@ -119,7 +113,7 @@ class Client{
 
 		if(this.active){
 			this.log(this.address + " TCP Already Active");
-			this.socket.emit("ready");
+			this.socket.emit("ready", this.address);
 			return;
 		}
 
@@ -183,7 +177,7 @@ class Client{
 			});
 
 			this.log(this.address + " Manifest Built, API Ready");
-			this.socket.emit("ready");
+			this.socket.emit("ready", this.address);
 		}
 		else{
 			const item = this.getItem(id);
@@ -278,6 +272,15 @@ class Item{
 		"aircraft/0/systems/axes/roll":"roll",
 		"aircraft/0/systems/axes/yaw":"yaw",
 
+		"aircraft/0/latitude":"latitude",
+		"aircraft/0/longitude":"longitude",
+		"aircraft/0/magnetic_variation":"variation",
+		"environment/wind_velocity":"wind",
+		"environment/wind_direction_true":"winddir",
+
+		"aircraft/0/flightplan/route":"route",
+		"aircraft/0/flightplan/coordinates":"coordinates",
+
 		"aircraft/0/configuration/flaps/stops":"flapcount",
 		"aircraft/0/systems/engines/0/n1":"n1",
 		"aircraft/0/is_on_ground":"onground",
@@ -297,8 +300,13 @@ class Item{
 		"groundspeed":1.94384, // m/s to kts
 		"heading":180/Math.PI,
 		"verticalspeed":196.8504, // m/s to fpm
+		
 		"throttle":0.1, // 1000s to 100s
 		"n1":100,
+
+		"wind":1.94384,
+		"winddir":180/Math.PI,
+		"variation":180/Math.PI,
 
 		"spd":1.94384, // m/s to kts
 		"hdg":180/Math.PI, // rad to deg
@@ -385,7 +393,7 @@ class Controller{
 	static read(socket, command, callback){
 		const client = this.clients[socket.id];
 
-		if(client.getItem(command) === undefined){
+		if(client?.getItem(command) === undefined){
 			callback(undefined);
 			return;
 		}
@@ -399,7 +407,7 @@ class Controller{
 	static write(socket, command, value){
 		const client = this.clients[socket.id];
 
-		if(client.getItem(command) === undefined){
+		if(client?.getItem(command) === undefined){
 			return;
 		}
 

@@ -4,7 +4,7 @@ class autofunction{
 		this.button = button;
 		this.length = states.length;
 		this.timeout = timeout;
-		
+
 		this.stage = 0;
 		this.counter = 0;
 
@@ -54,18 +54,26 @@ class autofunction{
 	}
 
 	changeActive(state = !this.active){
+		if(this.active === state){
+			return;
+		}
+
 		this.active = state;
 		this.stage = 0;
-		this.button.className = this.active ? "active":"off";
+
+		if(this.button !== null){
+			this.button.className = this.active ? "active":"off";
+		}
+
 		this.start();
 	}
 
 	error(){
-		this.active = false;
+		this.changeActive(false);
 		this.button.className = "error";
 
 		setTimeout(() => {
-			this.changeActive(false);
+			this.button.className = this.active ? "active":"off";
 		}, 2000);
 	}
 }
@@ -79,7 +87,6 @@ const autotrim = new autofunction("trim", 1000, ["pitch", "trim", "onground"], s
 	autotrim.button.className = "active";
 
 	const deadzone = 2;
-	const pitchDirection = states.pitch > 0 ? 1:-1;
 	let mod = 10;
 
 	if(Math.abs(states.pitch) < 10){
@@ -90,7 +97,7 @@ const autotrim = new autofunction("trim", 1000, ["pitch", "trim", "onground"], s
 	}
 
 	if(Math.abs(states.pitch) >= deadzone){
-		let newTrim = states.trim + mod * pitchDirection;
+		let newTrim = states.trim + mod * Math.sign(states.pitch);
 		newTrim = Math.round(newTrim / mod) * mod;
 
 		write("trim", newTrim);
@@ -122,7 +129,7 @@ const autolights = new autofunction("lights", 1000, ["altitudeAGL", "onground", 
 const autogear = new autofunction("gear", 1000, ["gear", "altitudeAGL", "verticalspeed"], states => {
 	let newState = states.gear;
 
-	if(states.altitudeAGL < 250 || (states.verticalspeed <= -500 && states.altitudeAGL < 1500)){
+	if(states.altitudeAGL < 200 || (states.verticalspeed <= -500 && states.altitudeAGL < 1000)){
 		newState = true;
 	}
 	else if(states.verticalspeed >= 500 || states.altitudeAGL >= 2000){
@@ -177,73 +184,197 @@ const autoflaps = new autofunction("flaps", 1000, ["flaps", "airspeed", "altitud
 	}
 });
 
-let lastDeltaSPD = 0;
-const levelchange = new autofunction("levelchange", 1000, ["onground", "airspeed", "altitude", "alt", "spd", "vs", "throttle", "vson"], states => {
-	if(levelchange.stage === 1 && !states.vson){
+function fixflcinput(mode){
+	const flcinput = document.getElementById('flcinput');
+	flcinput.step = mode === 'g' ? 100:0.5;
+	flcinput.value = mode === 'g' ? 500:3;
+}
+
+const levelchange = new autofunction("levelchange", 1000, ["airspeed", "altitude", "alt"], states => {
+	let input = parseFloat(document.getElementById("flcinput").value);
+
+	if(isNaN(input)){
 		levelchange.error();
 		return;
 	}
 
-	if(levelchange.stage === 0){
-		write("alton", true);
+	const diffrence = states.alt - states.altitude;
 
-		if(!states.vson){
-			write("vson", true);
-		}
-
-		levelchange.stage++;
-	}
-
-	if(states.onground){
-		levelchange.button.className = "armed";
-		return;
-	}
-
-	const deltaSPD = states.spd - states.airspeed;
-	const deltaALT = states.alt - states.altitude;
-	const spdDirection = deltaSPD > 0 ? 1:-1;
-	const deadzone = 1;
-
-	if(Math.abs(deltaALT) < 100){
+	if(Math.abs(diffrence) < 100){
 		levelchange.changeActive(false);
 		return;
 	}
 
-	levelchange.button.className = "active";
+	const mode = document.getElementById("flcmode").value;
 
-	// IF Throttle avalable, increase vs
-	// IF speed delta is increasing in the same direction as change, increase vs
-	// BUT if speed delata is increaseing in the oposite direction as change, decrease vs TO a minumum change rate
-	
-
-	let newVS = states.vs + 100 * -spdDirection;
-
-	if(Math.abs(states.throttle) !== 100 && Math.abs(deltaSPD) <= deadzone){
-		//newVS = -newVS;
+	if(mode === 'v'){
+		input = 6076.12 * Math.tan(input * toRad);
 	}
 
-	lastDeltaSPD = deltaSPD;
-
-	if(newVS > 0 !== deltaALT > 0){
-		newVS = 0;
-	}
-
-	newVS = Math.round(newVS / 100) * 100;
-	write("vs", newVS);
+	const fpm = input * Math.sign(diffrence) * states.airspeed / 60;
+	write("vs", fpm);
 });
 
-const takeoffconfig = new autofunction("takeoffconfig", -1, ["onground"], states => {
-	if(!states.onground){
-		takeoffconfig.error();
+const markposition = new autofunction("markposition", -1, ["latitude", "longitude", "altitude", "heading"], states => {
+	document.getElementById("latref").value = states.latitude;
+	document.getElementById("longref").value = states.longitude;
+	document.getElementById("altref").value = Math.round(states.altitude);
+	document.getElementById("hdgref").value = Math.round(states.heading);
+});
+
+const setrunway = new autofunction("setrunway", -1, ["route", "coordinates"], states => {
+	const route = states.route.split(",");
+	let rwIndex = -1;
+
+	for(let i = 0, length = route.length; i < length; i++){
+		if(route[i].search(/RW\d\d.*/) === 0){
+			rwIndex = i;
+			break;
+		}
+	}
+
+	if(rwIndex === -1){
+		setrunway.error();
 		return;
 	}
 
-	autoflaps.start(true);
-	autolights.start(true);
+	const runwayCoords = states.coordinates.split(" ")[rwIndex].split(",");
 
-	write("spoilers", 2);
-	write("autobrakes", 3);
-	write("parkingbrake", false);
+	document.getElementById("latref").value = runwayCoords[0];
+	document.getElementById("longref").value = runwayCoords[1];
+	document.getElementById("hdgref").value = parseInt(route[rwIndex][2] + route[rwIndex][3] + "0");
+});
+
+function cyclical(value, range = 360){
+    value = ((value % range) + range) % range;
+    return value;
+}
+
+function dms(deg, min = 0, sec = 0){
+	return Math.sign(deg) * (Math.abs(deg) + (min / 60) + (sec / 3600));
+}
+
+function calcLLfromHD(lat, long, hdg, dist, magvar = 0){
+    dist /= 60;
+
+    hdg = -hdg + 90 - magvar;
+    hdg *= toRad;
+
+    const lat2 = dist * Math.sin(hdg) + lat;
+    const long2 = dist * Math.cos(hdg) * Math.cos(toRad * (lat + lat2) * 0.5) ** -1 + long;
+
+    return [lat2, long2];
+}
+
+const toDeg = 180 / Math.PI;
+const toRad = Math.PI / 180;
+
+const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variation", "airspeed", "wind", "winddir"], states => {
+	const latTarget = parseFloat(document.getElementById("lat").value);
+	const longTarget = parseFloat(document.getElementById("long").value);
+	const hdgTarget = cyclical(parseInt(document.getElementById("hdg").value));
+
+	if(isNaN(latTarget) || isNaN(longTarget)){
+		flyto.error();
+		return;
+	}
+
+	const deltaY = 60 * (latTarget - states.latitude);
+	const deltaX = 60 * (longTarget - states.longitude) * Math.cos((latTarget + states.latitude) * 0.5 * toRad);
+	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
+
+	if(distance < 1){
+		flyto.changeActive(false);
+		return;
+	}
+
+	let course = cyclical(Math.atan2(deltaX, deltaY) * toDeg - states.variation);
+
+	if(!isNaN(hdgTarget)){
+		let diffrence = hdgTarget - course;
+
+		if(diffrence > 180){
+			diffrence -= 360;
+		}
+		else if(diffrence < -180){
+			diffrence += 360;
+		}
+
+		if(Math.abs(diffrence) < 6){
+			course -= 5 * diffrence;
+		}
+		else{
+			course -= 30 * Math.sign(diffrence);
+		}
+	}
+
+	let courseMath = -course + 90;
+	let windMath = -states.winddir + 90 - states.variation;
+
+	courseMath *= toRad;
+	windMath *= toRad;
+
+	const courseX = states.airspeed * Math.cos(courseMath);
+	const courseY = states.airspeed * Math.sin(courseMath);
+	const windX = (states.wind / 2) * Math.cos(windMath);
+	const windY = (states.wind / 2) * Math.sin(windMath);
+
+	course = cyclical(Math.atan2(courseX + windX, courseY + windY) * toDeg);
+
+	write("hdg", course);
+});
+
+const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude", "variation", "onrunway", "groundspeed"], states => {
+	const lat = parseFloat(document.getElementById("latref").value);
+	const long = parseFloat(document.getElementById("longref").value);
+	const hdg = cyclical(document.getElementById("hdgref").value);
+
+	const updist = parseFloat(document.getElementById("updist").value);
+	const downwidth = parseFloat(document.getElementById("downwidth").value);
+	const finallength = parseFloat(document.getElementById("finallength").value);
+	const turnconst = parseInt(document.getElementById("turnconst").value);
+
+	if(isNaN(lat) || isNaN(long) || isNaN(hdg) || isNaN(turnconst)){
+		flypattern.error();
+		return;
+	}
+
+	const legs = ['u', 'c', 'd', 'b', 'f'];
+
+	let leg = legs.indexOf(document.getElementById("leg").value);
+	const direction = document.getElementById("direction").value === 'r' ? 1:-1;
+
+	const hdg90 = hdg + 90 * direction;
+	const hdgs = [hdg, hdg90, hdg + 180, hdg90 + 180, hdg];
+
+	let pattern = [];
+	pattern[0] = calcLLfromHD(lat, long, hdg, updist + 1.5, states.variation);
+	pattern[1] = calcLLfromHD(pattern[0][0], pattern[0][1], hdg90, downwidth, states.variation);
+	pattern[3] = calcLLfromHD(lat, long, hdg + 180, finallength, states.variation);
+	pattern[2] = calcLLfromHD(pattern[3][0], pattern[3][1], hdg90, downwidth, states.variation);
+	pattern[4] = [lat, long];
+
+	const deltaY = 60 * (pattern[leg][0] - states.latitude);
+	const deltaX = 60 * (pattern[leg][1] - states.longitude) * Math.cos((pattern[leg][0] + states.latitude) * 0.5 * toRad);
+	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
+
+	const speed = states.groundspeed / 60; // kts to nm/m
+	const turnrate = (turnconst / states.groundspeed) * 60 * toRad; // deg/s to rad/m
+
+	if(distance < speed / turnrate){
+		if(leg !== 4 || (leg === 4 && distance < 1)){
+			leg = (leg + 1) % 5;
+		}
+	}
+
+	document.getElementById("leg").value = legs[leg];
+	document.getElementById("lat").value = pattern[leg][0];
+	document.getElementById("long").value = pattern[leg][1];
+	document.getElementById("hdg").value = cyclical(hdgs[leg]);
+
+	if(!flyto.active){
+		flyto.changeActive(true);
+	}
 });
 
 const rejecttakeoff = new autofunction("reject", -1, ["onrunway"], states => {
@@ -251,21 +382,53 @@ const rejecttakeoff = new autofunction("reject", -1, ["onrunway"], states => {
 		autotakeoff.error();
 		write("throttle", -100);
 	}
+	else{
+		rejecttakeoff.error();
+	}
 });
 
-const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "airspeed", "altitude", "altitudeAGL", "heading"], states => {
+const takeoffconfig = new autofunction("takeoffconfig", -1, ["onrunway", "heading", "altitude"], states => {
+	if(!states.onrunway){
+		takeoffconfig.error();
+		return;
+	}
+
+	const climbalt = parseInt(document.getElementById("climbalt").value);
+
+	if(isNaN(climbalt)){
+		takeoffconfig.error();
+		return;
+	}
+
+	const usemsl = document.getElementById("takeoffmsl").checked;
+
+	autoflaps.start(true);
+	autolights.start(true);
+
+	const altitude = Math.round(states.altitude / 100) * 100;
+	write("alt", climbalt + (usemsl ? 0 : altitude));
+	write("hdg", states.heading);
+	write("vs", 0);
+
+	write("spoilers", 0);
+	write("autobrakes", 3);
+	write("parkingbrake", false);
+});
+
+const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "airspeed", "altitude", "altitudeAGL"], states => {
 	let stage = autotakeoff.stage;
 
-	const flaplow = parseInt(document.getElementById("flaplow").value);
-	const flaphigh = parseInt(document.getElementById("flaphigh").value);
-	const climbrate = parseInt(document.getElementById("climbrate").value);
-	const short = document.getElementById("short").checked;
+	const rotate = parseInt(document.getElementById("rotate").value);
+	const climbspd = parseInt(document.getElementById("climbspd").value);
+	const flcinput = parseFloat(document.getElementById("flcinput").value);
 
-	if(isNaN(flaplow) || isNaN(flaphigh) || isNaN(climbrate)){
+	if(isNaN(rotate) || isNaN(climbspd) || isNaN(flcinput)){
 		autotakeoff.error();
 		return;
 	}
-	
+
+	const short = document.getElementById("short").checked;
+
 	if(stage === 0){
 		if(!states.onrunway){
 			autotakeoff.error();
@@ -273,14 +436,15 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		}
 
 		takeoffconfig.start(true);
+		levelchange.changeActive(false);
+
+		autotrim.changeActive(true);
+		autolights.changeActive(true);
 		autogear.changeActive(true);
 		autoflaps.changeActive(true);
-		//levelchange.changeActive(true);
 
-		write("alt", Math.round(states.altitude / 100) * 100 + 3000);
-		write("vs", 0);
-		write("spd", flaphigh);
-		write("hdg", states.heading);
+		write("spd", climbspd);
+		write("spoilers", 2);
 
 		write("autopilot", true);
 		write("alton", true);
@@ -318,16 +482,14 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		}
 	}
 	else if(stage === 2){
-		if(states.airspeed >= flaplow){
+		if(states.airspeed >= rotate){
+			levelchange.changeActive(true);
 			stage++;
 		}
 	}
 	else if(stage === 3){
-		const fpm = climbrate * states.airspeed / 60;
-
-		write("vs", fpm);
-
-		if(states.altitudeAGL >= 2000){
+		if(Math.abs(climbspd - states.airspeed) < 10){
+			write("spdon", true);
 			stage++;
 		}
 	}
@@ -336,11 +498,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		autotakeoff.changeActive(false);
 	}
 
-	if(Math.abs(flaphigh - states.airspeed) < 10){
-		write("spdon", true);
-	}
-
 	autotakeoff.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, takeoffconfig, autotakeoff, rejecttakeoff, levelchange];
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff];

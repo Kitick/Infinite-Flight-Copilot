@@ -8,7 +8,7 @@ body{
 }
 
 input[type="radio"], input[type="checkbox"]{
-	vertical-align:text-top;
+	vertical-align:middle;
 }
 
 input[type="number"]{
@@ -17,7 +17,11 @@ input[type="number"]{
 
 .mode{
     float:left;
-    width:33%;
+    width:25%;
+}
+
+ol, ul{
+	text-align:left;
 }
 
 .off, .armed, .active, .error{
