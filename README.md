@@ -1,6 +1,8 @@
 Ensure:
 - You have the Infinite Flight Connect setting checked on.
 - Both devices are connected to the same network.
+- If using an IP address, ensure it is the correct private address. (i.e. starting in 192.168)
+- Currently there is an issue with the execuatbles finding packets, so enter the device IP manually.
 
 IF YOU WANT TO USE AN EXE FILE
 - Open the /executables folder and find your system exe.
@@ -14,15 +16,19 @@ IF YOU WANT TO RUN USING NODE
 
 USAGE INSTRUCTIONS
 
-Double click your exe OR run "node index.js" in your terminal in the folder you extracted.
+Double click your exe OR if using node double click start.bat OR run "node index.js" in the terminal from the api folder.
 - You should see a message saying it is ready.
 
-Open your browser and go to localhost:8080. Or double click localhost.
+Open your browser and go to localhost:8080. Or if using node, double click localhost.
 - You should see it say connected.
 
 If you know the IP address of your device, enter it. If you don't, just click connect.
-- You need to use private addresses, i.e. the ones starting with 192.168. Public addresses do not distinguish individual devices.
 - It will autofill 192.168 if you only enter the last two digits and also add .1. if you only put the very last.
+
+IMPORTANT NOTES:
+- If it takes longer than 10 seconds to find a packet it usually means it will not find it at all.
+- Directly connecting usually takes less than a couple seconds, if it is stuck on attempting connection there may be an issue
+- Check the notes at the top
 
 Once it says it's ready and the options appear, Enjoy.
 
