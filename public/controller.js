@@ -218,7 +218,6 @@ const levelchange = new autofunction("levelchange", 1000, ["airspeed", "altitude
 const markposition = new autofunction("markposition", -1, ["latitude", "longitude", "altitude", "heading"], states => {
 	document.getElementById("latref").value = states.latitude;
 	document.getElementById("longref").value = states.longitude;
-	document.getElementById("altref").value = Math.round(states.altitude);
 	document.getElementById("hdgref").value = Math.round(states.heading);
 });
 
