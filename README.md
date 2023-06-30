@@ -2,7 +2,6 @@ Ensure:
 - You have the Infinite Flight Connect setting checked on.
 - Both devices are connected to the same network.
 - If using an IP address, ensure it is the correct private address. (i.e. starting in 192.168)
-- Currently there is an issue with the execuatbles finding packets, so enter the device IP manually.
 
 IF YOU WANT TO USE AN EXE FILE
 - Open the /executables folder and find your system exe.
