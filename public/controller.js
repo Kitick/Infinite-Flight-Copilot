@@ -489,13 +489,13 @@ const takeoffconfig = new autofunction("takeoffconfig", -1, ["onrunway", "headin
 		return;
 	}
 
-	const usemsl = document.getElementById("takeoffmsl").checked;
+	const msl = document.getElementById("climbtype").value === "msl";
 
 	autoflaps.start(true);
 	autolights.start(true);
 
 	const altitude = Math.round(states.altitude / 100) * 100;
-	write("alt", climbalt + (usemsl ? 0 : altitude));
+	write("alt", climbalt + (msl ? 0 : altitude));
 	write("hdg", states.heading);
 	write("vs", 0);
 
@@ -510,13 +510,14 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	const rotate = parseInt(document.getElementById("rotate").value);
 	const climbspd = parseInt(document.getElementById("climbspd").value);
 	const flcinput = parseFloat(document.getElementById("flcinput").value);
+    const n1 = 2 * parseInt(document.getElementById("climbn1").value) - 100;
 
-	if(isNaN(rotate) || isNaN(climbspd) || isNaN(flcinput)){
+	if(isNaN(rotate) || isNaN(climbspd) || isNaN(flcinput) || isNaN(n1)){
 		autotakeoff.error();
 		return;
 	}
 
-	const short = document.getElementById("short").checked;
+    const spool = document.getElementById("takeoffspool").checked;
 
 	if(stage === 0){
 		if(!states.onrunway){
@@ -540,13 +541,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		write("vson", false);
 		write("hdgon", true);
 
-		if(short){
-			write("parkingbrake", true);
-			write("throttle", 100);
-		}
-		else{
-			write("throttle", -20);
-		}
+        write("throttle", spool ? -20:n1);
 
 		stage++;
 	}
@@ -554,21 +549,16 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		write("vson", true);
 
 		if(states.n1 === null){
-			write("throttle", short ? 100:80);
+			write("throttle", n1);
 			stage++;
 		}
-		else if(short){
-			if(states.n1 >= 100){
-				write("parkingbrake", false);
-				stage++;
-			}
-		}
-		else{
-			if(states.n1 >= 50){
-				write("throttle", 80);
-				stage++;
-			}
-		}
+        else if(spool && states.n1 >= 40){
+            write("throttle", n1);
+            stage++;
+        }
+        else if(!spool){
+            stage++;
+        }
 	}
 	else if(stage === 2){
 		if(states.airspeed >= rotate){
@@ -578,7 +568,11 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	}
 	else if(stage === 3){
 		if(Math.abs(climbspd - states.airspeed) < 10){
-			write("spdon", true);
+			if(document.getElementById("takeoffnav").checked){
+                write("navon", true);
+            }
+
+            write("spdon", true);
 			stage++;
 		}
 	}

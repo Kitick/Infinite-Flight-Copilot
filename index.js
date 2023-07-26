@@ -262,6 +262,7 @@ class Item{
 		"aircraft/0/systems/autopilot/vs/on":"vson",
 		"aircraft/0/systems/autopilot/spd/on":"spdon",
 		"aircraft/0/systems/autopilot/hdg/on":"hdgon",
+        "aircraft/0/systems/autopilot/nav/on":"navon",
 
 		"aircraft/0/systems/autopilot/alt/target":"alt",
 		"aircraft/0/systems/autopilot/vs/target":"vs",

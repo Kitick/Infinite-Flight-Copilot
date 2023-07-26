@@ -37,9 +37,9 @@
 				<button id="gear" onclick="autogear.changeActive();" class="off">GEAR</button>
 				<br><br>
 
-				<input id="flaplow" type="number" value="120" step="5">
-				<input id="flaphigh" type="number" value="200" step="5">
-				<input id="flapto" type="number" value="2" step="1">
+				<input id="flaplow" type="number" value="120" min="0" step="5">
+				<input id="flaphigh" type="number" value="200" min="0" step="5">
+				<input id="flapto" type="number" value="2" min="0" step="1">
 				<button id="flaps" onclick="autoflaps.changeActive();" class="off">FLAPS</button>
 				<br><br>
 
@@ -56,9 +56,14 @@
 			<div class="mode">
 				<h3>Auto Takeoff</h3>
 
-                <input id="rotate" type="number" value="130" step="5">
-				<input id="climbspd" type="number" value="200" step="5">
-				<input id="climbalt" type="number" value="3000" step="100">
+                <input id="rotate" type="number" value="130" min="0" step="5">
+				<input id="climbspd" type="number" value="200" min="0" step="5">
+                <input id="climbn1" type="number" value="90" min="0" max="100" step="1">
+				<input id="climbalt" type="number" value="3000" min="0" step="100">
+                <select id="climbtype">
+                    <option value="msl">MSL</option>
+                    <option value="agl">AGL</option>
+                </select>
 				<br><br>
 
 				<button id="takeoffconfig" onclick="takeoffconfig.changeActive();" class="off">CONFIGURE FOR TAKEOFF</button>
@@ -68,16 +73,18 @@
 				<button id="reject" onclick="rejecttakeoff.changeActive();" class="off">REJECT TAKEOFF</button>
 				<br><br>
 
-				<input id="short" type="checkbox">
-				<label for="short">Max Thrust</label>
-				<input id="takeoffmsl" type="checkbox">
-				<label for="takeoffmsl">Use MSL</label>
+                <input id="takeoffspool" type="checkbox">
+				<label for="takeoffspool">Spool First</label>
+                <input id="takeoffnav" type="checkbox">
+				<label for="takeoffnav">Engage LNAV</label>
 				<br><br>
 
 				<ol>
 					<li><label for="rotate">Rotate (kts)(VR)</label></li>
 					<li><label for="climbspd">Climb Speed (kts)</label></li>
+                    <li><label for="climbn1">Climb Throttle (%)</label></li>
 					<li><label for="climbalt">Top Altitude (ft)</label></li>
+                    <li><label for="climbtype">Altitude Type</label></li>
 				</ol>
 				<ul>
 					<li>This will use the climb rate set in the autoflight pannel.</li>
@@ -90,9 +97,9 @@
 			<div class="mode">
 				<h3>Flight Director</h3>
 
-                <input id="lat" type="number" value="39.51367">
-				<input id="long" type="number" value="-119.76675">
-				<input id="hdg" type="number" value="167" step="1">
+                <input id="lat" type="number" value="39.51367" min="-90" max="90">
+				<input id="long" type="number" value="-119.76675" min="-180" max="180">
+				<input id="hdg" type="number" value="167" min="0" max="360" step="1">
 				<button id="flyto" onclick="flyto.changeActive();" class="off">FLY TO</button>
 				<br><br>
 
@@ -120,15 +127,15 @@
 			<div class="mode">
 				<h3>Pattern Work</h3>
 
-                <input id="updist" type="number" value="2" step="0.5">
-				<input id="downwidth" type="number" value="5" step="0.5">
-				<input id="finallength" type="number" value="6" step="0.5">
-				<input id="turnconst" type="number" value="350" step="5">
+                <input id="updist" type="number" value="2" min="0" step="0.5">
+				<input id="downwidth" type="number" value="5" min="0" step="0.5">
+				<input id="finallength" type="number" value="6" min="0" step="0.5">
+				<input id="turnconst" type="number" value="350" min="0" max="1000" step="5">
 				<br><br>
 
-				<input id="latref" type="number" value="39.51367">
-				<input id="longref" type="number" value="-119.76675">
-				<input id="hdgref" type="number" value="167" step="1">
+				<input id="latref" type="number" value="39.51367" min="-90" max="90">
+				<input id="longref" type="number" value="-119.76675" min="-180" max="180">
+				<input id="hdgref" type="number" value="167" min="0" max="360" step="1">
 				<br><br>
 
 				<button id="markposition" onclick="markposition.changeActive();" class="off">MARK POSITION</button>
@@ -165,7 +172,7 @@
 					<li><label for="hdgref">Heading Reference (deg)</label></li>
 				</ol>
 				<ol>
-					<li><label for="dir">Traffic Direction</label></li>
+					<li><label for="direction">Traffic Direction</label></li>
 					<li><label for="leg">Current Leg</label></li>
 				</ol>
 				<ul>
@@ -181,13 +188,13 @@
 
                 <h3>WORK IN PROGRESS: Only Land works for now, no speed control yet.</h3>
 
-                <input id="altref" type="number" step="1" value="0">
-                <input id="spdref" type="number" step="5" value="130">
+                <input id="altref" type="number" step="1" value="0" min="0">
+                <input id="spdref" type="number" step="5" value="130" min="0">
                 <br><br>
 
-                <input id="touchdown" type="number" step="100" value="1000">
-                <input id="flare" type="number" step="5" value="10">
-                <input id="vparef" type="number" step="0.1" value="3">
+                <input id="touchdown" type="number" value="1000" min="0" step="100">
+                <input id="flare" type="number" value="10" min="0" step="5">
+                <input id="vparef" type="number" value="3" min="0" max="6" step="0.1">
                 <br><br>
 
                 <select id="option">
