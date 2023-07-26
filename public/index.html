@@ -31,7 +31,7 @@
 			</div>
 			<br><br>
 			<div class="mode">
-				<h3>Auto Functions</h3>
+				<h3>Dynamic Systems</h3>
 				<button id="trim" onclick="autotrim.changeActive();" class="off">TRIM</button>
 				<button id="lights" onclick="autolights.changeActive();" class="off">LIGHTS</button>
 				<button id="gear" onclick="autogear.changeActive();" class="off">GEAR</button>
@@ -55,7 +55,8 @@
 			</div>
 			<div class="mode">
 				<h3>Auto Takeoff</h3>
-				<input id="rotate" type="number" value="130" step="5">
+
+                <input id="rotate" type="number" value="130" step="5">
 				<input id="climbspd" type="number" value="200" step="5">
 				<input id="climbalt" type="number" value="3000" step="100">
 				<br><br>
@@ -87,8 +88,9 @@
 				</ul>
 			</div>
 			<div class="mode">
-				<h3>Auto Flight</h3>
-				<input id="lat" type="number" value="39.51367">
+				<h3>Flight Director</h3>
+
+                <input id="lat" type="number" value="39.51367">
 				<input id="long" type="number" value="-119.76675">
 				<input id="hdg" type="number" value="167" step="1">
 				<button id="flyto" onclick="flyto.changeActive();" class="off">FLY TO</button>
@@ -117,7 +119,8 @@
 			</div>
 			<div class="mode">
 				<h3>Pattern Work</h3>
-				<input id="updist" type="number" value="2" step="0.5">
+
+                <input id="updist" type="number" value="2" step="0.5">
 				<input id="downwidth" type="number" value="5" step="0.5">
 				<input id="finallength" type="number" value="6" step="0.5">
 				<input id="turnconst" type="number" value="350" step="5">
@@ -146,6 +149,10 @@
 				<button id="flypattern" onclick="flypattern.changeActive();" class="off">FLY PATTERN</button>
 				<br><br>
 
+                <input id="approach" type="checkbox">
+				<label for="approach">Approach on Final</label>
+                <br><br>
+
 				<ol>
 					<li><label for="updist">Upwind Distance (nm)</label></li>
 					<li><label for="downwidth">Downwind Width (nm)</label></li>
@@ -170,8 +177,44 @@
 				</ul>
 			</div>
             <div class="mode">
-				<h3>Auto Land</h3>
-				
+				<h3>Approach and Land</h3>
+
+                <h3>WORK IN PROGRESS: Only Land works for now, no speed control yet.</h3>
+
+                <input id="altref" type="number" step="1" value="0">
+                <input id="spdref" type="number" step="5" value="130">
+                <br><br>
+
+                <input id="touchdown" type="number" step="100" value="1000">
+                <input id="flare" type="number" step="5" value="10">
+                <input id="vparef" type="number" step="0.1" value="3">
+                <br><br>
+
+                <select id="option">
+                    <option value="l">Land</option>
+                    <option value="t">Touch & Go</option>
+                    <option value="p">Low Pass</option>
+                    <option value="s">Stop & Go</option>
+                </select>
+				<button id="autoland" onclick="autoland.changeActive();" class="off">APPROACH</button>
+                <button id="goaround" onclick="goaround.changeActive();" class="off">GO AROUND</button>
+
+                <ol>
+                    <li><label for="altref">Runway Elevation (ft)(Field)</label></li>
+                    <li><label for="spdref">Landing Speed (kts)</label></li>
+                </ol>
+                <ol>
+                    <li><label for="touchdown">Touchdown Distance (ft)(From threshold)</label></li>
+                    <li><label for="flare">Flare Height (ft)</label></li>
+                    <li><label for="vparef">VPA Refrence (deg)</label></li>
+                </ol>
+                <ol>
+                    <li><label for="option">Option for Approach</label></li>
+                </ol>
+                <ul>
+                    <li>This uses the runway refrences in pattern work.</li>
+                    <li>Go Around uses autotakeoff settings.</li>
+                </ul>
 			</div>
         </div>
     </body>

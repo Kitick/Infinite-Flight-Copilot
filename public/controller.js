@@ -129,7 +129,7 @@ const autolights = new autofunction("lights", 1000, ["altitudeAGL", "onground", 
 const autogear = new autofunction("gear", 1000, ["gear", "altitudeAGL", "verticalspeed"], states => {
 	let newState = states.gear;
 
-	if(states.altitudeAGL < 200 || (states.verticalspeed <= -500 && states.altitudeAGL < 1000)){
+	if(states.altitudeAGL < 100 || (states.verticalspeed <= -500 && states.altitudeAGL < 1000)){
 		newState = true;
 	}
 	else if(states.verticalspeed >= 500 || states.altitudeAGL >= 2000){
@@ -219,6 +219,7 @@ const markposition = new autofunction("markposition", -1, ["latitude", "longitud
 	document.getElementById("latref").value = states.latitude;
 	document.getElementById("longref").value = states.longitude;
 	document.getElementById("hdgref").value = Math.round(states.heading);
+    document.getElementById("altref").value = Math.round(states.altitude);
 });
 
 const setrunway = new autofunction("setrunway", -1, ["route", "coordinates"], states => {
@@ -300,7 +301,13 @@ const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variati
 		}
 
 		if(Math.abs(diffrence) < 6){
-			course -= 5 * diffrence;
+            let mod = 5;
+
+            if(autoland.active && Math.abs(diffrence) < 3){
+                mod = 10;
+            }
+
+			course -= mod * diffrence;
 		}
 		else{
 			course -= 30 * Math.sign(diffrence);
@@ -366,18 +373,97 @@ const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude"
 		}
 	}
 
+    if(document.getElementById("approach").checked){
+        if(leg === 3){
+            
+        }
+        else if(leg === 4){
+            autoland.changeActive(true);
+        }
+    }
+
 	document.getElementById("leg").value = legs[leg];
 	document.getElementById("lat").value = pattern[leg][0];
 	document.getElementById("long").value = pattern[leg][1];
 	document.getElementById("hdg").value = cyclical(hdgs[leg]);
 
-	if(!flyto.active){
-		flyto.changeActive(true);
-	}
+	flyto.changeActive(true);
 });
 
-const autoland = new autofunction("autoland", 500, [""], states => {
+const autoland = new autofunction("autoland", 500, ["onrunway", "latitude", "longitude", "altitude", "groundspeed"], states => {
+    const lat = parseFloat(document.getElementById("latref").value);
+	const long = parseFloat(document.getElementById("longref").value);
+    const alt = parseInt(document.getElementById("altref").value);
+    const spd = parseInt(document.getElementById("spdref").value);
+    const vpa = parseFloat(document.getElementById("vparef").value);
 
+    const touchdown = parseInt(document.getElementById("touchdown").value);
+
+    if(autoland.stage === 0){
+        autoland.stage++;
+        document.getElementById("leg").value = "f";
+        document.getElementById("flcmode").value = "v";
+    }
+
+    const deltaY = 60 * (lat - states.latitude);
+	const deltaX = 60 * (long - states.longitude) * Math.cos((lat + states.latitude) * 0.5 * toRad);
+	const finalDistance = touchdown + 6076.12 * (deltaX ** 2 + deltaY ** 2) ** 0.5; // nm to ft
+
+    const altDiffrence = alt - states.altitude;
+
+    const currentVPA = -Math.atan(altDiffrence / finalDistance) * toDeg;
+    const VPADiffrence = currentVPA - vpa;
+
+    console.log(VPADiffrence);
+
+    let vpaout = vpa;
+
+    if(VPADiffrence >= 1){
+        autoland.error();
+    }
+    else if(VPADiffrence <= -1){
+        vpaout = 0;
+    }
+    else if(Math.abs(VPADiffrence) >= 0.5){
+        vpaout = vpa + 1 * Math.sign(VPADiffrence);
+    }
+    else if(Math.abs(VPADiffrence) >= 0.25){
+        vpaout = vpa + 0.5 * Math.sign(VPADiffrence);
+    }
+    else if(Math.abs(VPADiffrence) >= 0.1){
+        vpaout = vpa + 0.25 * Math.sign(VPADiffrence);
+    }
+
+    document.getElementById("flcinput").value = vpaout;
+
+    write("spoilers", 2);
+    write("alt", alt);
+
+    if(states.altitude - alt > 100){
+        levelchange.changeActive(true);
+    }
+
+    flypattern.changeActive(true);
+    autoflaps.changeActive(true);
+    autogear.changeActive(true);
+});
+
+const goaround = new autofunction("goaround", -1, [], states => {
+    autoland.error();
+    
+    const alt = parseInt(document.getElementById("climbalt").value);
+    const spd = parseInt(document.getElementById("climbspd").value);
+
+    document.getElementById("flcmode").value = "g";
+    document.getElementById("flcinput").value = 500;
+
+    levelchange.changeActive(true);
+    autoflaps.changeActive(true);
+    autogear.changeActive(true);
+
+    write("spoilers", 0);
+    write("spd", spd);
+    write("alt", alt);
 });
 
 const rejecttakeoff = new autofunction("reject", -1, ["onrunway"], states => {
@@ -504,4 +590,4 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	autotakeoff.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland];
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround];

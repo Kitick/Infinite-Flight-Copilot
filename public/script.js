@@ -59,6 +59,10 @@ function readAsync(command, callback = () => {}){
 	});
 }
 
+function readLog(command){
+    read(command, value => {console.log(value);});
+}
+
 function write(command, value){
     socket.emit("write", command, value);
 }
