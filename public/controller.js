@@ -376,6 +376,10 @@ const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude"
 	}
 });
 
+const autoland = new autofunction("autoland", 500, [""], states => {
+
+});
+
 const rejecttakeoff = new autofunction("reject", -1, ["onrunway"], states => {
 	if(states.onrunway){
 		autotakeoff.error();
@@ -500,4 +504,4 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	autotakeoff.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff];
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland];
