@@ -301,7 +301,7 @@ class Item{
 		"heading":180/Math.PI,
 		"verticalspeed":196.8504, // m/s to fpm
 		
-		"throttle":0.1, // 1000s to 100s
+		"throttle":-0.1, // 1000s to 100s
 		"n1":100,
 
 		"wind":1.94384,
