@@ -261,9 +261,17 @@ function calcLLfromHD(lat, long, hdg, dist, magvar = 0){
     hdg *= toRad;
 
     const lat2 = dist * Math.sin(hdg) + lat;
-    const long2 = dist * Math.cos(hdg) * Math.cos(toRad * (lat + lat2) * 0.5) ** -1 + long;
+    const long2 = (dist * Math.cos(hdg)) / Math.cos(toRad * (lat + lat2) * 0.5) + long;
 
     return [lat2, long2];
+}
+
+function calcLLdistance(lat1, long1, lat2, long2){
+    const deltaY = 60 * (lat2 - lat1);
+	const deltaX = 60 * (long2 - long1) * Math.cos((lat1 + lat2) * 0.5 * toRad);
+	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
+
+    return distance;
 }
 
 const toDeg = 180 / Math.PI;
@@ -279,16 +287,16 @@ const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variati
 		return;
 	}
 
-	const deltaY = 60 * (latTarget - states.latitude);
-	const deltaX = 60 * (longTarget - states.longitude) * Math.cos((latTarget + states.latitude) * 0.5 * toRad);
-	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
+	const distance = calcLLdistance(states.latitude, states.longitude, latTarget, longTarget);
 
 	if(distance < 1){
 		flyto.changeActive(false);
 		return;
 	}
 
-	let course = cyclical(Math.atan2(deltaX, deltaY) * toDeg - states.variation);
+    const deltaY = 60 * (latTarget - states.latitude);
+	const deltaX = 60 * (longTarget - states.longitude) * Math.cos((states.latitude + latTarget) * 0.5 * toRad);
+    let course = cyclical(Math.atan2(deltaX, deltaY) * toDeg - states.variation);
 
 	if(!isNaN(hdgTarget)){
 		let diffrence = hdgTarget - course;
@@ -301,13 +309,7 @@ const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variati
 		}
 
 		if(Math.abs(diffrence) < 6){
-            let mod = 5;
-
-            if(autoland.active && Math.abs(diffrence) < 3){
-                mod = 10;
-            }
-
-			course -= mod * diffrence;
+			course -= 5 * diffrence;
 		}
 		else{
 			course -= 30 * Math.sign(diffrence);
@@ -360,9 +362,7 @@ const flypattern = new autofunction("flypattern", 1000, ["latitude", "longitude"
 	pattern[2] = calcLLfromHD(pattern[3][0], pattern[3][1], hdg90, downwidth, states.variation);
 	pattern[4] = [lat, long];
 
-	const deltaY = 60 * (pattern[leg][0] - states.latitude);
-	const deltaX = 60 * (pattern[leg][1] - states.longitude) * Math.cos((pattern[leg][0] + states.latitude) * 0.5 * toRad);
-	const distance = (deltaX ** 2 + deltaY ** 2) ** 0.5;
+	const distance = calcLLdistance(states.latitude, states.longitude, pattern[leg][0], pattern[leg][1]);
 
 	const speed = states.groundspeed / 60; // kts to nm/m
 	const turnrate = (turnconst / states.groundspeed) * 60 * toRad; // deg/s to rad/m
@@ -405,9 +405,7 @@ const autoland = new autofunction("autoland", 500, ["onrunway", "latitude", "lon
         document.getElementById("flcmode").value = "v";
     }
 
-    const deltaY = 60 * (lat - states.latitude);
-	const deltaX = 60 * (long - states.longitude) * Math.cos((lat + states.latitude) * 0.5 * toRad);
-	const finalDistance = touchdown + 6076.12 * (deltaX ** 2 + deltaY ** 2) ** 0.5; // nm to ft
+    const finalDistance = touchdown + 6076.12 * calcLLdistance(states.latitude, states.longitude, lat, long); // nm to ft
 
     const altDiffrence = alt - states.altitude;
 
