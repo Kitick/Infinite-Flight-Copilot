@@ -61,8 +61,8 @@
                 <input id="climbn1" type="number" value="90" min="0" max="100" step="1">
 				<input id="climbalt" type="number" value="3000" min="0" step="100">
                 <select id="climbtype">
-                    <option value="msl">MSL</option>
                     <option value="agl">AGL</option>
+                    <option value="msl">MSL</option>
                 </select>
 				<br><br>
 
@@ -192,8 +192,8 @@
                 <input id="spdref" type="number" step="5" value="130" min="0">
                 <br><br>
 
-                <input id="touchdown" type="number" value="1000" min="0" step="100">
                 <input id="flare" type="number" value="10" min="0" step="5">
+                <input id="touchdown" type="number" value="1000" min="0" step="100">
                 <input id="vparef" type="number" value="3" min="0" max="6" step="0.1">
                 <br><br>
 
@@ -211,14 +211,15 @@
                     <li><label for="spdref">Landing Speed (kts)</label></li>
                 </ol>
                 <ol>
-                    <li><label for="touchdown">Touchdown Distance (ft)(From threshold)</label></li>
                     <li><label for="flare">Flare Height (ft)</label></li>
+                    <li><label for="touchdown">Touchdown Distance (ft)(From threshold)</label></li>
                     <li><label for="vparef">VPA Refrence (deg)</label></li>
                 </ol>
                 <ol>
                     <li><label for="option">Option for Approach</label></li>
                 </ol>
                 <ul>
+                    <li>Flare Height is used as the altitude for the low pass.</li>
                     <li>This uses the runway refrences in pattern work.</li>
                     <li>Go Around uses autotakeoff settings.</li>
                 </ul>

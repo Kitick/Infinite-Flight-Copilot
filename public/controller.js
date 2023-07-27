@@ -412,24 +412,15 @@ const autoland = new autofunction("autoland", 500, ["onrunway", "latitude", "lon
     const currentVPA = -Math.atan(altDiffrence / finalDistance) * toDeg;
     const VPADiffrence = currentVPA - vpa;
 
-    console.log(VPADiffrence);
+    let vpaout = vpa + 2 * VPADiffrence;
 
-    let vpaout = vpa;
+    vpaout = Math.round(vpaout * 10) / 10;
 
-    if(VPADiffrence >= 1){
-        autoland.error();
+    if(vpaout > vpa + 1){
+        vpaout = vpa + 1;
     }
-    else if(VPADiffrence <= -1){
+    else if(vpaout < vpa - 1){
         vpaout = 0;
-    }
-    else if(Math.abs(VPADiffrence) >= 0.5){
-        vpaout = vpa + 1 * Math.sign(VPADiffrence);
-    }
-    else if(Math.abs(VPADiffrence) >= 0.25){
-        vpaout = vpa + 0.5 * Math.sign(VPADiffrence);
-    }
-    else if(Math.abs(VPADiffrence) >= 0.1){
-        vpaout = vpa + 0.25 * Math.sign(VPADiffrence);
     }
 
     document.getElementById("flcinput").value = vpaout;
@@ -449,19 +440,25 @@ const autoland = new autofunction("autoland", 500, ["onrunway", "latitude", "lon
 const goaround = new autofunction("goaround", -1, [], states => {
     autoland.error();
     
-    const alt = parseInt(document.getElementById("climbalt").value);
+    let alt = parseInt(document.getElementById("climbalt").value);
     const spd = parseInt(document.getElementById("climbspd").value);
+    const field = parseInt(document.getElementById("altref").value);
 
     document.getElementById("flcmode").value = "g";
     document.getElementById("flcinput").value = 500;
 
-    levelchange.changeActive(true);
-    autoflaps.changeActive(true);
-    autogear.changeActive(true);
+    const inmsl = document.getElementById("climbtype").value === "msl";
+	const agl = Math.round(field / 100) * 100;
+    alt += inmsl ? 0:agl;
 
     write("spoilers", 0);
     write("spd", spd);
+    write("spdon", true);
     write("alt", alt);
+
+    setTimeout(() => {levelchange.changeActive(true);}, 500);
+    autoflaps.changeActive(true);
+    autogear.changeActive(true);
 });
 
 const rejecttakeoff = new autofunction("reject", -1, ["onrunway"], states => {
@@ -480,20 +477,21 @@ const takeoffconfig = new autofunction("takeoffconfig", -1, ["onrunway", "headin
 		return;
 	}
 
-	const climbalt = parseInt(document.getElementById("climbalt").value);
+	let climbalt = parseInt(document.getElementById("climbalt").value);
 
 	if(isNaN(climbalt)){
 		takeoffconfig.error();
 		return;
 	}
 
-	const msl = document.getElementById("climbtype").value === "msl";
-
 	autoflaps.start(true);
 	autolights.start(true);
 
-	const altitude = Math.round(states.altitude / 100) * 100;
-	write("alt", climbalt + (msl ? 0 : altitude));
+    const inmsl = document.getElementById("climbtype").value === "msl";
+	const agl = Math.round(states.altitude / 100) * 100;
+    climbalt += inmsl ? 0:agl;
+
+	write("alt", climbalt);
 	write("hdg", states.heading);
 	write("vs", 0);
 
