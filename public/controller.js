@@ -277,7 +277,7 @@ function calcLLdistance(lat1, long1, lat2, long2){
 const toDeg = 180 / Math.PI;
 const toRad = Math.PI / 180;
 
-const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variation", "airspeed", "wind", "winddir"], states => {
+const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variation", "groundspeed", "wind", "winddir"], states => {
 	const latTarget = parseFloat(document.getElementById("lat").value);
 	const longTarget = parseFloat(document.getElementById("long").value);
 	const hdgTarget = cyclical(parseInt(document.getElementById("hdg").value));
@@ -316,18 +316,19 @@ const flyto = new autofunction("flyto", 1000, ["latitude", "longitude", "variati
 		}
 	}
 
+    const winddir = cyclical(states.winddir - states.variation + 180);
 	let courseMath = -course + 90;
-	let windMath = -states.winddir + 90 - states.variation;
+	let windMath = -winddir + 90;
 
 	courseMath *= toRad;
 	windMath *= toRad;
 
-	const courseX = states.airspeed * Math.cos(courseMath);
-	const courseY = states.airspeed * Math.sin(courseMath);
-	const windX = (states.wind / 2) * Math.cos(windMath);
-	const windY = (states.wind / 2) * Math.sin(windMath);
+	const courseX = 2 * states.groundspeed * Math.cos(courseMath);
+	const courseY = 2 * states.groundspeed * Math.sin(courseMath);
+	const windX = states.wind * Math.cos(windMath);
+	const windY = states.wind * Math.sin(windMath);
 
-	course = cyclical(Math.atan2(courseX + windX, courseY + windY) * toDeg);
+	course = cyclical(Math.atan2(courseX - windX, courseY - windY) * toDeg);
 
 	write("hdg", course);
 });
