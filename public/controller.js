@@ -581,4 +581,11 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	autotakeoff.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround];
+
+	const autobrakeSwitchReset = new autofunction("abswitchreset", 1000, ["leftbrake", "rightbrake", "autobrakes", "onground", "groundspeed"], states => {		
+		if(states.groundspeed > 30, states.onground = true && states.autobrakes != 0 && (states.leftbrake > 0.3 || states.rightbrake > 0.3)){
+			write("autobrakes", 0);
+		}
+	});
+
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autobrakeSwitchReset];
