@@ -288,6 +288,8 @@ class Item{
 		"aircraft/0/is_on_runway":"onrunway",
 
 		"aircraft/0/systems/auto_brakes/command_state":"autobrakes", // 0, 1, 2, 3
+		"aircraft/0/systems/brakes/left/percentage":"leftbrake", // 0-1 (float)
+		"aircraft/0/systems/brakes/right/percentage":"rightbrake", // 0-1 (float)
 
 		"aircraft/0/systems/electrical_switch/master_switch/state":"master",
 		"aircraft/0/systems/electrical_switch/nav_lights_switch/state":"navlights", // 0, 1
