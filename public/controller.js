@@ -395,7 +395,6 @@ const autoland = new autofunction("autoland", 500, ["onrunway", "latitude", "lon
     const lat = parseFloat(document.getElementById("latref").value);
 	const long = parseFloat(document.getElementById("longref").value);
     const alt = parseInt(document.getElementById("altref").value);
-    const spd = parseInt(document.getElementById("spdref").value);
     const vpa = parseFloat(document.getElementById("vparef").value);
 
     const touchdown = parseInt(document.getElementById("touchdown").value);
@@ -432,6 +431,12 @@ const autoland = new autofunction("autoland", 500, ["onrunway", "latitude", "lon
     if(states.altitude - alt > 100){
         levelchange.changeActive(true);
     }
+
+	if(states.onrunway) {
+		autospeed.changeActive(false);
+	} else {
+		autospeed.changeActive(true);
+	}
 
     flypattern.changeActive(true);
     autoflaps.changeActive(true);
@@ -559,6 +564,9 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	}
 	else if(stage === 2){
 		if(states.airspeed >= rotate){
+			write("vs", 700);
+		}
+		if(states.altitudeAGL > 30) {
 			levelchange.changeActive(true);
 			stage++;
 		}
@@ -569,7 +577,9 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
                 write("navon", true);
             }
 
-            write("spdon", true);
+			write("spdon", true)
+			write("spoilers", 0)
+            autospeed.changeActive(true);
 			stage++;
 		}
 	}
@@ -587,4 +597,76 @@ const autobrakeSwitchReset = new autofunction("abswitchreset", 1000, ["leftbrake
 	}
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autobrakeSwitchReset];
+const autospeed = new autofunction("autospeed", 1000, ["onground", "airspeed", "verticalspeed", "altitudeAGL", "throttle", "latitude", "longitude"], states => {
+	const lat = parseFloat(document.getElementById("latref").value);
+	const long = parseFloat(document.getElementById("longref").value);
+    const climbspd = parseInt(document.getElementById("climbspd").value);
+    const landingspd = parseInt(document.getElementById("landingspd").value);
+    const cruisespd = parseInt(document.getElementById("cruisespd").value);
+
+    if (states.onground) {
+        autospeed.error();
+        return;
+    }
+
+	let stage = autospeed.stage;
+
+	if (stage === 0 && states.altitudeAGL > 10000) {
+        autospeed.error();
+		return;
+    }
+
+	const distance = calcLLdistance(states.latitude, states.longitude, lat, long);
+	
+    if (states.verticalspeed < -500 && states.altitudeAGL <= 5000 && distance <= 7) { // Landing
+		if (stage === 3) {
+			write("spdon", false);
+			write("throttle", -80);
+			stage++;
+		}
+		if (stage === 4) {
+			if (distance <= 4) {
+				write("spd", landingspd);
+				if(Math.abs(states.airspeed - landingspd) < 5) {
+					write("spdon", true);
+				}
+			} else if (distance <= 6) {
+				write("spd", (landingspd + 20));
+				if(Math.abs(states.airspeed - (landingspd + 20) < 5)) {
+					write("spdon", true);
+				}
+			} else if (distance <= 7) {
+				write("spd", (landingspd + 40));
+				if(Math.abs(states.airspeed - (landingspd + 40) < 5)) {
+					write("spdon", true);
+				}
+			}
+		}
+    }
+
+    if (states.verticalspeed > 500 && states.altitudeAGL <= 10000 && Math.abs(climbspd - states.airspeed) < 10 && stage === 0) { // Climb (below 10k)
+        write("spd", climbspd);
+        write("spdon", true);
+        stage++;
+    }
+
+    if (states.verticalspeed > 500 && states.altitudeAGL > 10000) { // Climb (above 10k)
+        if(stage === 1) {
+            write("spdon", false);
+            write("throttle", (states.throttle + 30));
+            stage++;
+        }
+
+        if(stage === 2) {
+            if(Math.abs(cruisespd - states.airspeed) < 6) {
+                write("spd", cruisespd);
+                write("spdon", true);
+                stage++;
+            }
+        }
+    }
+
+    autospeed.stage = stage;
+});
+
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset];
