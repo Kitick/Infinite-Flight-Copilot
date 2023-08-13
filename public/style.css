@@ -4,7 +4,6 @@ body{
 	font-family: monospace;
 	text-align: center;
 	user-select: none;
-    /*margin-top:25vh;*/
 }
 
 button{
@@ -77,12 +76,11 @@ select{
 	width: 20rem;
 	display: flex;
 	flex-direction: column;
-	/*justify-content: space-between;*/
 	align-items: center;
 	border-style: solid;
 	border-width: 0.25rem;
 	border-radius: 0.5rem;
-	border-color: #4d4d4d;
+	border-color: #1d0f0f;
 }
 
 #autopilot{
@@ -91,7 +89,6 @@ select{
 	width: 20rem;
 	display: flex;
 	flex-direction: column;
-	/*justify-content: space-between;*/
 	align-items: center;
 	border-style: solid;
 	border-width: 0.25rem;
@@ -137,11 +134,9 @@ select{
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	/*width: 13rem;*/
 }
 
 .buttot-row{
-	/*width: 13rem;*/
 	display: flex;
 	flex-direction: row;
 	justify-content: space-evenly;
@@ -156,7 +151,6 @@ select{
 
 .large-button{
 	width: 15rem !important;
-	/*height: 3rem;*/
 }
 
 .input-container{
