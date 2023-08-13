@@ -1,33 +1,208 @@
 body{
-	background:#202020;
-	color:#FFFFFF;
-	font-family:monospace;
-	text-align:center;
-	user-select:none;
-    margin-top:25vh;
+	background: #202020;
+	color: #FFFFFF;
+	font-family: monospace;
+	text-align: center;
+	user-select: none;
 }
 
-input[type="radio"], input[type="checkbox"]{
-	vertical-align:middle;
+button{
+	width: 6.7rem;
+	height: 2rem;
+	border: none;
+	border-radius: 0.25rem;
+	color: white;
+	font-size: 1rem;
+	font: Helvetica;
+	padding: 0.25rem 0.5rem;
+	opacity: 0.9;
+	transition: 0.3s;
+	display: inline-block;
+	text-decoration: none;
+	cursor: pointer;
+	text-align: center;
+	margin: 0.5rem;
 }
 
-input[type="number"]{
-	width:5em;
+button:hover{
+	opacity: 1;
 }
 
-.mode{
-    float:left;
-    width:20%;
+input{
+	width: 14rem;
+	padding: 0.5rem;
+	border: none;
+	border-radius: 0.25rem;
+	color: white;
+	background-color: #333333;
+	font-size: 1rem;
+	font: Helvetica;
+	font-style: italic;
+	margin: 0.5rem;
 }
 
-ol, ul{
-	text-align:left;
+input:focus{
+	background-color: #4d4d4d;
+	transition: 0.3s;
 }
 
-.off, .armed, .active, .error{
-	height:2em;
+input[type="checkbox"]{
+	border-color:#202020;
+	height: 1.2rem;
+	width: 1.2rem;
 }
-.off{background:#FFFFFF;}
-.active{background:#00C000;}
-.armed{background:#FF8000;}
-.error{background:#FF0000;}
+
+/* Chromium */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button{
+	-webkit-appearance: none;
+}
+
+/* Firefox */
+input[type="number"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+select{
+	width: 15rem;
+	padding: 0.5rem;
+	border: none;
+	border-radius: 0.25rem;
+	color: white;
+	background-color: #333333;
+	font-size: 1rem;
+	font: Helvetica;
+	margin: 0.5rem;
+	transition: 0.3s;
+}
+
+.panel-container{
+	display: flex;
+	justify-content: space-around;
+	flex-flow: row wrap;
+	margin-bottom: 1rem;
+	margin-top: 1rem;
+}
+
+.panel{
+	box-align: left;
+	height: inherit;
+	width: 20rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border-style: solid;
+	border-width: 0.25rem;
+	border-radius: 0.5rem;
+	border-color: #4d4d4d;
+	margin-bottom: 1rem;
+}
+
+div[hidden]{
+	display: none;
+}
+
+.panel{
+	box-align: left;
+	height: inherit;
+	width: 20rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border-style: solid;
+	border-width: 0.25rem;
+	border-radius: 0.5rem;
+	border-color: #4d4d4d;
+	margin-bottom: 1rem;
+}
+
+.setup-button-container{
+	width: inherit;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	padding-top: 1.5rem;
+}
+
+.connect-button{
+	background-color: #038f03;
+}
+
+.close-button{
+	background-color: #990000;
+}
+
+.warning-text{
+	color: #FF0000 !important;
+	padding: 0.5rem 0.5rem;
+}
+
+.example-buttons-container{
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-evenly;
+	align-items: center;
+	padding: 1rem;
+}
+
+.example-buttons{
+	pointer-events: none;
+	margin: 0.3rem;
+}
+
+.dyn-button-container{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.buttot-row{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: center;
+	padding: 1rem;
+}
+
+.input-container{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.input-option-container{
+	display: flex;
+	flex-direction: row;
+	width: 14rem;
+	justify-content: center;
+}
+
+.input-option-l{
+	width: 9.5rem;
+}
+
+.input-option-s{
+	width: 3.5rem;
+}
+
+.checkbox-row{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.off{
+	background-color:#4d4d4d;
+}
+.active{
+	background-color:#00C000;
+}
+.armed{
+	background-color:#FF8000;
+}
+.error{
+	background-color:#FF0000;
+}

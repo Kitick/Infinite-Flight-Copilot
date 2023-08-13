@@ -2,6 +2,7 @@
 
 function loaded(){
 	statLog = document.getElementById("status");
+	panels = document.getElementsByClassName("panel");
 
 	autofunctions.forEach(autof => {
 		autof.button = document.getElementById(autof.button);
@@ -15,7 +16,7 @@ function loaded(){
 }
 
 function bridge(){
-    document.getElementById("autopilot").hidden = true;
+    setVisibility(true);
 
 	let address = document.getElementById("address").value;
 	const parts = address.split(".");
@@ -67,20 +68,27 @@ function write(command, value){
     socket.emit("write", command, value);
 }
 
-function reset(){
-	document.getElementById("autopilot").hidden = true;
+function setVisibility(hidden){
+	for(let i = 1, length =  panels.length; i < length; i++){
+		panels[i].hidden = hidden;
+	}
+}
 
+function reset(){
+	setVisibility(true);
 	autofunctions.forEach(autof => {
 		autof.changeActive(false);
 	});
 }
 
 let statLog;
+let panels;
+
 const socket = io();
 
 socket.on("ready", address => {
 	document.getElementById("address").value = address;
-    document.getElementById("autopilot").hidden = false;
+    setVisibility(false);
 });
 
 socket.on("log", response => {
