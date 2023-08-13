@@ -15,7 +15,11 @@ function loaded(){
 }
 
 function bridge(){
-    document.getElementById("autopilot").hidden = true;
+    document.getElementById("autopilot0").hidden = true;
+	document.getElementById("autopilot1").hidden = true;
+	document.getElementById("autopilot2").hidden = true;
+	document.getElementById("autopilot3").hidden = true;
+	document.getElementById("autopilot4").hidden = true;
 
 	let address = document.getElementById("address").value;
 	const parts = address.split(".");
@@ -68,7 +72,11 @@ function write(command, value){
 }
 
 function reset(){
-	document.getElementById("autopilot").hidden = true;
+	document.getElementById("autopilot0").hidden = true;
+	document.getElementById("autopilot1").hidden = true;
+	document.getElementById("autopilot2").hidden = true;
+	document.getElementById("autopilot3").hidden = true;
+	document.getElementById("autopilot4").hidden = true;
 
 	autofunctions.forEach(autof => {
 		autof.changeActive(false);
@@ -80,7 +88,11 @@ const socket = io();
 
 socket.on("ready", address => {
 	document.getElementById("address").value = address;
-    document.getElementById("autopilot").hidden = false;
+    document.getElementById("autopilot0").hidden = false;
+	document.getElementById("autopilot1").hidden = false;
+	document.getElementById("autopilot2").hidden = false;
+	document.getElementById("autopilot3").hidden = false;
+	document.getElementById("autopilot4").hidden = false;
 });
 
 socket.on("log", response => {

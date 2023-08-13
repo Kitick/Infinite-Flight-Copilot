@@ -80,7 +80,7 @@ select{
 
 .panel-container{
 	display: flex;
-	justify-content: space-evenly;
+	justify-content: space-around;
 	flex-flow: row wrap;
 	margin-bottom: 1rem;
 	margin-top: 1rem;
@@ -100,7 +100,11 @@ select{
 	margin-bottom: 1rem;
 }
 
-#autopilot{
+div[hidden]{
+	display: none !important;
+}
+
+#autopilot0, #autopilot1, #autopilot2, #autopilot3, #autopilot4{
 	box-align: left;
 	height: inherit;
 	width: 20rem;
