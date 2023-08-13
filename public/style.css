@@ -7,7 +7,7 @@ body{
 }
 
 button{
-	width: 6rem;
+	width: 6.7rem;
 	height: 2rem;
 	border: none;
 	border-radius: 0.25rem;
@@ -21,6 +21,7 @@ button{
 	text-decoration: none;
 	cursor: pointer;
 	text-align: center;
+	margin: 0.5rem;
 }
 
 button:hover{
@@ -51,6 +52,19 @@ input[type="checkbox"]{
 	width: 1.2rem;
 }
 
+/* Chromium */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button{
+	-webkit-appearance: none;
+}
+
+/* Firefox */
+input[type="number"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
 select{
 	width: 15rem;
 	padding: 0.5rem;
@@ -68,6 +82,8 @@ select{
 	display: flex;
 	justify-content: space-evenly;
 	flex-flow: row wrap;
+	margin-bottom: 1rem;
+	margin-top: 1rem;
 }
 
 .panel{
@@ -81,6 +97,7 @@ select{
 	border-width: 0.25rem;
 	border-radius: 0.5rem;
 	border-color: #4d4d4d;
+	margin-bottom: 1rem;
 }
 
 #autopilot{
@@ -94,6 +111,7 @@ select{
 	border-width: 0.25rem;
 	border-radius: 0.5rem;
 	border-color: #4d4d4d;
+	margin-bottom: 1rem;
 }
 
 .setup-button-container{
@@ -144,15 +162,6 @@ select{
 	padding: 1rem;
 }
 
-.config-button{
-	width: 6.7rem !important;
-	margin: 0.5rem;
-}
-
-.large-button{
-	width: 15rem !important;
-}
-
 .input-container{
 	display: flex;
 	flex-direction: column;
@@ -181,7 +190,15 @@ select{
 	justify-content: space-between;
 }
 
-.off{background:#4d4d4d;}
-.active{background:#00C000;}
-.armed{background:#FF8000;}
-.error{background:#FF0000;}
+.off{
+	background-color:#4d4d4d;
+}
+.active{
+	background-color:#00C000;
+}
+.armed{
+	background-color:#FF8000;
+}
+.error{
+	background-color:#FF0000;
+}
