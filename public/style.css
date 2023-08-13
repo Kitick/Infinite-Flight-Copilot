@@ -104,7 +104,7 @@ div[hidden]{
 	display: none !important;
 }
 
-#autopilot0, #autopilot1, #autopilot2, #autopilot3, #autopilot4{
+.panel{
 	box-align: left;
 	height: inherit;
 	width: 20rem;

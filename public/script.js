@@ -2,6 +2,7 @@
 
 function loaded(){
 	statLog = document.getElementById("status");
+	panels = document.getElementsByClassName("panel");
 
 	autofunctions.forEach(autof => {
 		autof.button = document.getElementById(autof.button);
@@ -15,11 +16,7 @@ function loaded(){
 }
 
 function bridge(){
-    document.getElementById("autopilot0").hidden = true;
-	document.getElementById("autopilot1").hidden = true;
-	document.getElementById("autopilot2").hidden = true;
-	document.getElementById("autopilot3").hidden = true;
-	document.getElementById("autopilot4").hidden = true;
+    setVisibility(true);
 
 	let address = document.getElementById("address").value;
 	const parts = address.split(".");
@@ -71,28 +68,28 @@ function write(command, value){
     socket.emit("write", command, value);
 }
 
-function reset(){
-	document.getElementById("autopilot0").hidden = true;
-	document.getElementById("autopilot1").hidden = true;
-	document.getElementById("autopilot2").hidden = true;
-	document.getElementById("autopilot3").hidden = true;
-	document.getElementById("autopilot4").hidden = true;
+function setVisibility(hidden){
+	for(let i = 1, length =  panels.length; i < length; i++){
+		panels[i].hidden = hidden;
+	}
+}
 
+function reset(){
+	document.getElementByClassName("panel").hidden = true;
+	setVisibility(true);
 	autofunctions.forEach(autof => {
 		autof.changeActive(false);
 	});
 }
 
 let statLog;
+let panels;
+
 const socket = io();
 
 socket.on("ready", address => {
 	document.getElementById("address").value = address;
-    document.getElementById("autopilot0").hidden = false;
-	document.getElementById("autopilot1").hidden = false;
-	document.getElementById("autopilot2").hidden = false;
-	document.getElementById("autopilot3").hidden = false;
-	document.getElementById("autopilot4").hidden = false;
+    setVisibility(false);
 });
 
 socket.on("log", response => {
