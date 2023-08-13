@@ -101,7 +101,7 @@ select{
 }
 
 div[hidden]{
-	display: none !important;
+	display: none;
 }
 
 .panel{
@@ -180,11 +180,11 @@ div[hidden]{
 }
 
 .input-option-l{
-	width: 9.5rem !important;
+	width: 9.5rem;
 }
 
 .input-option-s{
-	width: 3.5rem !important;
+	width: 3.5rem;
 }
 
 .checkbox-row{

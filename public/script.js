@@ -75,7 +75,6 @@ function setVisibility(hidden){
 }
 
 function reset(){
-	document.getElementByClassName("panel").hidden = true;
 	setVisibility(true);
 	autofunctions.forEach(autof => {
 		autof.changeActive(false);
