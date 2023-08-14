@@ -50,12 +50,16 @@
 						<button id="gear" onclick="autogear.changeActive();" class="off">GEAR</button>
 						<button id="flaps" onclick="autoflaps.changeActive();" class="off">FLAPS</button>
 					</div>
+						<button id="autospeed" onclick="autospeed.changeActive();" class="off" style="width: 15rem;">SPEED</button>
 						<button id="abswitchreset" onclick="autobrakeSwitchReset.changeActive();" class="off" style="width: 15rem;">AUTOBRAKE RESET</button>
 				</div>
 				<div class="input-container">
 					<input id="flaplow" type="number" placeholder="Max Flaps SPD (kts)" min="0" step="5">
 					<input id="flaphigh" type="number" placeholder="Clean SPD (kts)" min="0" step="5">
-					<input id="flapto" type="number" placeholder="Flap Setting" min="0" step="1">			
+					<input id="flapto" type="number" placeholder="Flap Setting" min="0" step="1">		
+					<input id="climbspd" type="number" placeholder="Climb SPD" min="0" step="5">
+					<input id="landingspd" type="number" placeholder="Landing SPD" min="0" step="5">
+					<input id="cruisespd" type="number" placeholder="Cruise SPD" min="0" step="5">
 				</div>
 				<div class="aircraft-flap-settings-desc">
 					<h3>Aircraft Flap Settings <br> EMPTY, TO BE FILLED WITH DATA LATER</h3>
@@ -65,7 +69,6 @@
 				<h2 class="module-name">AUTO TAKEOFF</h2>
 
                 <input id="rotate" type="number" placeholder="Rotation Speed (kts)" min="0" step="5">
-				<input id="climbspd" type="number" placeholder="Climb Speed (kts)" min="0" step="5">
                 <input id="climbn1" type="number" placeholder="Climb Throttle (%)" min="0" max="100" step="1">
 				<div class="input-option-container">
 					<input id="climbalt" type="number" placeholder="Level-off Altitude (ft)" min="0" step="100" class="input-option-l">
@@ -90,13 +93,13 @@
 			</div>
 			<div class="panel" hidden>
 				<h2 class="module-name">FLIGHT DIRECTOR</h2>
-                <input id="lat" type="number" placeholder="Latitude (deg)" min="-90" max="90">
-				<input id="long" type="number" placeholder="Longitude (deg)" min="-180" max="180">
-				<input id="hdg" type="number" placeholder="HDG (deg)" min="0" max="360" step="1">
+                <input id="latref" type="number" placeholder="Latitude (deg)" min="-90" max="90">
+				<input id="longref" type="number" placeholder="Longitude (deg)" min="-180" max="180">
+				<input id="hdgref" type="number" placeholder="HDG (deg)" min="0" max="360" step="1">
 				<button id="flyto" onclick="flyto.changeActive();" class="off" style="width: 15rem;">FLY TO</button>
 				<div class="input-option-container">
 					<input id="flcinput" type="number" placeholder="V/S" min="0" step="100" class="input-option-s">
-                	<select id="climbtype" class="input-option-l">
+                	<select id="flcmode" class="input-option-l">
                     	<option value="g">Gradient (ft/nm)</option>
 						<option value="v">VPA (deg)</option>
                 	</select>
