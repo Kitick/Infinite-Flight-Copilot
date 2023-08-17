@@ -688,4 +688,30 @@ const autospeed = new autofunction("autospeed", 1000, ["onground", "airspeed", "
     autospeed.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset];
+const vnav = new autofunction("vnav", 1000, ["fplinfo", "onground", "autopilot", "airspeed", "altitude", "vnav"], states => {
+	const fplinfo = JSON.parse(states.fplinfo);
+	const nextWaypoint = fplinfo.icao; 
+	const flightPlanItems = fplinfo.detailedInfo.flightPlanItems;
+	let nextWaypointIndex = 0;
+
+	if(states.onground || !states.autopilot || states.vnav) {
+		vnav.error();
+	}
+
+	for(let i = 0, length = flightPlanItems.length; i < length; i++) {
+		if(fplinfo.detailedInfo.flightPlanItems[i].identifier === nextWaypoint) {
+			nextWaypointIndex = i;
+		}
+	}
+
+	const nextWaypointAltitude = flightPlanItems[nextWaypointIndex].altitude;
+	const altDiffrence = nextWaypointAltitude - states.altitude;
+	const fpm = altDiffrence / fplinfo.eteToNext;
+
+	if(nextWaypointAltitude !== -1) {
+		write("alt", nextWaypointAltitude);
+		write("vs", fpm);
+	}
+})
+
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav];
