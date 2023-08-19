@@ -27,7 +27,7 @@
 						<h3 class="warning-text">
 							Please ensure you monitor your flight <u>AT ALL TIMES</u> when using the automation functions offered. 
 							<br>
-							We are <u>NOT</u> to be held responsible for any violations you may acquire while using them.
+							We are <u>NOT</u> responsible for any violations you may acquire while using them.
 						</h3>
 				<div class="button-guide">
 					<h3>Button Guide</h3>
@@ -43,43 +43,39 @@
 				<h2 class="module-name">DYNAMIC SYSTEMS</h2>
 				<div class="dyn-button-container">
 					<div class="button-row">
-						<button id="trim" onclick="autotrim.changeActive();" class="off">TRIM</button>
-						<button id="lights" onclick="autolights.changeActive();" class="off">LIGHTS</button>
+						<button id="trim" onclick="autotrim.toggle();" class="off">TRIM</button>
+						<button id="lights" onclick="autolights.toggle();" class="off">LIGHTS</button>
 					</div>
 					<div class="button-row">
-						<button id="gear" onclick="autogear.changeActive();" class="off">GEAR</button>
-						<button id="flaps" onclick="autoflaps.changeActive();" class="off">FLAPS</button>
+						<button id="gear" onclick="autogear.toggle();" class="off">GEAR</button>
+						<button id="flaps" onclick="autoflaps.toggle();" class="off">FLAPS</button>
 					</div>
-						<button id="autospeed" onclick="autospeed.changeActive();" class="off" style="width: 15rem;">SPEED</button>
-						<button id="abswitchreset" onclick="autobrakeSwitchReset.changeActive();" class="off" style="width: 15rem;">AUTOBRAKE RESET</button>
+						<button id="autospeed" onclick="autospeed.toggle();" class="off" style="width: 15rem;">SPEED CONTROL</button>
+						<button id="abswitchreset" onclick="autobrakeSwitchReset.toggle();" class="off" style="width: 15rem;">AUTOBRAKE RESET</button>
 				</div>
 				<div class="input-container">
-					<input id="flaplow" type="number" placeholder="Max Flaps SPD (kts)" min="0" step="5">
-					<input id="flaphigh" type="number" placeholder="Clean SPD (kts)" min="0" step="5">
-					<input id="flapto" type="number" placeholder="Flap Setting" min="0" step="1">		
-					<input id="climbspd" type="number" placeholder="Climb SPD" min="0" step="5">
-					<input id="landingspd" type="number" placeholder="Landing SPD" min="0" step="5">
+					<input id="flaplow" type="number" placeholder="Max Flaps Speed (kts)" min="0" step="5">
+					<input id="flaphigh" type="number" placeholder="Clean Speed (kts)" min="0" step="5">
+					<input id="flapto" type="number" placeholder="Takeoff Flap (#)" min="0" step="1">
 					<input id="cruisespd" type="number" placeholder="Cruise SPD" min="0" step="5">
-				</div>
-				<div class="aircraft-flap-settings-desc">
-					<h3>Aircraft Flap Settings <br> EMPTY, TO BE FILLED WITH DATA LATER</h3>
 				</div>
 			</div>
 			<div class="panel" hidden>
 				<h2 class="module-name">AUTO TAKEOFF</h2>
 
-                <input id="rotate" type="number" placeholder="Rotation Speed (kts)" min="0" step="5">
-                <input id="climbn1" type="number" placeholder="Climb Throttle (%)" min="0" max="100" step="1">
+                <input id="rotate" type="number" placeholder="Rotation Speed VR (kts)" min="0" step="5">
+                <input id="climbspd" type="number" placeholder="Climb-Out Speed (kts)" min="0" step="5">
+                <input id="climbthrottle" type="number" placeholder="Climb Throttle (%)" min="0" max="100" step="1">
 				<div class="input-option-container">
 					<input id="climbalt" type="number" placeholder="Level-off Altitude (ft)" min="0" step="100" class="input-option-l">
                 	<select id="climbtype" class="input-option-s">
+                        <option value="msl">MSL</option>
                     	<option value="agl">AGL</option>
-                    	<option value="msl">MSL</option>
                 	</select>
 				</div>
-				<button id="takeoffconfig" onclick="takeoffconfig.changeActive();" class="off" style="width: 15rem;">CONFIGURE FOR TAKEOFF</button>
-				<button id="autotakeoff" onclick="autotakeoff.changeActive();" class="off" style="width: 15rem;">AUTO TAKEOFF</button>
-				<button id="reject" onclick="rejecttakeoff.changeActive();" class="off" style="width: 15rem;">REJECT TAKEOFF</button>
+				<button id="takeoffconfig" onclick="takeoffconfig.toggle();" class="off" style="width: 15rem;">CONFIGURE FOR TAKEOFF</button>
+				<button id="autotakeoff" onclick="autotakeoff.toggle();" class="off" style="width: 15rem;">AUTO TAKEOFF</button>
+				<button id="reject" onclick="rejecttakeoff.toggle();" class="off" style="width: 15rem;">REJECT TAKEOFF</button>
               	<div class="checkbox-container">
 					<div class="checkbox-row">
 						<input id="takeoffspool" type="checkbox">
@@ -93,18 +89,18 @@
 			</div>
 			<div class="panel" hidden>
 				<h2 class="module-name">FLIGHT DIRECTOR</h2>
-                <input id="latref" type="number" placeholder="Latitude (deg)" min="-90" max="90">
-				<input id="longref" type="number" placeholder="Longitude (deg)" min="-180" max="180">
-				<input id="hdgref" type="number" placeholder="HDG (deg)" min="0" max="360" step="1">
-				<button id="flyto" onclick="flyto.changeActive();" class="off" style="width: 15rem;">FLY TO</button>
+                <input id="flytolat" type="number" placeholder="Latitude (deg)" min="-90" max="90">
+				<input id="flytolong" type="number" placeholder="Longitude (deg)" min="-180" max="180">
+				<input id="flytohdg" type="number" placeholder="Heading (deg)" min="0" max="360" step="1">
+				<button id="flyto" onclick="flyto.toggle();" class="off" style="width: 15rem;">FLY TO</button>
 				<div class="input-option-container">
-					<input id="flcinput" type="number" placeholder="V/S" min="0" step="100" class="input-option-s">
+					<input id="flcinput" type="number" min="0" class="input-option-s">
                 	<select id="flcmode" class="input-option-l">
                     	<option value="g">Gradient (ft/nm)</option>
 						<option value="v">VPA (deg)</option>
                 	</select>
 				</div>
-				<button id="levelchange" onclick="levelchange.changeActive();" class="off" style="width: 15rem;">LEVEL CHANGE</button>
+				<button id="levelchange" onclick="levelchange.toggle();" class="off" style="width: 15rem;">LEVEL CHANGE</button>
 				<h3>Leave heading blank for "Direct to"</h3>
 			</div>
 			<div class="panel" hidden>
@@ -116,8 +112,8 @@
 				<input id="latref" type="number" placeholder="Latitude Reference (deg)" min="-90" max="90">
 				<input id="longref" type="number" placeholder="Longitude Reference (deg)" min="-180" max="180">
 				<input id="hdgref" type="number" placeholder="HDG Reference (deg)" min="0" max="360" step="1">
-				<button id="markposition" onclick="markposition.changeActive();" class="off" style="width: 15rem;">MARK POSITION</button>
-				<button id="setrunway" onclick="setrunway.changeActive();" class="off" style="width: 15rem;">SET RUNWAY</button>
+				<button id="markposition" onclick="markposition.toggle();" class="off" style="width: 15rem;">MARK POSITION</button>
+				<button id="setrunway" onclick="setrunway.toggle();" class="off" style="width: 15rem;">SET RUNWAY</button>
 				<div class="input-option-container">	
 					<select id="direction" class="input-option-s">
 						<option value="l">Left</option>
@@ -131,7 +127,7 @@
 						<option value="f">Final</option>
 					</select>
 				</div>
-				<button id="flypattern" onclick="flypattern.changeActive();" class="off" style="width: 15rem;">FLY PATTERN</button>
+				<button id="flypattern" onclick="flypattern.toggle();" class="off" style="width: 15rem;">FLY PATTERN</button>
                 <div class="checkbox-container">
 					<div class="checkbox-row">
 						<input id="approach" type="checkbox">
@@ -144,9 +140,8 @@
 			</div>
             <div class="panel" hidden>
 				<h2 class="module-name">AUTO APPROACH AND LAND</h2>
-                <h3 class="warning-text">WORK IN PROGRESS: Only Land works for now, no speed control yet.</h3>
                 <input id="altref" type="number" step="1" placeholder="Airport Elevation (ft)" min="0">
-                <input id="spdref" type="number" step="5" placeholder="VRef (kts)" min="0">
+                <input id="spdref" type="number" step="5" placeholder="Landing Speed VRef(kts)" min="0">
                	<input id="flare" type="number" placeholder="Flare Height (ft)" min="0" step="5">
                	<input id="touchdown" type="number" placeholder="Distance from threshold (ft)" min="0" step="100">
                	<input id="vparef" type="number" placeholder="VPA Refrence (deg)" min="0" max="6" step="0.1">
@@ -156,8 +151,8 @@
                    	<option value="p">Low Pass</option>
                    	<option value="s">Stop & Go</option>
                	</select>
-				<button id="autoland" onclick="autoland.changeActive();" class="off" style="width: 15rem;">APPROACH</button>
-               	<button id="goaround" onclick="goaround.changeActive();" class="off" style="width: 15rem;">GO AROUND</button>
+				<button id="autoland" onclick="autoland.toggle();" class="off" style="width: 15rem;">APPROACH</button>
+               	<button id="goaround" onclick="goaround.toggle();" class="off" style="width: 15rem;">GO AROUND</button>
                 <h4>Flare Height is used as the altitude for the low pass.</h4>
                 <h4>This uses the runway refrences in pattern work.</h4>
                 <h4>Go Around uses autotakeoff settings.</h4>
