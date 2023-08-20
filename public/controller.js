@@ -453,7 +453,9 @@ const autoland = new autofunction("autoland", 500, ["latitude", "longitude", "al
 
     document.getElementById("flcinput").value = vpaout;
 
-    write("spoilers", 2);
+	if(!autospeed.active) {
+		write("spoilers", 2);
+	}
     write("alt", alt);
 
     if(states.altitude - alt > 100){
@@ -586,6 +588,10 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	}
 	else if(stage === 2){
 		if(states.airspeed >= rotate){
+			write("vs", (flcinput / 2));
+		}
+		if(states.altitudeAGL > 30) {
+			autospeed.active = true;
 			levelchange.active = true;
 			stage++;
 		}
@@ -595,11 +601,8 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 			if(document.getElementById("takeoffnav").checked){
                 write("navon", true);
             }
-
-			write("spdon", true);
+		
 			write("spoilers", 0);
-
-			autospeed.active = true;
 			stage++;
 		}
 	}
@@ -616,12 +619,28 @@ const autobrakeSwitchReset = new autofunction("abswitchreset", 1000, ["leftbrake
 	}
 });
 
+function controlThrottle(throttle, spd, spdDifference) {
+	write("spdon", false);
+	if(throttle > 0) {
+		write("throttle", -80);
+	} else {
+		write("throttle", -100);
+	}
+	write("spd", spd);
+	write("spoilers", 1)
+	if(spdDifference) {
+		write("spdon", true);
+		write("spoilers", 2)
+	}
+}
+
 const autospeed = new autofunction("autospeed", 1000, ["onground", "airspeed", "verticalspeed", "altitudeAGL", "throttle", "latitude", "longitude"], states => {
 	const lat = parseFloat(document.getElementById("latref").value);
 	const long = parseFloat(document.getElementById("longref").value);
     const climbspd = parseInt(document.getElementById("climbspd").value);
     const landingspd = parseInt(document.getElementById("spdref").value);
     const cruisespd = parseInt(document.getElementById("cruisespd").value);
+	const climbalt = parseInt(document.getElementById("climbalt").value);
 
     if(states.onground){
         autospeed.error();
@@ -642,36 +661,33 @@ const autospeed = new autofunction("autospeed", 1000, ["onground", "airspeed", "
 
 	const distance = calcLLdistance(states.latitude, states.longitude, lat, long);
 	
-    if(states.verticalspeed < -500 && states.altitudeAGL <= 5000 && distance <= 7){ // Landing
-		if(stage === 3){
-			write("spdon", false);
-			write("throttle", -80);
-			stage++;
-		}
-		else if(stage === 4){
-			if(distance <= 4){
-				write("spd", landingspd);
-				if(Math.abs(states.airspeed - landingspd) < 5){
-					write("spdon", true);
-				}
-			} else if(distance <= 6){
-				write("spd", (landingspd + 20));
-				if(Math.abs(states.airspeed - (landingspd + 20) < 5)){
-					write("spdon", true);
-				}
-			} else if(distance <= 7){
-				write("spd", (landingspd + 40));
-				if(Math.abs(states.airspeed - (landingspd + 40) < 5)){
-					write("spdon", true);
-				}
+    if (states.verticalspeed < -500 && states.altitudeAGL <= 5000 && distance <= 7) { // Landing
+		if (distance <= 4 && stage === 5) {
+			controlThrottle(states.throttle, landingspd, Math.abs(states.airspeed - landingspd) < 5);
+			if (Math.abs(states.airspeed - landingspd) < 5) {
+				stage++;
+			}
+		} else if (distance <= 6 && stage === 4) {
+			controlThrottle(states.throttle, (landingspd + 20), Math.abs(states.airspeed - (landingspd + 20)) < 5)
+			if (Math.abs(states.airspeed - (landingspd + 20)) < 5) {
+				stage++;
+			}
+		} else if (distance <= 7 && stage === 3) {
+			controlThrottle(states.throttle, (landingspd + 40), Math.abs(states.airspeed - (landingspd + 40)) < 5)
+			if (Math.abs(states.airspeed - (landingspd + 40)) < 5) {
+				stage++;
 			}
 		}
-    }
+	}
 
     if(states.verticalspeed > 500 && states.altitudeAGL <= 10000 && Math.abs(climbspd - states.airspeed) < 10 && stage === 0){ // Climb (below 10k)
         write("spd", climbspd);
         write("spdon", true);
-        stage++;
+		if(climbalt > 10000) {
+			stage++;
+		} else {
+			stage = 3;
+		}
     }
 
     if(states.verticalspeed > 500 && states.altitudeAGL > 10000){ // Climb (above 10k)
@@ -693,4 +709,30 @@ const autospeed = new autofunction("autospeed", 1000, ["onground", "airspeed", "
     autospeed.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset];
+const vnav = new autofunction("vnav", 1000, ["fplinfo", "onground", "autopilot", "airspeed", "altitude", "vnav"], states => {
+	const fplinfo = JSON.parse(states.fplinfo);
+	const nextWaypoint = fplinfo.icao; 
+	const flightPlanItems = fplinfo.detailedInfo.flightPlanItems;
+	let nextWaypointIndex = 0;
+
+	if(states.onground || !states.autopilot || states.vnav) {
+		vnav.error();
+	}
+
+	for(let i = 0, length = flightPlanItems.length; i < length; i++) {
+		if(fplinfo.detailedInfo.flightPlanItems[i].identifier === nextWaypoint) {
+			nextWaypointIndex = i;
+		}
+	}
+
+	const nextWaypointAltitude = flightPlanItems[nextWaypointIndex].altitude;
+	const altDiffrence = nextWaypointAltitude - states.altitude;
+	const fpm = altDiffrence / fplinfo.eteToNext;
+
+	if(nextWaypointAltitude !== -1) {
+		write("alt", nextWaypointAltitude);
+		write("vs", fpm);
+	}
+})
+
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav];
