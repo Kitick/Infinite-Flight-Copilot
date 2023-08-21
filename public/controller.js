@@ -588,12 +588,8 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 	}
 	else if(stage === 2){
 		if(states.airspeed >= rotate){
-			write("vs", (flcinput / 2));
-		}
-		if(states.altitudeAGL > 30) {
-			autospeed.active = true;
-			levelchange.active = true;
-			stage++;
+            levelchange.active = true;
+            stage++;
 		}
 	}
 	else if(stage === 3){
@@ -601,7 +597,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 			if(document.getElementById("takeoffnav").checked){
                 write("navon", true);
             }
-		
+
 			write("spoilers", 0);
 			stage++;
 		}
