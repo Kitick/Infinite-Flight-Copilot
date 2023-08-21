@@ -742,13 +742,13 @@ setTimeout(() => {
 	}
 }, 1000);
 
-function speak(text) {
+function speak(text){
 	text = text.toString()
 	const select = document.getElementById("voices");
 	const voices = speechSynthesis.getVoices();
 	const voiceIndex = select.selectedIndex;
 	const utterance = new SpeechSynthesisUtterance(text);
-	utterance.voice = voices[voiceIndex];
+    utterance.voice = voices[voiceIndex];
 	speechSynthesis.speak(utterance);
 }
 
@@ -759,45 +759,44 @@ const callout = new autofunction("callout", 100, ["onrunway", "airspeed", "throt
 	const v2checkbox = document.getElementById("v2checkbox");
 	const minumums = document.getElementById("minumuns");
 	const elevation = parseFloat(document.getElementById("altref").value);
-	let alt;
+	
+    const alt = (elevation === null) ? states.altitudeAGL : states.altitude - elevation;
+    let stage = callout.stage;
 
-	if(elevation == null) {
-		alt = states.altitudeAGL;
-	} else {
-		alt = states.altitude - elevation;
-	}
-
-	if(states.airspeed === v1 && states.onrunway && states.throttle > 40) {
+	if(stage === 0 && states.airspeed >= v1 && states.onrunway && states.throttle > 40) {
 		speak("V1");
+        stage++;
 	}
-
-	if(states.airspeed === rotate && states.onrunway && states.throttle > 40) {
+    else if(stage === 1 && states.airspeed >= rotate && states.onrunway && states.throttle > 40) {
 		speak("Rotate");
+        stage++;
 	}
-
-	if(v2checkbox.checkbox) {
-		if(states.airspeed === v2 && states.throttle > 40) {
-			speak("v2");
+    else if(stage === 2 && v2checkbox.checkbox) {
+		if(states.airspeed >= v2 && states.throttle > 40) {
+			speak("V2");
+            stage++;
 		}
 	}
 
-	if(states.gear === false && alt >= 990 && alt <= 1000) {
-		speak("Landing Gear UP");
+	if(!speechSynthesis.speaking && !states.gear && alt <= 1000 && states.verticalspeed < -500) {
+		speak("Landing Gear");
 	}
 
-	let flags = [false, false, false, false, false, false, false, false]
-    let alts = [10, 20, 30, 40, 50, 100, 500, 1000]
+	let flags = [false, false, false, false, false, false, false, false];
+    let alts = [10, 20, 30, 40, 50, 100, 500, 1000];
 
     for(let i = 0; i < alts.length; i++) {
         if(alt <= alts[i] && !flags[i]) {
-            speak(alts[i])
-            flags[i] = true
+            speak(alts[i]);
+            flags[i] = true;
         }
     }
 
-	if(alt >= minumums - 3 && states.altitude <= minumums) {
+	if(!speechSynthesis.speaking && alt >= minumums - 3 && states.altitude <= minumums) {
 		speak("MINIMUNS MINUMUNS!");
 	}
+
+    callout.stage = stage;
 })
 
 const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav, callout];
