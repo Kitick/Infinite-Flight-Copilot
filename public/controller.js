@@ -735,4 +735,73 @@ const vnav = new autofunction("vnav", 1000, ["fplinfo", "onground", "autopilot",
 	}
 })
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav];
+speechSynthesis.getVoices();
+
+setTimeout(() => {
+	const select = document.getElementById("voices");
+	const voices = speechSynthesis.getVoices();
+	for(let i = 0; i < voices.length; i++) {
+		const newOption = new Option(`${voices[i].lang}`, i);
+		select.add(newOption);
+	}
+}, 1000);
+
+function speak(text) {
+	text = text.toString()
+	const select = document.getElementById("voices");
+	const voices = speechSynthesis.getVoices();
+	const voiceIndex = select.selectedIndex;
+	const utterance = new SpeechSynthesisUtterance(text);
+	utterance.voice = voices[voiceIndex];
+	speechSynthesis.speak(utterance);
+}
+
+const callout = new autofunction("callout", 100, ["onrunway", "airspeed", "throttle", "gear", "altitudeAGL", "altitude"], states => {
+	const v1 = document.getElementById("v1");
+	const rotate = document.getElementById("rotate");
+	const v2 = document.getElementById("v2");
+	const v2checkbox = document.getElementById("v2checkbox");
+	const minumums = document.getElementById("minumuns");
+	const elevation = parseFloat(document.getElementById("altref").value);
+	let alt;
+
+	if(elevation == null) {
+		alt = states.altitudeAGL;
+	} else {
+		alt = states.altitude - elevation;
+	}
+
+	if(states.airspeed === v1 && states.onrunway && states.throttle > 40) {
+		speak("V1");
+	}
+
+	if(states.airspeed === rotate && states.onrunway && states.throttle > 40) {
+		speak("Rotate");
+	}
+
+	if(v2checkbox.checkbox) {
+		if(states.airspeed === v2 && states.throttle > 40) {
+			speak("v2");
+		}
+	}
+
+	if(states.gear === false && alt >= 990 && alt <= 1000) {
+		speak("Landing Gear UP");
+	}
+
+	let flags = [false, false, false, false, false, false, false, false]
+    let alts = [10, 20, 30, 40, 50, 100, 500, 1000]
+
+    for(let i = 0; i < alts.length; i++) {
+        if(alt <= alts[i] && !flags[i]) {
+            speak(alts[i])
+            flags[i] = true
+        }
+    }
+
+	if(alt >= minumums - 3 && states.altitude <= minumums) {
+		speak("MINIMUNS MINUMUNS!");
+	}
+})
+
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav, callout];
