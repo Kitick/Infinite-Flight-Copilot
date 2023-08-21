@@ -733,15 +733,6 @@ const vnav = new autofunction("vnav", 1000, ["fplinfo", "onground", "autopilot",
 
 speechSynthesis.getVoices();
 
-setTimeout(() => {
-	const select = document.getElementById("voices");
-	const voices = speechSynthesis.getVoices();
-	for(let i = 0; i < voices.length; i++) {
-		const newOption = new Option(`${voices[i].lang}`, i);
-		select.add(newOption);
-	}
-}, 1000);
-
 function speak(text){
 	text = text.toString()
 	const select = document.getElementById("voices");
@@ -785,7 +776,7 @@ const callout = new autofunction("callout", 100, ["onrunway", "airspeed", "throt
 	let flags = [false, false, false, false, false, false, false, false];
     let alts = [10, 20, 30, 40, 50, 100, 500, 1000];
 
-    for(let i = 0; i < alts.length; i++) {
+    for(let i = 0, length = alts.length; i < length; i++) {
         if(alt <= alts[i] && !flags[i]) {
             speak(alts[i]);
             flags[i] = true;
