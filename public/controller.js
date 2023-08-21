@@ -743,49 +743,47 @@ function speak(text){
 	speechSynthesis.speak(utterance);
 }
 
-const callout = new autofunction("callout", 100, ["onrunway", "airspeed", "throttle", "gear", "altitudeAGL", "altitude"], states => {
-	const v1 = document.getElementById("v1");
-	const rotate = document.getElementById("rotate");
-	const v2 = document.getElementById("v2");
-	const v2checkbox = document.getElementById("v2checkbox");
-	const minumums = document.getElementById("minumuns");
+const callout = new autofunction("callout", 100, ["onrunway", "airspeed", "verticalspeed", "throttle", "gear", "altitudeAGL", "altitude"], states => {
+	const v1 = parseInt(document.getElementById("rotate").value) - 10;
+	const rotate = parseInt(document.getElementById("rotate").value);
+	const v2 = parseInt(document.getElementById("rotate").value) + 10;
+	const minumums = parseInt(document.getElementById("minumuns").value);
 	const elevation = parseFloat(document.getElementById("altref").value);
-	
-    const alt = (elevation === null) ? states.altitudeAGL : states.altitude - elevation;
+
+    const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
     let stage = callout.stage;
 
-	if(stage === 0 && states.airspeed >= v1 && states.onrunway && states.throttle > 40) {
+	if(stage === 0 && states.airspeed >= v1 && states.onrunway && states.throttle > 40){
 		speak("V1");
         stage++;
 	}
-    else if(stage === 1 && states.airspeed >= rotate && states.onrunway && states.throttle > 40) {
+    else if(stage === 1 && states.airspeed >= rotate && states.onrunway && states.throttle > 40){
 		speak("Rotate");
         stage++;
 	}
-    else if(stage === 2 && v2checkbox.checkbox) {
-		if(states.airspeed >= v2 && states.throttle > 40) {
-			speak("V2");
-            stage++;
-		}
+    else if(stage === 2 && states.airspeed >= v2 && states.throttle > 40){
+        speak("V2");
+        stage++;
 	}
 
-	if(!speechSynthesis.speaking && !states.gear && alt <= 1000 && states.verticalspeed < -500) {
+	if(!speechSynthesis.speaking && states.verticalspeed < -500 && !states.gear && alt <= 1000) {
 		speak("Landing Gear");
 	}
 
-	let flags = [false, false, false, false, false, false, false, false];
-    let alts = [10, 20, 30, 40, 50, 100, 500, 1000];
+    if(!speechSynthesis.speaking && states.verticalspeed < -500 && alt <= minumums + 10 && alt >= minumums) {
+		speak("Minimums");
+	}
 
-    for(let i = 0, length = alts.length; i < length; i++) {
-        if(alt <= alts[i] && !flags[i]) {
-            speak(alts[i]);
-            flags[i] = true;
+    const alts = [1000, 500, 100, 50, 40, 30, 20, 10];
+
+    if(states.verticalspeed < -500){
+        for(let i = 0, length = alts.length - 1; i < length; i++) {
+            if(!speechSynthesis.speaking && alt <= alts[i] && alt > alts[i + 1]){
+                speak(alts[i]);
+                break;
+            }
         }
     }
-
-	if(!speechSynthesis.speaking && alt >= minumums - 3 && states.altitude <= minumums) {
-		speak("MINIMUNS MINUMUNS!");
-	}
 
     callout.stage = stage;
 })
