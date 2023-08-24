@@ -21,7 +21,6 @@ class autofunction{
         this.#code = code;
 
 		this.stage = 0;
-		this.stageArray = [0, 0, 0, 0, 0, 0, 0, 0]
 
 		states.forEach(state => {
 			this.#states[state] = undefined;
@@ -761,7 +760,6 @@ const callout = new autofunction("callout", 100, ["onrunway", "airspeed", "verti
 
     const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
 	
-	let stagealts = callout.stageArray;
     let stage = callout.stage;
 
 	if(stage === 0 && states.airspeed >= v1 && states.onrunway && states.throttle > 40){
@@ -789,16 +787,14 @@ const callout = new autofunction("callout", 100, ["onrunway", "airspeed", "verti
 
     if(states.verticalspeed < -500){
         for(let i = 0, length = alts.length - 1; i < length; i++) {
-            if(!speechSynthesis.speaking && alt <= alts[i] && alt > alts[i + 1] && stagealts[i] === 0){
+            if(!speechSynthesis.speaking && alt <= alts[i] && alt > alts[i + 1]){
                 speak(alts[i]);
-				stagealts[i]++
                 break;
             }
         }
     }
 
     callout.stage = stage;
-	callout.stageArray = stagealts;
 })
 
 const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav, callout];
