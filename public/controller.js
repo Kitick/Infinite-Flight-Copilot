@@ -593,6 +593,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["onrunway", "n1", "air
 		}
 	}
 	else if(stage === 3){
+		autospeed.active = true;
 		if(states.airspeed > climbspd - 10){
 			if(document.getElementById("takeoffnav").checked){
                 write("navon", true);
@@ -630,23 +631,27 @@ function controlThrottle(throttle, spd, spdDifference) {
 	}
 }
 
-const autospeed = new autofunction("autospeed", 1000, ["onground", "airspeed", "verticalspeed", "altitudeAGL", "throttle", "latitude", "longitude"], states => {
+const autospeed = new autofunction("autospeed", 1000, ["onground", "airspeed", "verticalspeed", "altitudeAGL", "altitude", "throttle", "latitude", "longitude"], states => {
 	const lat = parseFloat(document.getElementById("latref").value);
 	const long = parseFloat(document.getElementById("longref").value);
     const climbspd = parseInt(document.getElementById("climbspd").value);
     const landingspd = parseInt(document.getElementById("spdref").value);
     const cruisespd = parseInt(document.getElementById("cruisespd").value);
 	const climbalt = parseInt(document.getElementById("climbalt").value);
+	const cruisealt = parseInt(document.getElementById("cruisealt").value);
+	const elevation = parseFloat(document.getElementById("altref").value);
 
     if(states.onground){
         autospeed.error();
         return;
     }
 
-	if(validateNaN(lat, long, climbspd, landingspd, cruisespd)){
+	if(validateNaN(lat, long, climbspd, landingspd, cruisespd, cruisealt)){
 		autospeed.error();
 		return;
 	}
+
+	const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation
 
 	let stage = autospeed.stage;
 
@@ -676,17 +681,17 @@ const autospeed = new autofunction("autospeed", 1000, ["onground", "airspeed", "
 		}
 	}
 
-    if(states.verticalspeed > 500 && states.altitudeAGL <= 10000 && Math.abs(climbspd - states.airspeed) < 10 && stage === 0){ // Climb (below 10k)
+    if(states.verticalspeed > 500 && alt <= 10000 && Math.abs(climbspd - states.airspeed) < 10 && stage === 0){ // Climb (below 10k)
         write("spd", climbspd);
         write("spdon", true);
-		if(climbalt > 10000) {
+		if(cruisealt > 10000) {
 			stage++;
 		} else {
 			stage = 3;
 		}
     }
 
-    if(states.verticalspeed > 500 && states.altitudeAGL > 10000){ // Climb (above 10k)
+    if(states.verticalspeed > 500 && alt > 10000){ // Climb (above 10k)
         if(stage === 1){
             write("spdon", false);
             write("throttle", (states.throttle + 30));
@@ -709,7 +714,8 @@ const vnav = new autofunction("vnav", 1000, ["fplinfo", "onground", "autopilot",
 	const fplinfo = JSON.parse(states.fplinfo);
 	const nextWaypoint = fplinfo.icao; 
 	const flightPlanItems = fplinfo.detailedInfo.flightPlanItems;
-	let nextWaypointIndex = 0;
+	let nextWaypointIndex;
+
 
 	if(states.onground || !states.autopilot || states.vnav) {
 		vnav.error();
@@ -738,7 +744,9 @@ function speak(text){
 	const select = document.getElementById("voices");
 	const voices = speechSynthesis.getVoices();
 	const voiceIndex = select.selectedIndex;
+	const voiceRate = document.getElementById("utterancerate").value;
 	const utterance = new SpeechSynthesisUtterance(text);
+	utterance.rate = voiceRate;
     utterance.voice = voices[voiceIndex];
 	speechSynthesis.speak(utterance);
 }
@@ -751,6 +759,7 @@ const callout = new autofunction("callout", 100, ["onrunway", "airspeed", "verti
 	const elevation = parseFloat(document.getElementById("altref").value);
 
     const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
+	
     let stage = callout.stage;
 
 	if(stage === 0 && states.airspeed >= v1 && states.onrunway && states.throttle > 40){
