@@ -6,11 +6,14 @@ function loaded(){
 
     autofunction.loadButtonHTML();
 
-    const select = document.getElementById("voices");
-	const voices = speechSynthesis.getVoices();
-	for(let i = 0, length = voices.length; i < length; i++) {
-		const newOption = new Option(voices[i].lang, i);
-		select.add(newOption);
+	let select = document.getElementById("voices");
+	
+	while(select.length === 0){
+		const voices = speechSynthesis.getVoices();
+		for(let i = 0, length = voices.length; i < length; i++) {
+			const newOption = new Option(voices[i].lang, i);
+			select.add(newOption);
+		}
 	}
 
 	socket.emit("test", response => {
