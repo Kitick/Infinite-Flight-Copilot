@@ -1,5 +1,5 @@
 class autofunction{
-	#button;
+    #button;
     #timeout;
     #states = {};
     #numStates = 0;
@@ -15,18 +15,18 @@ class autofunction{
     }
 
     constructor(button, inputs, delay, states, code = () => {}){
-		this.#button = button;
+	this.#button = button;
         this.delay = delay;
-		this.#numStates = states.length;
-		this.inputs = inputs;
+	this.#numStates = states.length;
+	this.inputs = inputs;
         this.#code = code;
 
-		this.stage = 0;
+	this.stage = 0;
 
-		states.forEach(state => {
-			this.#states[state] = undefined;
-		});
-	}
+	states.forEach(state => {
+		this.#states[state] = undefined;
+	});
+    }
 
     get active(){
         return this.#active;
@@ -34,23 +34,23 @@ class autofunction{
 
     set active(run){
         if(this.active === run){
-			return;
-		}
+		return;
+	}
 
         this.#active = run;
         this.updateButton();
 
         if(run){
-			const valid = this.getInputs();
-			if(valid) {
-				this.stage = 0;
-            	this.run();
-			} else {
-				this.error();
-			}
+		const valid = this.getInputs();
+		if(valid) {
+		    this.stage = 0;
+            	    this.run();
+		} else {
+		    this.error();
+		}
         }
         else{
-			clearTimeout(this.#timeout);
+	    clearTimeout(this.#timeout);
         }
     }
 
@@ -59,7 +59,7 @@ class autofunction{
     }
 
     updateButton(){
-		this.#button.className = this.active ? "active":"off";
+	this.#button.className = this.active ? "active":"off";
     }
 
     run(){
@@ -68,7 +68,7 @@ class autofunction{
             this.#armed = false;
 
             this.#code(this.#states);
-			const valid = this.getInputs();
+	    const valid = this.getInputs();
 
             if(!this.#armed && wasArmed){
                 this.updateButton();
@@ -86,10 +86,10 @@ class autofunction{
 
 	#readStates(callback = () => {}){
 		if(this.#numStates === 0){
-			callback();
+		    callback();
 		}
 		else{
-            this.#validStates = 0;
+            		this.#validStates = 0;
 			for(let state in this.#states){
 				read(state, value => {this.#stateReturn(state, value, callback);});
 			}
@@ -110,27 +110,27 @@ class autofunction{
         this.#button.className = "armed";
     }
 
-	error(){
-		this.active = false;
-		this.#button.className = "error";
-		this.#timeout = setTimeout(() => {this.updateButton();}, 2000);
-	}
+    error(){
+	this.active = false;
+	this.#button.className = "error";
+	this.#timeout = setTimeout(() => {this.updateButton();}, 2000);
+    }
 
-	getInputs() {
-		let valid = true;
-		for(let i in this.inputs) {
-			const input = document.getElementById(i);
-			const value = parseFloat(input.value);
-			if(isNaN(value)) {
-				input.classList.add("error");
-				setTimeout(() => {input.classList.remove("error");}, 2000);
-				valid = false;
-			} else {
-				this.inputs[i] = parseFloat(input.value);
-			}
+    getInputs() {
+	let valid = true;
+	for(let i in this.inputs) {
+		const input = document.getElementById(i);
+		const value = parseFloat(input.value);
+		if(isNaN(value)) {
+			input.classList.add("error");
+			setTimeout(() => {input.classList.remove("error");}, 2000);
+			valid = false;
+		} else {
+			this.inputs[i] = parseFloat(input.value);
 		}
-		return valid;
 	}
+	return valid;
+     }
 }
 
 const autotrim = new autofunction("trim", {}, 1000, ["pitch", "trim", "onground"], states => {
@@ -194,7 +194,6 @@ const autogear = new autofunction("gear", {}, 1000, ["gear", "altitudeAGL", "ver
 });
 
 const autoflaps = new autofunction("flaps", {flaplow: 0, flaphigh: 0, flapto: 0}, 1000, ["flaps", "airspeed", "altitudeAGL", "verticalspeed", "flapcount", "onground", "onrunway"], states => {
-	console.log(autoflaps.inputs.flaplow, autoflaps.inputs.flaphigh, autoflaps.inputs.flapto)
 	if((autoflaps.inputs.flapto < 0 || autoflaps.inputs.flapto > states.flapcount - 1) || (autoflaps.inputs.flaphigh < autoflaps.inputs.flaplow)){
 		autoflaps.error();
 		return;
@@ -255,7 +254,7 @@ const markposition = new autofunction("markposition", {}, -1, ["latitude", "long
 	document.getElementById("latref").value = states.latitude;
 	document.getElementById("longref").value = states.longitude;
 	document.getElementById("hdgref").value = Math.round(states.heading);
-    document.getElementById("altref").value = Math.round(states.altitude);
+        document.getElementById("altref").value = Math.round(states.altitude);
 });
 
 const setrunway = new autofunction("setrunway", {}, -1, ["route", "coordinates"], states => {
@@ -603,18 +602,18 @@ function controlThrottle(throttle, spd, spdDifference) {
 const autospeed = new autofunction("autospeed", {latref: 0, longref: 0, climbspd: 0, spdref: 0, cruisespd: 0, cruisealt: 0}, 1000, ["onground", "airspeed", "verticalspeed", "altitudeAGL", "altitude", "throttle", "latitude", "longitude", "spd"], states => {
 	const elevation = parseFloat(document.getElementById("altref").value);
 
-    if(states.onground){
-        autospeed.error();
-        return;
-    }
+    	if(states.onground){
+        	autospeed.error();
+        	return;
+    	}
 
 	const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation
 
 	let stage = autospeed.stage;
 
 	if(stage === 0 && states.altitudeAGL > 10000){
-        stage = 3;
-    }
+        	stage = 3;
+    	}
 
 	if(states.airspeed >= states.spd + 10){
 		write("spoilers", 1);
@@ -624,58 +623,58 @@ const autospeed = new autofunction("autospeed", {latref: 0, longref: 0, climbspd
   
 	const distance = calcLLdistance(states.latitude, states.longitude, autospeed.inputs.latref, autospeed.inputs.longref);
 	
-    if (states.verticalspeed < -500 && alt <= 5000 && distance <= 7) {
-		    if (distance <= 4 && stage === 6) {
-			      controlThrottle(states.throttle, autospeed.inputs.spdref, Math.abs(states.airspeed - autospeed.inputs.spdref) < 5);
-			      if (Math.abs(states.airspeed - autospeed.inputs.spdref) < 5) {
-				        stage++;
-			      }
-		    } else if (distance <= 6 && stage === 5) {
-			      controlThrottle(states.throttle, (autospeed.inputs.spdref + 20), Math.abs(states.airspeed - (autospeed.inputs.spdref + 20)) < 5)
-			      if (Math.abs(states.airspeed - (autospeed.inputs.spdref + 20)) < 5) {
-				        stage++;
-			      }
-		    } else if (distance <= 7 && stage === 4) {
-			      controlThrottle(states.throttle, (autospeed.inputs.spdref + 40), Math.abs(states.airspeed - (autospeed.inputs.spdref + 40)) < 5)
-			      if (Math.abs(states.airspeed - (autospeed.inputs.spdref + 40)) < 5) {
-				        stage++;
-			      }
-		    }
-	}
+    	if (states.verticalspeed < -500 && alt <= 5000 && distance <= 7) {
+		if (distance <= 4 && stage === 6) {
+			controlThrottle(states.throttle, autospeed.inputs.spdref, Math.abs(states.airspeed - autospeed.inputs.spdref) < 5);
+			if (Math.abs(states.airspeed - autospeed.inputs.spdref) < 5) {
+				stage++;
+			}
+		} else if (distance <= 6 && stage === 5) {
+			controlThrottle(states.throttle, (autospeed.inputs.spdref + 20), Math.abs(states.airspeed - (autospeed.inputs.spdref + 20)) < 5)
+			if (Math.abs(states.airspeed - (autospeed.inputs.spdref + 20)) < 5) {
+				stage++;
+			}
+		} else if (distance <= 7 && stage === 4) {
+			controlThrottle(states.throttle, (autospeed.inputs.spdref + 40), Math.abs(states.airspeed - (autospeed.inputs.spdref + 40)) < 5)
+			if (Math.abs(states.airspeed - (autospeed.inputs.spdref + 40)) < 5) {
+				stage++;
+			}
+		}
+        }
 
 	if(states.verticalspeed < -500 && alt <= 12000 && alt >= 10000 && stage === 3){
 		write("spd", 250);
 		stage++;
 	}
 
-    if(states.verticalspeed > 500 && alt <= 10000 && Math.abs(autospeed.inputs.climbspd - states.airspeed) < 10 && stage === 0){
-        write("spd", autospeed.inputs.climbspd);
-        write("spdon", true);
-		    if(autospeed.inputs.cruisealt > 10000) {
-			      stage++;
-		    } else {
-			      stage = 4;
-        }
-    }
-
-    if(states.verticalspeed > 500 && alt > 10000){
-        if(stage === 1){
-            write("spdon", false);
-			      write("spd", autospeed.inputs.cruisespd);
-            write("throttle", (states.throttle + 30));
-            stage++;
+    	if(states.verticalspeed > 500 && alt <= 10000 && Math.abs(autospeed.inputs.climbspd - states.airspeed) < 10 && stage === 0){
+        	write("spd", autospeed.inputs.climbspd);
+        	write("spdon", true);
+		if(autospeed.inputs.cruisealt > 10000) {
+			stage++;
+		} else {
+			stage = 4;
+        	}
         }
 
-        if(stage === 2){
-            if(Math.abs(autospeed.inputs.cruisespd - states.airspeed) < 6){
-                write("spd", autospeed.inputs.cruisespd);
-                write("spdon", true);
-                stage++;
-            }
-        }
-    }
+    	if(states.verticalspeed > 500 && alt > 10000){
+        	if(stage === 1){
+            		write("spdon", false);
+			write("spd", autospeed.inputs.cruisespd);
+            		write("throttle", (states.throttle + 30));
+            		stage++;
+        	}
 
-    autospeed.stage = stage;
+        	if(stage === 2){
+            		if(Math.abs(autospeed.inputs.cruisespd - states.airspeed) < 6){
+                		write("spd", autospeed.inputs.cruisespd);
+                		write("spdon", true);
+                		stage++;
+            		}
+        	}
+   	}
+
+    	autospeed.stage = stage;
 });
 
 function showfpl(id, waypoint, div){
@@ -807,7 +806,7 @@ function speak(text){
 	const voiceRate = document.getElementById("utterancerate").value;
 	const utterance = new SpeechSynthesisUtterance(text);
 	utterance.rate = voiceRate;
-    utterance.voice = voices[voiceIndex];
+    	utterance.voice = voices[voiceIndex];
 	speechSynthesis.speak(utterance);
 }
 
@@ -816,9 +815,9 @@ const callout = new autofunction("callout", {rotate: 0, utterancerate: 0, minumu
 	const v2 = callout.inputs.rotate + 10;
 	const elevation = parseFloat(document.getElementById("altref").value);
 
-    const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
+    	const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
 	
-    let stage = callout.stage;
+   	let stage = callout.stage;
 
 	if(stage === 0){
 		callout.flags = [false, false, false, false, false, false, false, false];
@@ -827,38 +826,38 @@ const callout = new autofunction("callout", {rotate: 0, utterancerate: 0, minumu
 	
 	if(stage === 1 && states.airspeed >= v1 && states.onrunway && states.throttle > 40){
 		speak("V1");
-        stage++;
+        	stage++;
 	}
-    else if(stage === 2 && states.airspeed >= callout.inputs.rotate && states.onrunway && states.throttle > 40){
+   	else if(stage === 2 && states.airspeed >= callout.inputs.rotate && states.onrunway && states.throttle > 40){
 		speak("Rotate");
-        stage++;
+        	stage++;
 	}
-    else if(stage === 3 && states.airspeed >= v2 && states.throttle > 40){
-        speak("V2");
-        stage++;
+    	else if(stage === 3 && states.airspeed >= v2 && states.throttle > 40){
+        	speak("V2");
+        	stage++;
 	}
 	
 	if(!speechSynthesis.speaking && states.verticalspeed < -500 && !states.gear && alt <= 1000) {
 		speak("Landing Gear");
 	}
 
-    if(!speechSynthesis.speaking && states.verticalspeed < -500 && alt <= callout.inputs.minumuns + 10 && alt >= callout.inputs.minumuns) {
+    	if(!speechSynthesis.speaking && states.verticalspeed < -500 && alt <= callout.inputs.minumuns + 10 && alt >= callout.inputs.minumuns) {
 		speak("Minimums");
 	}
 
-    const alts = [1000, 500, 100, 50, 40, 30, 20, 10];
+    	const alts = [1000, 500, 100, 50, 40, 30, 20, 10];
 
-    if(states.verticalspeed < -500){
-        for(let i = 0, length = alts.length - 1; i < length; i++) {
-            if(!speechSynthesis.speaking && alt <= alts[i] && alt > alts[i + 1] && !callout.flags[i]){
-                speak(alts[i]);
+    	if(states.verticalspeed < -500){
+        	for(let i = 0, length = alts.length - 1; i < length; i++) {
+            		if(!speechSynthesis.speaking && alt <= alts[i] && alt > alts[i + 1] && !callout.flags[i]){
+                		speak(alts[i]);
 				callout.flags[i] = true;
-                break;
-            }
-        }
-    }
+                		break;
+            		}
+        	}
+    	}
 
-    callout.stage = stage;
+    	callout.stage = stage;
 })
 
 const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav, callout, updatefpl];
