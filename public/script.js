@@ -10,7 +10,7 @@ function loaded(){
 	const voices = speechSynthesis.getVoices();
 	for(let i = 0, length = voices.length; i < length; i++) {
 		const newOption = new Option(voices[i].lang, i);
-		select.add(newOption);
+		select.add(newOption)
 	}
 
 	socket.emit("test", response => {

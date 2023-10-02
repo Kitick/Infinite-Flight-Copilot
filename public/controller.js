@@ -606,7 +606,7 @@ const autospeed = new autofunction("autospeed", {latref: 0, longref: 0, climbspd
     if(states.onground){
         autospeed.error();
         return;
-	}
+    }
 
 	const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation
 
@@ -621,26 +621,26 @@ const autospeed = new autofunction("autospeed", {latref: 0, longref: 0, climbspd
 	} else if(states.airspeed <= states.spd + 10 && states.airspeed >= states.spd && states.airspeed > autospeed.inputs.spdref + 5){
 		write("spoilers", 0);
 	}
-	console.log(states.airspeed)
+  
 	const distance = calcLLdistance(states.latitude, states.longitude, autospeed.inputs.latref, autospeed.inputs.longref);
 	
     if (states.verticalspeed < -500 && alt <= 5000 && distance <= 7) {
-		if (distance <= 4 && stage === 6) {
-			controlThrottle(states.throttle, autospeed.inputs.spdref, Math.abs(states.airspeed - autospeed.inputs.spdref) < 5);
-			if (Math.abs(states.airspeed - autospeed.inputs.spdref) < 5) {
-				stage++;
-			}
-		} else if (distance <= 6 && stage === 5) {
-			controlThrottle(states.throttle, (autospeed.inputs.spdref + 20), Math.abs(states.airspeed - (autospeed.inputs.spdref + 20)) < 5)
-			if (Math.abs(states.airspeed - (autospeed.inputs.spdref + 20)) < 5) {
-				stage++;
-			}
-		} else if (distance <= 7 && stage === 4) {
-			controlThrottle(states.throttle, (autospeed.inputs.spdref + 40), Math.abs(states.airspeed - (autospeed.inputs.spdref + 40)) < 5)
-			if (Math.abs(states.airspeed - (autospeed.inputs.spdref + 40)) < 5) {
-				stage++;
-			}
-		}
+		    if (distance <= 4 && stage === 6) {
+			      controlThrottle(states.throttle, autospeed.inputs.spdref, Math.abs(states.airspeed - autospeed.inputs.spdref) < 5);
+			      if (Math.abs(states.airspeed - autospeed.inputs.spdref) < 5) {
+				        stage++;
+			      }
+		    } else if (distance <= 6 && stage === 5) {
+			      controlThrottle(states.throttle, (autospeed.inputs.spdref + 20), Math.abs(states.airspeed - (autospeed.inputs.spdref + 20)) < 5)
+			      if (Math.abs(states.airspeed - (autospeed.inputs.spdref + 20)) < 5) {
+				        stage++;
+			      }
+		    } else if (distance <= 7 && stage === 4) {
+			      controlThrottle(states.throttle, (autospeed.inputs.spdref + 40), Math.abs(states.airspeed - (autospeed.inputs.spdref + 40)) < 5)
+			      if (Math.abs(states.airspeed - (autospeed.inputs.spdref + 40)) < 5) {
+				        stage++;
+			      }
+		    }
 	}
 
 	if(states.verticalspeed < -500 && alt <= 12000 && alt >= 10000 && stage === 3){
@@ -651,17 +651,17 @@ const autospeed = new autofunction("autospeed", {latref: 0, longref: 0, climbspd
     if(states.verticalspeed > 500 && alt <= 10000 && Math.abs(autospeed.inputs.climbspd - states.airspeed) < 10 && stage === 0){
         write("spd", autospeed.inputs.climbspd);
         write("spdon", true);
-		if(autospeed.inputs.cruisealt > 10000) {
-			stage++;
-		} else {
-			stage = 4;
-		}
+		    if(autospeed.inputs.cruisealt > 10000) {
+			      stage++;
+		    } else {
+			      stage = 4;
+        }
     }
 
     if(states.verticalspeed > 500 && alt > 10000){
         if(stage === 1){
             write("spdon", false);
-			write("spd", autospeed.inputs.cruisespd);
+			      write("spd", autospeed.inputs.cruisespd);
             write("throttle", (states.throttle + 30));
             stage++;
         }
@@ -817,6 +817,7 @@ const callout = new autofunction("callout", {rotate: 0, utterancerate: 0, minumu
 	const elevation = parseFloat(document.getElementById("altref").value);
 
     const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
+	
     let stage = callout.stage;
 
 	if(stage === 0){
