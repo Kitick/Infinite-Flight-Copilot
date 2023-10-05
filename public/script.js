@@ -1,6 +1,6 @@
 "use strict";
 
-function loaded(){
+window.onload = () => {
 	statLog = document.getElementById("status");
 	panels = document.getElementsByClassName("panel");
 
