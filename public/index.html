@@ -95,7 +95,7 @@
 				<input id="flytohdg" type="number" placeholder="Heading (deg)" min="0" max="360" step="1">
 				<button id="flyto" onclick="flyto.toggle();" class="off" style="width: 15rem;">FLY TO</button>
 				<div class="input-option-container">
-					<input id="flcinput" type="number" min="0" class="input-option-s">
+					<input id="flcinput" type="number" min="0" class="input-option-s" class="error">
                 	<select id="flcmode" class="input-option-l">
                     	<option value="g">Gradient (ft/nm)</option>
 						<option value="v">VPA (deg)</option>
@@ -165,6 +165,15 @@
 				<input id="utterancerate" type="number" placeholder="Voice Rate (1-4)" min="0.5" max="4">
 				<input id="minumuns" type="number" placeholder="Minumuns Altitude (ft)">
 				<button id="callout" onclick="callout.toggle();" class="off" style="width: 15rem;">CALLOUTS</button>
+			</div>
+			<div class="panel" hidden>
+				<h2 class="module-name">VNAV</h2>
+				<div id="waypoints">
+				</div>
+				<button id="speedpanel" class="off" style="width: 15rem;">SPEED PANEL</button>
+				<button id="updatefpl" onclick="updatefpl.toggle();" class="off" style="width: 15rem;">UPDATE FPL</button>
+				<button id="vnav" onclick="vnav.toggle();" class="off" style="width: 15rem;">VNAV</button>
+				<div id="remainingNM"></div>
 			</div>
 		</div>
     </body>
