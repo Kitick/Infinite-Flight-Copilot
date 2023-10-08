@@ -255,9 +255,11 @@ const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "h
     flyto.active = true;
 });
 
-const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref", "vparef", "touchdown"], ["latitude", "longitude", "altitude", "groundspeed"], data => {
+const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref", "vparef", "flare", "touchdown"], ["latitude", "longitude", "altitude", "groundspeed", "onrunway"], data => {
     const inputs = data.inputs;
     const states = data.states;
+
+    const type = document.getElementById("option").value;
 
     if(autoland.stage === 0){
         document.getElementById("leg").value = "f";
@@ -269,15 +271,15 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
     const altDiffrence = inputs.altref - states.altitude;
 
     const currentVPA = -Math.atan(altDiffrence / finalDistance) * toDeg;
-    const VPADiffrence = currentVPA - inputs.vpa;
+    const VPADiffrence = currentVPA - inputs.vparef;
 
-    let vpaout = inputs.vpa + 2 * VPADiffrence;
+    let vpaout = inputs.vparef + 2 * VPADiffrence;
     vpaout = Math.round(vpaout * 10) / 10;
 
-    if(vpaout > inputs.vpa + 1){
-        vpaout = inputs.vpa + 1;
+    if(vpaout > inputs.vparef + 1){
+        vpaout = inputs.vparef + 1;
     }
-    else if(vpaout < inputs.vpa - 1){
+    else if(vpaout < inputs.vparef - 1){
         vpaout = 0;
     }
 
@@ -286,16 +288,56 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
     if(!autospeed.active){
         write("spoilers", 2);
     }
-    write("alt", inputs.altref);
+
+    const stopalt = inputs.altref + inputs.flare;
+
+    write("alt", stopalt);
 
     if(states.altitude - inputs.altref > 100){
         levelchange.active = true;
     }
 
-    autospeed.active = true;
-    flypattern.active = true;
-    autoflaps.active = true;
-    autogear.active = true;
+    if(states.altitude - stopalt < 25){
+        autospeed.active = false;
+        levelchange.active = false;
+
+        write("spoilers", 2);
+        write("vs", 0);
+
+        document.getElementById("flcmode").value = "g";
+        document.getElementById("flcinput").value = 500;
+
+        if(type === "p"){
+            autoland.active = false;
+            setTimeout(() => {goaround.active = true;}, 6000);
+        }
+        else if(type === "l"){
+            autoland.active = false;
+            write("spd", 0);
+        }
+        else if(type === "t"){
+            write("spd", 0);
+
+            if(states.onrunway){
+                autoland.active = false;
+                setTimeout(() => {autotakeoff.active = true;}, 2000);
+            }
+        }
+        else if(type === "s"){
+            write("spd", 0);
+
+            if(states.groundspeed < 1){
+                autoland.active = false;
+                autotakeoff.active = true;
+            }
+        }
+    }
+    else{
+        autospeed.active = true;
+        flypattern.active = true;
+        autoflaps.active = true;
+        autogear.active = type !== "p";
+    }
 });
 
 const goaround = new autofunction("goaround", -1, [], [], data => {
@@ -357,12 +399,15 @@ const takeoffconfig = new autofunction("takeoffconfig", -1, ["climbalt"], ["onru
     write("parkingbrake", false);
 });
 
-const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", "climbthrottle", "climbalt"], ["onrunway", "n1", "airspeed", "altitude", "altitudeAGL"], data => {
+const autotakeoff = new autofunction("autotakeoff", 500, [
+    "rotate", "climbspd", "climbthrottle", // original
+    "climbalt", "flcinput", // config and levelchange
+    "latref", "longref", "climbspd", "spdref", "cruisespd", "cruisealt", // autospeed
+], ["onrunway", "n1", "airspeed", "altitude", "altitudeAGL"], data => {
     const inputs = data.inputs;
     const states = data.states;
 
     const throttle = 2 * inputs.climbthrottle - 100;
-
     const spoolup = document.getElementById("takeoffspool").checked;
 
     let stage = autotakeoff.stage;
@@ -440,7 +485,7 @@ const autobrakeSwitchReset = new autofunction("abswitchreset", 1000, [], ["leftb
     }
 });
 
-const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "climbspd", "spdref", 'cruisespd', "cruisealt"], ["onground", "airspeed", "verticalspeed", "altitudeAGL", "altitude", "throttle", "latitude", "longitude", "spd"], data => {
+const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "climbspd", "spdref", "cruisespd", "cruisealt"], ["onground", "airspeed", "verticalspeed", "altitudeAGL", "altitude", "throttle", "latitude", "longitude", "spd"], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -451,7 +496,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
         return;
     }
 
-    const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation
+    const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
 
     let stage = autospeed.stage;
 
@@ -459,7 +504,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
         stage = 3;
     }
 
-    if(states.airspeed >= states.spd + 10){
+    if(states.airspeed >= states.spd + 25){
         write("spoilers", 1);
     } else if(states.airspeed <= states.spd + 10 && states.airspeed >= states.spd && states.airspeed > inputs.spdref + 5){
         write("spoilers", 0);
@@ -521,6 +566,8 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
 });
 
 const updatefpl = new autofunction("updatefpl", -1, [], ["fplinfo"], data => {
+    const states = data.states;
+
     const fplinfo = JSON.parse(states.fplinfo);
     const flightPlanItems = fplinfo.detailedInfo.flightPlanItems;
 
@@ -535,7 +582,8 @@ const updatefpl = new autofunction("updatefpl", -1, [], ["fplinfo"], data => {
             waypoint = fplinfo.detailedInfo.waypoints[i];
             showfpl(counter, waypoint, div);
             counter++;
-        } else{
+        }
+        else{
             for(let j = 0; j < flightPlanItems[i].children.length; j++){
                 waypoint = flightPlanItems[i].children[j].identifier;
                 showfpl(counter, waypoint, div);
@@ -543,7 +591,7 @@ const updatefpl = new autofunction("updatefpl", -1, [], ["fplinfo"], data => {
             }
         }
     }
-})
+});
 
 const vnav = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopilot", "airspeed", "groundspeed", "altitude", "vnav", "vs", "latitude", "longitude"], data => {
     const states = data.states;
@@ -574,7 +622,8 @@ const vnav = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopil
                 nextAltitudeRestriction.push(flightPlanItems[i].altitude);
                 nextRestrictionLatLong.push([flightPlanItems[i].location.Latitude, flightPlanItems[i].location.Longitude]);
             }
-        } else{
+        }
+        else{
             for(let j = 0; j < flightPlanItems[i].children.length; j++){
                 if(flightPlanItems[i].children[j].identifier === nextWaypoint){
                     nextWaypointIndex = i + j;
@@ -600,20 +649,24 @@ const vnav = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopil
             const minimumNM = fpm > 0 ? (altDiffrence / 1000) * (60 / states.groundspeed) * 10 : (altDiffrence / -1000) * (60 / states.groundspeed) * 10;
             const remainingNM = fplinfo.distanceToNext - minimumNM - 2;
             remainingNMdiv.innerText = `VNAV starting in ${Math.round(remainingNM)}NM`;
-        } else{
+        }
+        else{
             write("alt", nextWaypointAltitude);
             write("vs", fpm);
             remainingNMdiv.innerText = "";
         }
-    } else{
+    }
+    else{
         const altDiffrence = nextAltitudeRestriction[0] - states.altitude;
         const eteToNext = ((fplinfo.distanceToNext + nextAltitudeRestrictionDistance) / states.groundspeed) * 60;
         const fpm = altDiffrence / eteToNext;
+
         if(fpm < 1000 && fpm > -1000){
             const minimumNM = fpm > 0 ? (altDiffrence / 1000) * (60 / states.groundspeed) * 10 : (altDiffrence / -1000) * (60 / states.groundspeed) * 10;
             const remainingNM = nextAltitudeRestrictionDistance - minimumNM - 2;
             remainingNMdiv.innerHTML = `VNAV starting in ${Math.round(remainingNM)}NM`;
-        } else{
+        }
+        else{
             write("alt", nextAltitudeRestriction[0]);
             write("vs", fpm);
             remainingNMdiv.innerHTML = "";
@@ -629,9 +682,9 @@ const vnav = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopil
             write("spd", nextWaypointSpeed);
         }
     }
-})
+});
 
-const callout = new autofunction("callout", 100, ["rotate", "utterancerate", "minumuns"], ["onrunway", "airspeed", "verticalspeed", "throttle", "gear", "altitudeAGL", "altitude"], data => {
+const callout = new autofunction("callout", 250, ["rotate", "utterancerate", "minumuns"], ["onrunway", "airspeed", "verticalspeed", "throttle", "gear", "altitudeAGL", "altitude"], data => {
     const inputs = data.inputs;
     const states = data.states;
 

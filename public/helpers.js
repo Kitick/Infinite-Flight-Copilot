@@ -47,7 +47,7 @@ function showfpl(id, waypoint, div){
     const br = document.createElement("br");
     input.type = "number";
     input.id = id;
-    div.innerHTML += ` ${waypoint}`;
+    div.innerHTML += " " + waypoint;
     div.appendChild(input);
     div.appendChild(br)
 }
@@ -68,3 +68,39 @@ speechSynthesis.getVoices();
 
 const toDeg = 180 / Math.PI;
 const toRad = Math.PI / 180;
+
+function setConfig(){
+    // CL350
+    document.getElementById("flaplow").value = 130;
+    document.getElementById("flaphigh").value = 200;
+    document.getElementById("flapto").value = 1;
+    document.getElementById("cruisespd").value = 250;
+    document.getElementById("cruisealt").value = 250000;
+
+    document.getElementById("rotate").value = 120;
+    document.getElementById("climbspd").value = 200;
+    document.getElementById("climbthrottle").value = 100;
+    document.getElementById("climbalt").value = 3000;
+
+    document.getElementById("flcinput").value = 500;
+
+    document.getElementById("updist").value = 2;
+    document.getElementById("downwidth").value = 5;
+    document.getElementById("finallength").value = 10;
+    document.getElementById("turnconst").value = 300;
+
+    document.getElementById("altref").value = 13;
+    document.getElementById("spdref").value = 130;
+    document.getElementById("flare").value = 10;
+    document.getElementById("touchdown").value = 1000;
+    document.getElementById("vparef").value = 3;
+
+    // SFO 28R
+    document.getElementById("latref").value = 37.61353302;
+    document.getElementById("longref").value = -122.35714722;
+    document.getElementById("hdgref").value = 284;
+    document.getElementById("direction").value = "r";
+
+    document.getElementById("utterancerate").value = 1;
+    document.getElementById("minumuns").value = 200;
+}

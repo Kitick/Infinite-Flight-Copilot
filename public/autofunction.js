@@ -43,13 +43,13 @@ class autofunction {
         this.#active = run;
         this.#updateButton();
 
-        if(run){
-            this.stage = 0;
-            this.run();
-        }
-        else{
+        if(!run){
             clearTimeout(this.#timeout);
+            return;
         }
+
+        this.stage = 0;
+        this.run();
     }
 
     toggle(){
