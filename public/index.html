@@ -90,6 +90,10 @@
                			<input id="takeoffnav" type="checkbox">
 						<h3 for="takeoffnav">Engage LNAV</label>
 					</div>
+					<div class="checkbox-row">
+						<input id="takeoffvnav" type="checkbox">
+						<h3 for="takeoffvnav">Engage VNAV</label>
+				 </div>
 				</div>
 			</div>
 			<div class="panel" hidden>
@@ -169,6 +173,7 @@
 				<input id="utterancerate" type="number" placeholder="Voice Rate (1-4)" min="0.5" max="4">
 				<input id="minumuns" type="number" placeholder="Minumuns Altitude (ft)">
 				<button id="callout" onclick="callout.toggle();" class="off" style="width: 15rem;">CALLOUTS</button>
+				<button id="callouttest" onclick="speak('Testing')" class="off" style="width: 15rem;">TEST</button>
 			</div>
 			<div class="panel" hidden>
 				<h2 class="module-name">VNAV</h2>

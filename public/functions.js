@@ -466,6 +466,10 @@ const autotakeoff = new autofunction("autotakeoff", 500, [
                 write("navon", true);
             }
 
+            if(document.getElementById("takeoffvnav").checked){
+                vnav.active = true;
+            }
+                
             write("spoilers", 0);
             stage++;
         }
@@ -492,7 +496,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     const elevation = parseFloat(document.getElementById("altref").value);
 
     if(states.onground){
-        autospeed.error();
+        autospeed.arm();
         return;
     }
 
@@ -504,15 +508,9 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
         stage = 3;
     }
 
-    if(states.airspeed >= states.spd + 25){
-        write("spoilers", 1);
-    } else if(states.airspeed <= states.spd + 10 && states.airspeed >= states.spd && states.airspeed > inputs.spdref + 5){
-        write("spoilers", 0);
-    }
-
     const distance = calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref);
 
-    if(states.verticalspeed < -500 && alt <= 5000 && distance <= 7){
+    if(states.verticalspeed < -500 && alt <= 4000 && distance <= 7){
         if(distance <= 4 && stage === 6){
             controlThrottle(states.throttle, inputs.spdref, Math.abs(states.airspeed - inputs.spdref) < 5);
 
@@ -606,6 +604,8 @@ const vnav = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopil
 		vnav.error();
 	}
 
+    updatefpl.toggle();
+
 	for(let i = 0, length = flightPlanItems.length; i < length; i++) {
 		if(flightPlanItems[i].children === null){
 			if(flightPlanItems[i].identifier === nextWaypoint || flightPlanItems[i].name === nextWaypoint) {
@@ -640,7 +640,9 @@ const vnav = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopil
 		}
 	}
 
-	if(nextRestrictionLatLong.length === 0) {
+	if(nextAltitudeRestriction.length === 0){
+        speak("No altitude restriction, VNAV disabled");
+        vnav.error();
 		return;
 	}
 
