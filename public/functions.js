@@ -508,11 +508,10 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
         stage = 3;
     }
 
-    if(states.airspeed >= states.spd + 25 && alt < 28000){
-        write("spoilers", 1);
-    } else if(states.airspeed <= states.spd + 10 && states.airspeed >= states.spd && states.airspeed > inputs.spdref + 5){
-        write("spoilers", 0);
-    }
+    let spoilers = 0;
+    if(states.airspeed - states.spd >= 25 && states.altitude < 28000){spoilers = 1;}
+    else if(states.airspeed - inputs.spdref <= 10){spoilers = 2;} 
+    write("spoilers", spoilers);
 
     const distance = calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref);
 
