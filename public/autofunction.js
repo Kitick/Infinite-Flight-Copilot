@@ -3,11 +3,15 @@ class autofunction {
     #timeout;
     #states = {};
     #inputs = {};
+    #dependents = [];
     #numStates = 0;
     #validStates = 0;
+    #inputsValid = false;
     #active = false;
     #armed = false;
     #code = () => {};
+
+    stage = 0;
 
     static loadButtonHTML(){
         autofunctions.forEach(autofunc => {
@@ -15,12 +19,12 @@ class autofunction {
         });
     }
 
-    constructor(button, delay, inputs, states, code = () => {}){
+    constructor(button, delay, inputs, states, dependents, code = () => {}){
         this.#button = button;
         this.delay = delay;
         this.#numStates = states.length;
+        this.#dependents = dependents;
         this.#code = code;
-        this.stage = 0;
 
         inputs.forEach(input => {
             this.#inputs[input] = undefined;
@@ -31,37 +35,32 @@ class autofunction {
         });
     }
 
-    get active(){
-        return this.#active;
-    }
+    get active(){return this.#active;}
 
-    set active(run){
-        if(this.active === run){
-            return;
-        }
+    set active(value){this.setActive(value)};
 
-        this.#active = run;
+    setActive(value = !this.#active){
+        if(this.active === value){return;}
+
+        this.#active = value;
         this.#updateButton();
 
-        if(!run){
+        if(!value){
             clearTimeout(this.#timeout);
             return;
         }
 
         this.stage = 0;
-        this.run();
-    }
-
-    toggle(){
-        this.active = !this.active;
+        this.#run();
     }
 
     #updateButton(){
         this.#button.className = this.active ? "active" : "off";
     }
 
-    run(){
-        const valid = this.#getInputs();
+    #run(){
+        let valid = this.getInputs();
+        this.#inputsValid = false;
 
         if(!valid){
             this.error();
@@ -83,7 +82,7 @@ class autofunction {
             }
 
             if(this.active && valid){
-                this.#timeout = setTimeout(() => {this.run();}, this.delay);
+                this.#timeout = setTimeout(() => {this.#run();}, this.delay);
             }
         });
     }
@@ -109,22 +108,36 @@ class autofunction {
         }
     }
 
-    #getInputs(){
+    getInputs(checkanyway = false){
+        if(this.#inputsValid && !checkanyway){return true;}
+
         let valid = true;
         for(let name in this.#inputs){
             const input = document.getElementById(name);
-            const value = parseFloat(input.value);
+            const numberValue = parseFloat(input.value);
 
-            if(isNaN(value)){
+            if(input.type === "number" && isNaN(numberValue)){
                 input.classList.add("error");
                 setTimeout(() => {input.classList.remove("error");}, 2000);
+
                 valid = false;
+                continue;
             }
-            else{
-                this.#inputs[name] = parseFloat(input.value);
+
+            let value = numberValue;
+            switch(input.type){
+                case "checkbox": value = input.checked; break;
+                case "select-one": value = input.value; break;
             }
+
+            this.#inputs[name] = value;
         }
 
+        this.#dependents.forEach(dependent => {
+            valid = dependent.getInputs() && valid;
+        });
+
+        this.#inputsValid = valid;
         return valid;
     }
 
