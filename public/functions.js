@@ -466,6 +466,10 @@ const autotakeoff = new autofunction("autotakeoff", 500, [
                 write("navon", true);
             }
 
+            if(document.getElementById("takeoffvnav").checked){
+                vnav.active = true;
+            }
+                
             write("spoilers", 0);
             stage++;
         }
@@ -492,7 +496,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     const elevation = parseFloat(document.getElementById("altref").value);
 
     if(states.onground){
-        autospeed.error();
+        autospeed.arm();
         return;
     }
 
@@ -504,15 +508,14 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
         stage = 3;
     }
 
-    if(states.airspeed >= states.spd + 25){
-        write("spoilers", 1);
-    } else if(states.airspeed <= states.spd + 10 && states.airspeed >= states.spd && states.airspeed > inputs.spdref + 5){
-        write("spoilers", 0);
-    }
+    let spoilers = 0;
+    if(states.airspeed - states.spd >= 25 && states.altitude < 28000){spoilers = 1;}
+    else if(states.airspeed - inputs.spdref <= 10){spoilers = 2;} 
+    write("spoilers", spoilers);
 
     const distance = calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref);
 
-    if(states.verticalspeed < -500 && alt <= 5000 && distance <= 7){
+    if(states.verticalspeed < -500 && alt <= 4000 && distance <= 7){
         if(distance <= 4 && stage === 6){
             controlThrottle(states.throttle, inputs.spdref, Math.abs(states.airspeed - inputs.spdref) < 5);
 
@@ -569,119 +572,100 @@ const updatefpl = new autofunction("updatefpl", -1, [], ["fplinfo"], data => {
     const states = data.states;
 
     const fplinfo = JSON.parse(states.fplinfo);
-    const flightPlanItems = fplinfo.detailedInfo.flightPlanItems;
+	const flightPlanItems = fplinfo.detailedInfo.flightPlanItems;
 
-    let div = document.getElementById("waypoints");
-    div.innerHTML = "";
+	let div = document.getElementById("waypoints");
+	div.innerHTML = "";
 
-    let counter = 0;
-
-    for(let i = 0; i < flightPlanItems.length; i++){
-        let waypoint;
-        if(flightPlanItems[i].children === null){
-            waypoint = fplinfo.detailedInfo.waypoints[i];
-            showfpl(counter, waypoint, div);
-            counter++;
-        }
-        else{
-            for(let j = 0; j < flightPlanItems[i].children.length; j++){
-                waypoint = flightPlanItems[i].children[j].identifier;
-                showfpl(counter, waypoint, div);
-                counter++;
-            }
-        }
-    }
+	for(let i = 0; i < flightPlanItems.length; i++) {
+		let waypoint;
+		if(flightPlanItems[i].children === null){
+			waypoint = fplinfo.detailedInfo.waypoints[i];
+			showfpl(`index${i}children0`, waypoint, div);
+		} else {
+			for(let j = 0; j < flightPlanItems[i].children.length; j++){
+				waypoint = flightPlanItems[i].children[j].identifier;
+				showfpl(`index${i}children${j}`, waypoint, div);
+			}
+		}
+	}
 });
 
 const vnav = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopilot", "airspeed", "groundspeed", "altitude", "vnav", "vs", "latitude", "longitude"], data => {
     const states = data.states;
 
     const fplinfo = JSON.parse(states.fplinfo);
-    const nextWaypoint = fplinfo.waypointName;
-    const flightPlanItems = fplinfo.detailedInfo.flightPlanItems;
-    const remainingNMdiv = document.getElementById("remainingNM");
-    const nextAltitudeRestriction = [];
-    const nextRestrictionLatLong = [];
-    let nextWaypointIndex;
-    let nextWaypointId;
-    let nextWaypointAltitude;
-    let nextAltitudeRestrictionDistance;
-    let stage = vnav.stage;
+	const nextWaypoint = fplinfo.waypointName; 
+	const flightPlanItems = fplinfo.detailedInfo.flightPlanItems;
+	const nextAltitudeRestriction = [];
+	const nextRestrictionLatLong = [];
+	let nextWaypointIndex;
+	let nextWaypointChildren;
+	let nextWaypointAltitude;
+	let nextAltitudeRestrictionDistance;
+	let stage = vnav.stage;
 
-    if(states.onground || !states.autopilot || states.vnav || levelchange.active){
+	if(states.onground || !states.autopilot || states.vnav || levelchange.active) {
+		vnav.error();
+	}
+
+    updatefpl.toggle();
+
+	for(let i = 0, length = flightPlanItems.length; i < length; i++) {
+		if(flightPlanItems[i].children === null){
+			if(flightPlanItems[i].identifier === nextWaypoint || flightPlanItems[i].name === nextWaypoint) {
+				nextWaypointIndex = i;
+				nextWaypointChildren = 0;
+				nextWaypointAltitude = flightPlanItems[i].altitude;
+			}
+			if(i >= nextWaypointIndex && flightPlanItems[i].altitude !== -1) {
+				nextAltitudeRestriction.push(flightPlanItems[i].altitude);
+				nextRestrictionLatLong.push([flightPlanItems[i].location.Latitude, flightPlanItems[i].location.Longitude]);
+			}
+		} else {
+			for(let j = 0; j < flightPlanItems[i].children.length; j++){
+				if(flightPlanItems[i].children[j].identifier === nextWaypoint){
+					nextWaypointIndex = i;
+					nextWaypointChildren = j;
+					nextWaypointAltitude = flightPlanItems[i].children[j].altitude;
+				}
+				if(i >= nextWaypointIndex && j >= nextWaypointChildren && flightPlanItems[i].children[j].altitude !== -1) {
+					nextAltitudeRestriction.push(flightPlanItems[i].children[j].altitude);
+					nextRestrictionLatLong.push([flightPlanItems[i].children[j].location.Latitude, flightPlanItems[i].children[j].location.Longitude]);
+				}
+			}
+		}
+	}
+
+	const nextWaypointSpeed = document.getElementById(`index${nextWaypointIndex}children${nextWaypointChildren}`).value;
+
+	if(nextWaypointSpeed !== ""){
+		if(fplinfo.distanceToNext <= 10){
+			write("spd", nextWaypointSpeed);
+		}
+	}
+
+	if(nextAltitudeRestriction.length === 0){
+        speak("No altitude restriction, VNAV disabled");
         vnav.error();
-    }
+		return;
+	}
 
-    for(let i = 0, length = flightPlanItems.length; i < length; i++){
-        if(flightPlanItems[i].children === null){
-            if(flightPlanItems[i].identifier === nextWaypoint || flightPlanItems[i].name === nextWaypoint){
-                nextWaypointIndex = i;
-                nextWaypointAltitude = flightPlanItems[i].altitude;
-            }
-            if(i >= nextWaypointIndex && flightPlanItems[i].altitude !== -1){
-                nextAltitudeRestriction.push(flightPlanItems[i].altitude);
-                nextRestrictionLatLong.push([flightPlanItems[i].location.Latitude, flightPlanItems[i].location.Longitude]);
-            }
-        }
-        else{
-            for(let j = 0; j < flightPlanItems[i].children.length; j++){
-                if(flightPlanItems[i].children[j].identifier === nextWaypoint){
-                    nextWaypointIndex = i + j;
-                    nextWaypointId = i;
-                    nextWaypointAltitude = flightPlanItems[i].children[j].altitude;
-                }
-                if(i >= nextWaypointId && flightPlanItems[i].children[j].altitude !== -1){
-                    nextAltitudeRestriction.push(flightPlanItems[i].children[j].altitude);
-                    nextRestrictionLatLong.push([flightPlanItems[i].children[j].location.Latitude, flightPlanItems[i].children[j].location.Longitude]);
-                }
-            }
-        }
-    }
+	if(nextWaypointAltitude !== -1) {
+		const altDiffrence = nextWaypointAltitude - states.altitude;
+		const fpm = altDiffrence / fplinfo.eteToNext;
+		write("alt", nextWaypointAltitude);
+		write("vs", fpm);
+	} else {
+		nextAltitudeRestrictionDistance = calcLLdistance(fplinfo.nextWaypointLatitude, fplinfo.nextWaypointLongitude, nextRestrictionLatLong[0][0], nextRestrictionLatLong[0][1]);
+		const altDiffrence = nextAltitudeRestriction[0] - states.altitude;
+		const eteToNext = ((fplinfo.distanceToNext + nextAltitudeRestrictionDistance) / states.groundspeed) * 60;
+		const fpm = altDiffrence / eteToNext;
+		write("alt", nextAltitudeRestriction[0]);
+		write("vs", fpm);
+	}
 
-    if(nextWaypointAltitude === -1){
-        nextAltitudeRestrictionDistance = calcLLdistance(fplinfo.nextWaypointLatitude, fplinfo.nextWaypointLongitude, nextRestrictionLatLong[0][0], nextRestrictionLatLong[0][1]);
-    }
-
-    if(nextWaypointAltitude !== -1){
-        const altDiffrence = nextWaypointAltitude - states.altitude;
-        const fpm = altDiffrence / fplinfo.eteToNext;
-        if(fpm < 1000 && fpm > -1000){
-            const minimumNM = fpm > 0 ? (altDiffrence / 1000) * (60 / states.groundspeed) * 10 : (altDiffrence / -1000) * (60 / states.groundspeed) * 10;
-            const remainingNM = fplinfo.distanceToNext - minimumNM - 2;
-            remainingNMdiv.innerText = `VNAV starting in ${Math.round(remainingNM)}NM`;
-        }
-        else{
-            write("alt", nextWaypointAltitude);
-            write("vs", fpm);
-            remainingNMdiv.innerText = "";
-        }
-    }
-    else{
-        const altDiffrence = nextAltitudeRestriction[0] - states.altitude;
-        const eteToNext = ((fplinfo.distanceToNext + nextAltitudeRestrictionDistance) / states.groundspeed) * 60;
-        const fpm = altDiffrence / eteToNext;
-
-        if(fpm < 1000 && fpm > -1000){
-            const minimumNM = fpm > 0 ? (altDiffrence / 1000) * (60 / states.groundspeed) * 10 : (altDiffrence / -1000) * (60 / states.groundspeed) * 10;
-            const remainingNM = nextAltitudeRestrictionDistance - minimumNM - 2;
-            remainingNMdiv.innerHTML = `VNAV starting in ${Math.round(remainingNM)}NM`;
-        }
-        else{
-            write("alt", nextAltitudeRestriction[0]);
-            write("vs", fpm);
-            remainingNMdiv.innerHTML = "";
-        }
-    }
-
-    vnav.stage = stage;
-
-    const nextWaypointSpeed = document.getElementById(nextWaypointIndex).value;
-
-    if(nextWaypointSpeed !== ""){
-        if(fplinfo.distanceToNext <= 10){
-            write("spd", nextWaypointSpeed);
-        }
-    }
+	vnav.stage = stage;
 });
 
 const callout = new autofunction("callout", 250, ["rotate", "utterancerate", "minumuns"], ["onrunway", "airspeed", "verticalspeed", "throttle", "gear", "altitudeAGL", "altitude"], data => {

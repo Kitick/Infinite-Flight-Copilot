@@ -38,7 +38,7 @@ function controlThrottle(throttle, spd, spdDifference){
     write("spoilers", 1)
     if(spdDifference){
         write("spdon", true);
-        write("spoilers", 2)
+        write("spoilers", 2);
     }
 }
 
@@ -57,7 +57,10 @@ function speak(text){
     const select = document.getElementById("voices");
     const voices = speechSynthesis.getVoices();
     const voiceIndex = select.selectedIndex;
-    const voiceRate = document.getElementById("utterancerate").value;
+    let voiceRate = document.getElementById("utterancerate").value;
+    if(voiceRate === ""){
+        voiceRate = 1;
+    }
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = voiceRate;
     utterance.voice = voices[voiceIndex];
