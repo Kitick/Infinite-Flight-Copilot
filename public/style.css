@@ -15,7 +15,7 @@ button{
 	font-size: 1rem;
 	font: Helvetica;
 	padding: 0.25rem 0.5rem;
-	opacity: 0.9;
+	opacity: 0.75;
 	transition: 0.3s;
 	display: inline-block;
 	text-decoration: none;
@@ -36,7 +36,6 @@ input{
 	color: white;
 	background-color: #333333;
 	font-size: 1rem;
-	font: Helvetica;
 	font-style: italic;
 	margin: 0.5rem;
 }
