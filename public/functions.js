@@ -110,6 +110,17 @@ const autoflaps = new autofunction("flaps", 1000, ["flaplow", "flaphigh", "flapt
     }
 });
 
+const autospoilers = new autofunction("spoilers", 1000, [], ["spoilers", "airspeed", "spd", "altitude", "vs"], [], data => {
+    const inputs = data.inputs;
+    const states = data.states;
+
+    let spoilers = 0;
+    if(states.airspeed - states.spd >= 25 && states.altitude < 28000 && states.vs){spoilers = 1;}
+    else if(states.airspeed - inputs.spdref <= 10){spoilers = 2;}
+
+    if(spoilers !== states.spoilers){write("spoilers", spoilers);}
+});
+
 const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"], ["airspeed", "altitude", "alt"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
@@ -276,11 +287,6 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     if(stage === 0 && states.altitudeAGL > 10000){
         stage = 3;
     }
-
-    let spoilers = 0;
-    if(states.airspeed - states.spd >= 25 && states.altitude < 28000){spoilers = 1;}
-    else if(states.airspeed - inputs.spdref <= 10){spoilers = 2;} 
-    write("spoilers", spoilers);
 
     const distance = calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref);
 
@@ -712,4 +718,4 @@ const callout = new autofunction("callout", 250, ["rotate", "utterancerate", "mi
     callout.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav, callout, updatefpl];
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav, callout, updatefpl, autospoilers];
