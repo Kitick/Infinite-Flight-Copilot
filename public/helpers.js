@@ -72,6 +72,20 @@ speechSynthesis.getVoices();
 const toDeg = 180 / Math.PI;
 const toRad = Math.PI / 180;
 
+function setAll(className){
+    const state = className === "off" ? true : false;
+
+    autogear.active = state;
+    autospoilers.active = state;
+    autotrim.active = state;
+    autoflaps.active = state;
+    autolights.active = state;
+    autobrakes.active = state;
+    autospeed.active = state;
+
+    document.getElementById("all").className = state ? "active" : "off";
+}
+
 function setConfig(){
     // CL350
     document.getElementById("flaplow").value = 130;
