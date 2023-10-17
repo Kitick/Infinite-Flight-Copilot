@@ -60,7 +60,7 @@ const autogear = new autofunction("gear", 1000, [], ["gear", "altitudeAGL", "ver
     }
 });
 
-const autobrakeSwitchReset = new autofunction("abswitchreset", 1000, [], ["leftbrake", "rightbrake", "autobrakes", "onground", "groundspeed"], [], data => {
+const autobrakes = new autofunction("abswitchreset", 1000, [], ["leftbrake", "rightbrake", "autobrakes", "onground", "groundspeed"], [], data => {
     const states = data.states;
 
     if(states.groundspeed > 30 && states.onground && states.autobrakes > 0 && (states.leftbrake > 0.3 || states.rightbrake > 0.3)){
@@ -108,6 +108,17 @@ const autoflaps = new autofunction("flaps", 1000, ["flaplow", "flaphigh", "flapt
     if(newFlaps !== states.flaps){
         write("flaps", newFlaps);
     }
+});
+
+const autospoilers = new autofunction("spoilers", 1000, [], ["spoilers", "airspeed", "spd", "altitude", "vs"], [], data => {
+    const inputs = data.inputs;
+    const states = data.states;
+
+    let spoilers = 0;
+    if(states.airspeed - states.spd >= 25 && states.altitude < 28000){spoilers = 1;}
+    else if(states.airspeed - inputs.spdref <= 10){spoilers = 2;}
+
+    if(spoilers !== states.spoilers){write("spoilers", spoilers);}
 });
 
 const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"], ["airspeed", "altitude", "alt"], [], data => {
@@ -276,11 +287,6 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     if(stage === 0 && states.altitudeAGL > 10000){
         stage = 3;
     }
-
-    let spoilers = 0;
-    if(states.airspeed - states.spd >= 25 && states.altitude < 28000){spoilers = 1;}
-    else if(states.airspeed - inputs.spdref <= 10){spoilers = 2;} 
-    write("spoilers", spoilers);
 
     const distance = calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref);
 
@@ -707,4 +713,4 @@ const callout = new autofunction("callout", 250, ["rotate", "utterancerate", "mi
     callout.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav, callout, updatefpl];
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakes, vnav, callout, updatefpl, autospoilers];
