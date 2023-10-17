@@ -342,6 +342,7 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     const states = data.states;
 
     autoland.error();
+    levelchange.active = false;
 
     document.getElementById("flcmode").value = "g";
     document.getElementById("flcinput").value = 500;
@@ -372,12 +373,10 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
     }
 
     const finalDistance = inputs.touchdown + 6076.12 * calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref); // nm to ft
-    const altDiffrence = inputs.altref - states.altitude;
+    const altDiffrence = states.altitude - inputs.altref;
+    const currentVPA = Math.asin(altDiffrence / finalDistance) * toDeg;
 
-    const currentVPA = -Math.atan(altDiffrence / finalDistance) * toDeg;
-    const VPADiffrence = currentVPA - inputs.vparef;
-
-    let vpaout = inputs.vparef + 2 * VPADiffrence;
+    let vpaout = currentVPA - (inputs.vparef - currentVPA);
     vpaout = Math.round(vpaout * 10) / 10;
 
     if(vpaout > inputs.vparef + 1){
@@ -388,10 +387,6 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
     }
 
     document.getElementById("flcinput").value = vpaout;
-
-    if(!autospeed.active){
-        write("spoilers", 2);
-    }
 
     const stopalt = inputs.altref + inputs.flare;
 
