@@ -408,7 +408,7 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
 
         if(type === "p"){
             autoland.active = false;
-            setTimeout(() => {goaround.active = true;}, 6000);
+            setTimeout(() => {goaround.active = true;}, 10000);
         }
         else if(type === "l"){
             autoland.active = false;
