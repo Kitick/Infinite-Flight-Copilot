@@ -115,7 +115,7 @@ const autospoilers = new autofunction("spoilers", 1000, [], ["spoilers", "airspe
     const states = data.states;
 
     let spoilers = 0;
-    if(states.airspeed - states.spd >= 25 && states.altitude < 28000 && states.vs){spoilers = 1;}
+    if(states.airspeed - states.spd >= 25 && states.altitude < 28000){spoilers = 1;}
     else if(states.airspeed - inputs.spdref <= 10){spoilers = 2;}
 
     if(spoilers !== states.spoilers){write("spoilers", spoilers);}
