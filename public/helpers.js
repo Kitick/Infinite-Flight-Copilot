@@ -83,13 +83,13 @@ function setConfig(){
     document.getElementById("rotate").value = 120;
     document.getElementById("climbspd").value = 200;
     document.getElementById("climbthrottle").value = 100;
-    document.getElementById("climbalt").value = 3000;
+    document.getElementById("climbalt").value = 1500;
 
     document.getElementById("flcinput").value = 500;
 
     document.getElementById("updist").value = 2;
-    document.getElementById("downwidth").value = 5;
-    document.getElementById("finallength").value = 10;
+    document.getElementById("downwidth").value = 4;
+    document.getElementById("finallength").value = 6;
     document.getElementById("turnconst").value = 300;
 
     document.getElementById("altref").value = 13;
@@ -103,6 +103,7 @@ function setConfig(){
     document.getElementById("longref").value = -122.35714722;
     document.getElementById("hdgref").value = 284;
     document.getElementById("direction").value = "r";
+    document.getElementById("leg").value = "f";
 
     document.getElementById("utterancerate").value = 1;
     document.getElementById("minumuns").value = 200;
