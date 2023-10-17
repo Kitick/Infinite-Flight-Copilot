@@ -282,6 +282,47 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     const elevation = parseFloat(document.getElementById("altref").value);
     const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
 
+    if(autoland.active){
+        const distance = calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref);
+        const speedFormula = (distance - 2.5) * 10 + inputs.spdref;
+        const speed = Math.round(speedFormula / 10) * 10;
+
+        if(speed < inputs.spdref){
+            speed = inputs.spdref;
+        }
+
+        write("spd", speed);
+    } else if(flypattern.active){
+
+    } else if(autotakeoff.active){
+        if(states.verticalspeed > 500 && alt <= 10000 && Math.abs(inputs.climbspd - states.airspeed) < 10){
+            write("spd", inputs.climbspd);
+            write("spdon", true);
+        }
+    }
+
+    if(states.verticalspeed < -500 && alt <= 12000 && alt >= 10000){
+        write("spd", 250);
+    }
+
+    if(states.verticalspeed > 500 && alt > 10000){
+        write("spd", inputs.cruisespd);
+    }
+});
+
+/*const oldautospeed = new autofunction("autospeed", 1000, ["latref", "longref", "climbspd", "spdref", "cruisespd", "cruisealt"], ["onground", "airspeed", "verticalspeed", "altitudeAGL", "altitude", "throttle", "latitude", "longitude", "spd"], [], data => {
+    const inputs = data.inputs;
+    const states = data.states;
+
+    if(states.onground){
+        autospeed.arm();
+        return;
+    }
+
+    // elevation is optional
+    const elevation = parseFloat(document.getElementById("altref").value);
+    const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
+
     let stage = autospeed.stage;
 
     if(stage === 0 && states.altitudeAGL > 10000){
@@ -341,7 +382,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     }
 
     autospeed.stage = stage;
-});
+});*/
 
 const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype"], ["altitude"], [levelchange, autoflaps, autogear, autospoilers], data => {
     const inputs = data.inputs;
