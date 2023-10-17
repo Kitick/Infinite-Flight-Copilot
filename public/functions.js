@@ -60,7 +60,7 @@ const autogear = new autofunction("gear", 1000, [], ["gear", "altitudeAGL", "ver
     }
 });
 
-const autobrakeSwitchReset = new autofunction("abswitchreset", 1000, [], ["leftbrake", "rightbrake", "autobrakes", "onground", "groundspeed"], [], data => {
+const autobrakes = new autofunction("abswitchreset", 1000, [], ["leftbrake", "rightbrake", "autobrakes", "onground", "groundspeed"], [], data => {
     const states = data.states;
 
     if(states.groundspeed > 30 && states.onground && states.autobrakes > 0 && (states.leftbrake > 0.3 || states.rightbrake > 0.3)){
@@ -718,4 +718,4 @@ const callout = new autofunction("callout", 250, ["rotate", "utterancerate", "mi
     callout.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakeSwitchReset, vnav, callout, updatefpl, autospoilers];
+const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakes, vnav, callout, updatefpl, autospoilers];
