@@ -412,6 +412,8 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
         }
         else if(type === "l"){
             autoland.active = false;
+            flypattern.active = false;
+            flyto.active = false;
         }
         else if(type === "t" && states.onrunway){
             autoland.active = false;
