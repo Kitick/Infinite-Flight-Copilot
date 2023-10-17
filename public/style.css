@@ -13,7 +13,6 @@ button{
 	border-radius: 0.25rem;
 	color: white;
 	font-size: 1rem;
-	font: Helvetica;
 	padding: 0.25rem 0.5rem;
 	opacity: 0.75;
 	transition: 0.3s;
@@ -164,11 +163,11 @@ div[hidden]{
 }
 
 .input-option-l{
-	width: 9.5rem;
+	width: 8.5rem;
 }
 
 .input-option-s{
-	width: 3.5rem;
+	width: 4.5rem;
 }
 
 .checkbox-row{
@@ -188,5 +187,5 @@ div[hidden]{
 	background-color:#FF8000;
 }
 .error{
-	background-color:#FF0000;
+	background-color:#C00000;
 }
