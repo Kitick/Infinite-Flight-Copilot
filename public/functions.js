@@ -110,7 +110,7 @@ const autoflaps = new autofunction("flaps", 1000, ["flaplow", "flaphigh", "flapt
     }
 });
 
-const autospoilers = new autofunction("spoilers", 1000, [], ["spoilers", "airspeed", "spd", "altitude", "onrunway"], [], data => {
+const autospoilers = new autofunction("spoilers", 1000, ["spdref"], ["spoilers", "airspeed", "spd", "altitude", "onrunway"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -284,18 +284,19 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
 
     if(autoland.active){
         const distance = calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref);
-        const speedFormula = (distance - 2.5) * 10 + inputs.spdref;
-        const speed = Math.round(speedFormula / 10) * 10;
-
-        if(speed < inputs.spdref){
-            speed = inputs.spdref;
-        }
+        
+        let speed = (distance - 2.5) * 10 + inputs.spdref;
+        speed = Math.max(speed, inputs.spdref);
+        speed = Math.min(speed, states.spd);
+        speed = Math.round(speed / 10) * 10;
 
         write("spd", speed);
-    } else if(flypattern.active){
+    }
+    else if(flypattern.active){
 
-    } else if(autotakeoff.active){
-        if(states.verticalspeed > 500 && alt <= 10000 && Math.abs(inputs.climbspd - states.airspeed) < 10){
+    }
+    else if(autotakeoff.active){
+        if(states.verticalspeed > 500 && alt <= 10000 && inputs.climbspd - states.airspeed < 10){
             write("spd", inputs.climbspd);
             write("spdon", true);
         }
@@ -316,6 +317,7 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
 
     flypattern.active = false;
     levelchange.active = false;
+    autospeed.active = false;
     autoland.error();
 
     document.getElementById("flcmode").value = "g";
@@ -372,7 +374,7 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
 
     const type = inputs.option;
 
-    if(states.altitude <= stopalt){
+    if(states.altitude <= stopalt + 30){
         autospeed.active = false;
         levelchange.active = false;
 
@@ -517,6 +519,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", 
                 vnav.active = true;
             }
 
+            write("spd", true);
             stage++;
         }
     }
