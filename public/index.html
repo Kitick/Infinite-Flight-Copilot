@@ -47,18 +47,20 @@
 				<h2 class="module-name">DYNAMIC SYSTEMS</h2>
 				<div class="dyn-button-container">
 					<div class="button-row">
-						<button id="trim" onclick="autotrim.setActive();" class="off">TRIM</button>
+                        <button id="gear" onclick="autogear.setActive();" class="off">GEAR</button>
 						<button id="lights" onclick="autolights.setActive();" class="off">LIGHTS</button>
 					</div>
 					<div class="button-row">
-						<button id="gear" onclick="autogear.setActive();" class="off">GEAR</button>
-						<button id="flaps" onclick="autoflaps.setActive();" class="off">FLAPS</button>
+                        <button id="spoilers" onclick="autospoilers.setActive();" class="off">SPOILERS</button>
+                        <button id="autobrakes" onclick="autobrakes.setActive();" class="off">BRAKES</button>
 					</div>
 					<div class="button-row">
-						<button id="spoilers" onclick="autospoilers.setActive();" class="off">SPOILERS</button>
+                        <button id="trim" onclick="autotrim.setActive();" class="off">TRIM</button>
 						<button id="autospeed" onclick="autospeed.setActive();" class="off">SPEED</button>
 					</div>
-						<button id="abswitchreset" onclick="autobrakes.setActive();" class="off" style="width: 15rem;">AUTOBRAKES</button>
+                    <div class="button-row">
+                        <button id="flaps" onclick="autoflaps.setActive();" class="off">FLAPS</button>
+					</div>
 				</div>
 				<div class="input-container">
 					<input id="flaplow" type="number" placeholder="Max Flaps Speed (kts)" min="0" step="5">

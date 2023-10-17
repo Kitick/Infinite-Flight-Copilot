@@ -55,17 +55,28 @@ const autogear = new autofunction("gear", 1000, [], ["gear", "altitudeAGL", "ver
         newState = false;
     }
 
-    if(newState !== states.gear){
-        read("commands/LandingGear");
-    }
+    // readcommand to use the animation
+    if(newState !== states.gear){read("commands/LandingGear");}
 });
 
-const autobrakes = new autofunction("abswitchreset", 1000, [], ["leftbrake", "rightbrake", "autobrakes", "onground", "groundspeed"], [], data => {
+const autobrakes = new autofunction("autobrakes", 1000, [], ["leftbrake", "rightbrake", "autobrakes", "onground", "onrunway", "groundspeed"], [], data => {
     const states = data.states;
 
-    if(states.groundspeed > 30 && states.onground && states.autobrakes > 0 && (states.leftbrake > 0.3 || states.rightbrake > 0.3)){
-        write("autobrakes", 0);
+    let newBrakes = states.autobrakes;
+    if(states.onground && !states.onrunway){
+        newBrakes = 0;
     }
+    else if(!states.onground){
+        newBrakes = 2;
+    }
+    else if(states.onrunway && autotakeoff.active){
+        newBrakes = 3;
+    }
+    else if(states.onground && states.groundspeed > 30 && states.autobrakes > 0 && (states.leftbrake > 0.3 || states.rightbrake > 0.3)){
+        newBrakes = 0;
+    }
+
+    if(newBrakes !== states.autobrakes){write("autobrakes", newBrakes);}
 });
 
 const autoflaps = new autofunction("flaps", 1000, ["flaplow", "flaphigh", "flapto"], ["flaps", "airspeed", "altitudeAGL", "verticalspeed", "flapcount", "onground", "onrunway"], [], data => {
@@ -105,20 +116,25 @@ const autoflaps = new autofunction("flaps", 1000, ["flaplow", "flaphigh", "flapt
         newFlaps = states.flaps;
     }
 
-    if(newFlaps !== states.flaps){
-        write("flaps", newFlaps);
-    }
+    if(newFlaps !== states.flaps){write("flaps", newFlaps);}
 });
 
-const autospoilers = new autofunction("spoilers", 1000, ["spdref"], ["spoilers", "airspeed", "spd", "altitude", "onrunway"], [], data => {
-    const inputs = data.inputs;
+const autospoilers = new autofunction("spoilers", 1000, [], ["spoilers", "airspeed", "spd", "altitude", "altitudeAGL", "onrunway", "onground"], [], data => {
     const states = data.states;
 
-    let spoilers = 0;
-    if(states.airspeed - states.spd >= 20 && states.altitude < 28000){spoilers = 1;}
-    else if(states.airspeed - inputs.spdref <= 10 || states.onrunway){spoilers = 2;}
+    let newSpoilers = 0;
+    if(states.altitudeAGL < 1000){
+        newSpoilers = 2;
+    }
 
-    if(spoilers !== states.spoilers){write("spoilers", spoilers);}
+    if(states.onrunway || (!states.onground && states.altitudeAGL < 200)){
+        newSpoilers = 2;
+    }
+    else if(states.airspeed - states.spd >= 20 && states.altitude < 28000){
+        newSpoilers = 1;
+    }
+
+    if(newSpoilers !== states.spoilers){write("spoilers", newSpoilers);}
 });
 
 const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"], ["airspeed", "altitude", "alt"], [], data => {
@@ -311,7 +327,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     }
 });
 
-const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype"], ["altitude"], [levelchange, autoflaps, autogear, autospoilers], data => {
+const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype", "flapto"], ["altitude"], [levelchange, autoflaps, autogear, autospoilers], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -330,8 +346,10 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     alt += inmsl ? 0 : agl;
 
     write("spd", inputs.climbspd);
-    write("spdon", true);
     write("alt", alt);
+    write("spdon", true);
+    write("alton", true);
+    write("flaps", inputs.flapto);
 
     setTimeout(() => {
         flypattern.active = true;
@@ -357,7 +375,7 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
     const altDiffrence = states.altitude - inputs.altref;
     const currentVPA = Math.asin(altDiffrence / finalDistance) * toDeg;
 
-    let vpaout = currentVPA - (inputs.vparef - currentVPA);
+    let vpaout = currentVPA - 2 * (inputs.vparef - currentVPA);
     vpaout = Math.round(vpaout * 10) / 10;
 
     if(vpaout > inputs.vparef + 0.5){
@@ -374,12 +392,19 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
 
     const type = inputs.option;
 
-    if(states.altitude <= stopalt + 30){
+    if(autoland.stage === 2 || finalDistance - inputs.touchdown <= 1000){
+        autoland.stage = 2;
+
         autospeed.active = false;
         levelchange.active = false;
 
         document.getElementById("flcmode").value = "g";
         document.getElementById("flcinput").value = 500;
+
+        if(type !== "p"){
+            write("spdon", false);
+            write("throttle", -100);
+        }
 
         if(type === "p"){
             autoland.active = false;
@@ -387,23 +412,14 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
         }
         else if(type === "l"){
             autoland.active = false;
-            write("spd", 0);
         }
-        else if(type === "t"){
-            write("spd", 0);
-
-            if(states.onrunway){
-                autoland.active = false;
-                setTimeout(() => {autotakeoff.active = true;}, 3000);
-            }
+        else if(type === "t" && states.onrunway){
+            autoland.active = false;
+            setTimeout(() => {autotakeoff.active = true;}, 3000);
         }
-        else if(type === "s"){
-            write("spd", 0);
-
-            if(states.groundspeed < 1){
-                autoland.active = false;
-                autotakeoff.active = true;
-            }
+        else if(type === "s" && states.groundspeed < 1){
+            autoland.active = false;
+            autotakeoff.active = true;
         }
     }
     else{
@@ -427,20 +443,14 @@ const rejecttakeoff = new autofunction("reject", -1, [], [], [], data => {
     }
 });
 
-const takeoffconfig = new autofunction("takeoffconfig", -1, ["climbalt", "climbtype"], ["onrunway", "heading", "altitude"], [autoflaps, autolights], data => {
+const takeoffconfig = new autofunction("takeoffconfig", -1, ["climbalt", "climbtype"], ["onground", "heading", "altitude"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
-    if(!states.onrunway){
+    if(!states.onground){
         takeoffconfig.error();
         return;
     }
-
-    autoflaps.setActive();
-    autolights.setActive();
-
-    autoflaps.setActive();
-    autolights.setActive();
 
     const inmsl = inputs.climbtype === "msl";
     const agl = Math.round(states.altitude / 100) * 100;
@@ -450,12 +460,10 @@ const takeoffconfig = new autofunction("takeoffconfig", -1, ["climbalt", "climbt
     write("hdg", states.heading);
     write("vs", 0);
 
-    write("spoilers", 0);
-    write("autobrakes", 3);
     write("parkingbrake", false);
 });
 
-const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", "climbthrottle", "takeoffspool", "takeofflnav", "takeoffvnav"], ["onrunway", "n1", "airspeed", "altitude", "altitudeAGL"], [takeoffconfig, levelchange, autotrim, autolights, autogear, autoflaps, rejecttakeoff], data => {
+const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", "climbthrottle", "takeoffspool", "takeofflnav", "takeoffvnav"], ["onrunway", "n1", "airspeed", "altitude", "altitudeAGL"], [takeoffconfig, levelchange, autotrim, autogear, autoflaps, autospoilers, rejecttakeoff], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -471,8 +479,8 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", 
 
         takeoffconfig.active = true;
         levelchange.active = false;
+        autoland.active = false;
 
-        autolights.active = true;
         autogear.active = true;
         autoflaps.active = true;
         autospoilers.active = true;
@@ -519,7 +527,7 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", 
                 vnav.active = true;
             }
 
-            write("spd", true);
+            write("spdon", true);
             stage++;
         }
     }
