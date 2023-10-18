@@ -331,7 +331,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     }
 });
 
-const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype", "flapto"], ["altitude"], [levelchange, autoflaps, autogear, autospoilers], data => {
+const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype", "flapto"], ["altitude", "vs"], [levelchange, autoflaps, autogear, autospoilers], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -349,10 +349,13 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
 
     write("spd", inputs.climbspd);
     write("alt", alt);
-    write("vs", 0);
     write("spdon", true);
     write("alton", true);
     write("flaps", inputs.flapto);
+
+    if(states.vs < 0){
+        write("vs", 0);
+    }
 
     flypattern.active = true;
 
