@@ -136,11 +136,11 @@ const autospoilers = new autofunction("spoilers", 1000, [], ["spoilers", "airspe
     if(newSpoilers !== states.spoilers){write("spoilers", newSpoilers);}
 });
 
-const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"], ["airspeed", "altitude", "alt"], [], data => {
+const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"], ["airspeed", "altitude", "alt", "vs"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
-    let input = inputs.flcinput;
+    let output = inputs.flcinput;
 
     const diffrence = states.alt - states.altitude;
 
@@ -150,14 +150,16 @@ const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"
     }
 
     if(inputs.flcmode === "v"){
-        input = 6076.12 * Math.tan(input * toRad);
+        output = 6076.12 * Math.tan(output * toRad);
     }
 
     if(inputs.flcmode !== "f"){
-        input *= Math.sign(diffrence) * (states.airspeed / 60);
+        output *= Math.sign(diffrence) * (states.airspeed / 60);
     }
 
-    write("vs", input);
+    output = Math.round(output / 100) * 100;
+
+    if(output !== states.vs){write("vs", output);}
 });
 
 const markposition = new autofunction("markposition", -1, [], ["latitude", "longitude", "altitude", "heading"], [], data => {
@@ -333,8 +335,6 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     const inputs = data.inputs;
     const states = data.states;
 
-    flypattern.active = false;
-    levelchange.active = false;
     autospeed.active = false;
     autoland.error();
 
@@ -349,12 +349,14 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
 
     write("spd", inputs.climbspd);
     write("alt", alt);
+    write("vs", 0);
     write("spdon", true);
     write("alton", true);
     write("flaps", inputs.flapto);
 
+    flypattern.active = true;
+
     setTimeout(() => {
-        flypattern.active = true;
         levelchange.active = true;
     }, 500);
 
@@ -363,7 +365,7 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     autospoilers.active = true;
 });
 
-const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref", "vparef", "flare", "touchdown", "option"], ["latitude", "longitude", "altitude", "groundspeed", "onrunway"], [levelchange, autoflaps, autogear, autospeed, flypattern, goaround, autospoilers], data => {
+const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altref", "hdgref", "vparef", "flare", "touchdown", "option"], ["latitude", "longitude", "altitude", "groundspeed", "onrunway"], [levelchange, autoflaps, autogear, autospeed, flypattern, goaround, autospoilers], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -373,9 +375,10 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
         autoland.stage++;
     }
 
-    const finalDistance = inputs.touchdown + 6076.12 * calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref); // nm to ft
+    const touchdownZone = calcLLfromHD(inputs.latref, inputs.longref, inputs.hdgref, inputs.touchdown / 6076.12);
+    const touchdownDistance = 6076.12 * calcLLdistance(states.latitude, states.longitude, touchdownZone[0], touchdownZone[1]); // nm to ft
     const altDiffrence = states.altitude - inputs.altref;
-    const currentVPA = Math.asin(altDiffrence / finalDistance) * toDeg;
+    const currentVPA = Math.asin(altDiffrence / touchdownDistance) * toDeg;
 
     let vpaout = currentVPA - 2 * (inputs.vparef - currentVPA);
     vpaout = Math.round(vpaout * 10) / 10;
@@ -393,8 +396,7 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
     write("alt", stopalt);
 
     const type = inputs.option;
-
-    if(autoland.stage === 2 || finalDistance - inputs.touchdown <= 1000){
+    if(autoland.stage === 2 || touchdownDistance <= 1000){
         autoland.stage = 2;
 
         autospeed.active = false;
@@ -419,7 +421,7 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
         }
         else if(type === "t" && states.onrunway){
             autoland.active = false;
-            setTimeout(() => {autotakeoff.active = true;}, 3000);
+            setTimeout(() => {autotakeoff.active = true;}, 5000);
         }
         else if(type === "s" && states.groundspeed < 1){
             autoland.active = false;
