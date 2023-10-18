@@ -12,6 +12,7 @@
         <script src="autofunction.js"></script>
 
         <script src="helpers.js"></script>
+        <script src="cache.js"></script>
         <script src="functions.js"></script>
 
 		<link href="style.css" rel="stylesheet">
@@ -179,24 +180,7 @@
                 <h4>This uses the runway refrences in pattern work.</h4>
                 <h4>This uses Autotakeoff for landing functions.</h4>
 			</div>
-			<div class="panel" hidden>
-				<h2 class="module-name">CALLOUTS</h2>
-				<select id="voices"></select>
-
-				<input id="utterancerate" type="number" placeholder="Voice Rate (1-4)" min="0.5" max="4">
-				<input id="minumuns" type="number" placeholder="Minumuns Altitude (ft)">
-				<button id="callout" onclick="callout.setActive();" class="off" style="width: 15rem;">CALLOUTS</button>
-				<button id="callouttest" onclick="speak('Testing')" class="off" style="width: 15rem;">TEST</button>
-			</div>
-			<div class="panel" hidden>
-				<h2 class="module-name">VNAV</h2>
-				<div id="waypoints"></div>
-
-				<button id="speedpanel" class="off" style="width: 15rem;">SPEED PANEL</button>
-				<button id="updatefpl" onclick="updatefpl.setActive();" class="off" style="width: 15rem;">UPDATE FPL</button>
-				<button id="vnav" onclick="vnav.setActive();" class="off" style="width: 15rem;">VNAV</button>
-			</div>
-			<div class="panel" hidden>
+            <div class="panel" hidden>
 				<h2 class="module-name">CONFIG</h2>
 				<div class="checkbox-container">
 					<div class="checkbox-row">
@@ -221,6 +205,23 @@
 					</div>
 				</div>
 				<button id="config" onclick="config();" class="off" style="width: 15rem;">CONFIG</button>
+			</div>
+            <div class="panel" hidden>
+				<h2 class="module-name">VNAV</h2>
+				<div id="waypoints"></div>
+
+				<button id="speedpanel" class="off" style="width: 15rem;">SPEED PANEL</button>
+				<button id="updatefpl" onclick="updatefpl.setActive();" class="off" style="width: 15rem;">UPDATE FPL</button>
+				<button id="vnav" onclick="vnav.setActive();" class="off" style="width: 15rem;">VNAV</button>
+			</div>
+			<div class="panel" hidden>
+				<h2 class="module-name">CALLOUTS</h2>
+				<select id="voices"></select>
+
+				<input id="utterancerate" type="number" placeholder="Voice Rate (1-4)" min="0.5" max="4">
+				<input id="minumuns" type="number" placeholder="Minumuns Altitude (ft)">
+				<button id="callout" onclick="callout.setActive();" class="off" style="width: 15rem;">CALLOUTS</button>
+				<button id="callouttest" onclick="speak('Testing')" class="off" style="width: 15rem;">TEST</button>
 			</div>
 		</div>
     </body>
