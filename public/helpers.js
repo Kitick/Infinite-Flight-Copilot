@@ -124,7 +124,7 @@ function config() {
             });
 
             dependencies.forEach(dependency => {
-                dependency.forEach(id => {
+                dependency.inputs.forEach(id => {
                     if(inputArray.indexOf(id) === -1){
                         inputArray.push(id);
                     }
@@ -141,6 +141,7 @@ function config() {
 
             if(value !== ""){
                 dom.value = value;
+                autofunction.cache.setData(input, value);
             }
         }
     });
