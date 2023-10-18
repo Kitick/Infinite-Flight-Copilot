@@ -11,6 +11,8 @@ window.onload = () => {
         select.add(newOption);
     }
 
+    loadSavedConfig();
+
     socket.emit("test", response => {
         statLog.innerText = response;
         console.log(response);

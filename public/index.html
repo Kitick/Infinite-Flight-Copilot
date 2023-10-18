@@ -9,6 +9,7 @@
         <script src="socket.io.min.js"></script>
 
         <script src="cache.js"></script>
+		<script src="localstorage.js"></script>
         <script src="autofunction.js"></script>
 
         <script src="script.js"></script>
@@ -206,6 +207,10 @@
 					</div>
 				</div>
 				<button id="config" class="off" onclick="config();" style="width: 15rem;">CONFIGURE</button>
+				<button id="save" class="off" onclick="saveLocalStorage();" style="width: 15rem;">SAVE</button>
+				<select id="configselect" onload="loadSavedConfig()"></select>
+				<button id="load" class="off" onclick="loadLocalStorage(document.getElementById('configselect').value);" style="width: 15rem;">LOAD</button>
+				<button id="clear" class="off" onclick="clearLocalStorage(document.getElementById('configselect').value)" style="width: 15rem;">DELETE</button>
 			</div>
             <div class="panel" hidden>
 				<h2 class="module-name">VNAV</h2>

@@ -147,6 +147,56 @@ function config() {
     });
 };
 
+function loadSavedConfig(){
+    const localStorageDefaultProperties = ["length", "clear", "getItem", "key", "removeItem", "setItem"];
+    const configSelect = document.getElementById("configselect");
+    configSelect.length = 0;
+    const configs = autofunction.localstorage.loadAll();
+    for(const key in configs){
+        if(localStorageDefaultProperties.indexOf(key) === -1){
+            const option = new Option(key, key);
+            configSelect.appendChild(option);
+        }
+    }
+}
+
+function loadLocalStorage(key){
+    const data = JSON.parse(autofunction.localstorage.load(key));
+    for(const key in data){
+        autofunction.cache.setData(key, data[key]);
+    }
+}
+
+function saveLocalStorage(){
+    let name = prompt("Please say the name of the config");
+    while(name === "") name = prompt("Please say a valid name");
+    if(name !== null){
+        const inputs = autofunction.cache.getAllData();
+        let values = {};
+        for(const key in inputs){
+            if(inputs[key] !== null){
+                values[key] = inputs[key];
+            }
+        }
+
+        autofunction.localstorage.save(name, JSON.stringify(values));
+
+        loadSavedConfig();
+    }
+}
+
+function clearLocalStorage(key){
+    const option = prompt("Write 1 to delete all configs or 2 to delete the selected config");
+    if(option === "1"){
+        autofunction.localstorage.clearAll();
+    } 
+    else if(option === "2"){
+        autofunction.localstorage.clear(key);
+    }
+
+    loadSavedConfig();
+}
+
 function setConfig(){
     // CL350
     autofunction.cache.setData("flaplow", 130);
