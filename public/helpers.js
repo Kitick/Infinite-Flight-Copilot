@@ -49,7 +49,7 @@ function showfpl(id, waypoint, div){
     input.id = id;
     div.innerHTML += " " + waypoint;
     div.appendChild(input);
-    div.appendChild(br)
+    div.appendChild(br);
 }
 
 function speak(text){
@@ -85,6 +85,67 @@ function setAll(className){
 
     document.getElementById("all").className = state ? "active" : "off";
 }
+
+function config() {
+    const checked = {
+        autoflaps: {
+            instance: autoflaps,
+            checked: document.getElementById("configflaps").checked
+        },
+        autospeed: {
+            instance: autospeed,
+            checked: document.getElementById("configspeed").checked
+        },
+        autotakeoff: {
+            instance: autotakeoff,
+            checked: document.getElementById("configtakeoff").checked
+        },
+        flypattern: {
+            instance: flypattern,
+            checked: document.getElementById("configpattern").checked
+        },
+        autoland: {
+            instance: autoland,
+            checked: document.getElementById("configland").checked
+        } 
+    }
+
+    const inputs = [];
+
+    for(const key in checked) {
+        if(checked[key].checked === true) {
+            const dependenciesInputsArray = [];
+            const dependencies = checked[key].instance.dependents;
+            dependencies.forEach(dependency => {
+                dependenciesInputsArray.push(dependency.inputs);
+            });
+            inputs.push(checked[key].instance.inputs, dependenciesInputsArray);
+        }
+    }
+
+    const dependenciesInputs = {};
+
+    inputs.forEach(func => {
+        if(Array.isArray(func)){
+            func.forEach(object => {
+                for(const input in object){
+                    dependenciesInputs[input] = undefined;
+                }
+            });
+        }
+    })
+
+    const concatenatedInputs = { ...inputs[0], ...dependenciesInputs };
+
+    for(const input in concatenatedInputs){
+        const inputElement = document.getElementById(input);
+        const placeholder = inputElement.getAttribute("placeholder")
+        if(inputElement !== null && inputElement.type !== "checkbox" && inputElement.tagName === "INPUT" && placeholder !== null){
+            const value = window.prompt(inputElement.getAttribute("placeholder"));
+            inputElement.value = value;
+        }
+    }
+};
 
 function setConfig(){
     // CL350
