@@ -180,7 +180,7 @@
                 <h4>This uses Autotakeoff for landing functions.</h4>
 			</div>
 			<div class="panel" hidden>
-				<h2 class="module-name">Callouts</h2>
+				<h2 class="module-name">CALLOUTS</h2>
 				<select id="voices"></select>
 
 				<input id="utterancerate" type="number" placeholder="Voice Rate (1-4)" min="0.5" max="4">
@@ -195,6 +195,32 @@
 				<button id="speedpanel" class="off" style="width: 15rem;">SPEED PANEL</button>
 				<button id="updatefpl" onclick="updatefpl.setActive();" class="off" style="width: 15rem;">UPDATE FPL</button>
 				<button id="vnav" onclick="vnav.setActive();" class="off" style="width: 15rem;">VNAV</button>
+			</div>
+			<div class="panel" hidden>
+				<h2 class="module-name">CONFIG</h2>
+				<div class="checkbox-container">
+					<div class="checkbox-row">
+						<input id="configflaps" type="checkbox">
+						<h3>AUTO FLAPS</h3>
+					</div>
+					<div class="checkbox-row">
+						<input id="configspeed" type="checkbox">
+						<h3>AUTO SPEED</h3>
+					</div>
+					<div class="checkbox-row">
+						<input id="configtakeoff" type="checkbox">
+						<h3>AUTO TAKEOFF</h3>
+					</div>
+					<div class="checkbox-row">
+						<input id="configpattern" type="checkbox">
+						<h3>FLY PATTERN</h3>
+					</div>
+					<div class="checkbox-row">
+						<input id="configland" type="checkbox">
+						<h3>AUTO LAND</h3>
+					</div>
+				</div>
+				<button id="config" onclick="config();" class="off" style="width: 15rem;">CONFIG</button>
 			</div>
 		</div>
     </body>

@@ -546,23 +546,25 @@ const updatefpl = new autofunction("updatefpl", -1, [], ["fplinfo"], [], data =>
     const states = data.states;
 
     const fplinfo = JSON.parse(states.fplinfo);
-	const flightPlanItems = fplinfo.detailedInfo.flightPlanItems;
+    const flightPlanItems = fplinfo.detailedInfo.flightPlanItems;
 
-	let div = document.getElementById("waypoints");
-	div.innerHTML = "";
+    let div = document.getElementById("waypoints");
 
-	for(let i = 0; i < flightPlanItems.length; i++) {
-		let waypoint;
-		if(flightPlanItems[i].children === null){
-			waypoint = fplinfo.detailedInfo.waypoints[i];
-			showfpl(`index${i}children0`, waypoint, div);
-		} else {
-			for(let j = 0; j < flightPlanItems[i].children.length; j++){
-				waypoint = flightPlanItems[i].children[j].identifier;
-				showfpl(`index${i}children${j}`, waypoint, div);
-			}
-		}
-	}
+    if (document.getElementById(`index${flightPlanItems.length - 1}children0`) === null || flightPlanItems[flightPlanItems.length - 1].children !== null && document.getElementById(`index${flightPlanItems.length - 1}children${flightPlanItems.children.length - 1}`) === null) {
+        div.innerHTML = "";
+        for (let i = 0; i < flightPlanItems.length; i++) {
+            let waypoint;
+            if (flightPlanItems[i].children === null) {
+                waypoint = fplinfo.detailedInfo.waypoints[i];
+                showfpl(`index${i}children0`, waypoint, div);
+            } else {
+                for (let j = 0; j < flightPlanItems[i].children.length; j++) {
+                    waypoint = flightPlanItems[i].children[j].identifier;
+                    showfpl(`index${i}children${j}`, waypoint, div);
+                }
+            }
+        }
+    }
 });
 
 const vnav = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopilot", "airspeed", "groundspeed", "altitude", "vnav", "vs", "latitude", "longitude"], [], data => {
@@ -612,13 +614,15 @@ const vnav = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopil
 		}
 	}
 
-	const nextWaypointSpeed = document.getElementById(`index${nextWaypointIndex}children${nextWaypointChildren}`).value;
+    if (document.getElementById(`index${nextWaypointIndex}children${nextWaypointChildren}`) !== null) {
+        const nextWaypointSpeed = document.getElementById(`index${nextWaypointIndex}children${nextWaypointChildren}`).value;
 
-	if(nextWaypointSpeed !== ""){
-		if(fplinfo.distanceToNext <= 10){
-			write("spd", nextWaypointSpeed);
-		}
-	}
+        if (nextWaypointSpeed !== "") {
+            if (fplinfo.distanceToNext <= 10) {
+                write("spd", nextWaypointSpeed);
+            }
+        }
+    }
 
 	if(nextAltitudeRestriction.length === 0){
         speak("No altitude restriction, VNAV disabled");
