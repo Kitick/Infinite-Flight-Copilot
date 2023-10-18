@@ -200,7 +200,6 @@ const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohd
     const inputs = data.inputs;
     const states = data.states;
 
-    const hdgTarget = cyclical(inputs.flytohdg);
     const distance = calcLLdistance(states.latitude, states.longitude, inputs.flytolat, inputs.flytolong);
 
     if(distance < 1){
@@ -212,23 +211,15 @@ const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohd
     const deltaX = 60 * (inputs.flytolong - states.longitude) * Math.cos((states.latitude + inputs.flytolat) * 0.5 * toRad);
     let course = cyclical(Math.atan2(deltaX, deltaY) * toDeg - states.variation);
 
-    if(!isNaN(hdgTarget)){
-        let diffrence = hdgTarget - course;
+    let hdgTarget = cyclical(inputs.flytohdg);
+    let diffrence = hdgTarget - course;
 
-        if(diffrence > 180){
-            diffrence -= 360;
-        }
-        else if(diffrence < -180){
-            diffrence += 360;
-        }
+    if(diffrence > 180){diffrence -= 360;}
+    else if(diffrence < -180){diffrence += 360;}
 
-        if(Math.abs(diffrence) < 6){
-            course -= 5 * diffrence;
-        }
-        else{
-            course -= 30 * Math.sign(diffrence);
-        }
-    }
+    if(Math.abs(diffrence) <= 2){course -= 7.5 * diffrence;}
+    else if(Math.abs(diffrence) <= 5){course -= 5 * diffrence + 5;}
+    else{course -= 30 * Math.sign(diffrence);}
 
     const winddir = cyclical(states.winddir - states.variation + 180);
     let courseMath = -course + 90;
