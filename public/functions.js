@@ -153,8 +153,11 @@ const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"
         input = 6076.12 * Math.tan(input * toRad);
     }
 
-    const fpm = input * Math.sign(diffrence) * (states.airspeed / 60);
-    write("vs", fpm);
+    if(inputs.flcmode === "g"){
+        input *= Math.sign(diffrence) * (states.airspeed / 60);
+    }
+
+    write("vs", input);
 });
 
 const markposition = new autofunction("markposition", -1, [], ["latitude", "longitude", "altitude", "heading"], [], data => {
@@ -301,9 +304,9 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
         const distance = calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref);
         
         let speed = (distance - 2.5) * 10 + inputs.spdref;
-        speed = Math.max(speed, inputs.spdref);
         speed = Math.min(speed, states.spd);
         speed = Math.round(speed / 10) * 10;
+        speed = Math.max(speed, inputs.spdref);
 
         write("spd", speed);
     }
