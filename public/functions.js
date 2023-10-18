@@ -153,7 +153,7 @@ const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"
         input = 6076.12 * Math.tan(input * toRad);
     }
 
-    if(inputs.flcmode === "g"){
+    if(inputs.flcmode !== "f"){
         input *= Math.sign(diffrence) * (states.airspeed / 60);
     }
 
