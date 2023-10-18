@@ -63,16 +63,18 @@ const autobrakes = new autofunction("autobrakes", 1000, [], ["leftbrake", "right
     const states = data.states;
 
     let newBrakes = states.autobrakes;
+
     if(states.onground && !states.onrunway){
         newBrakes = 0;
     }
     else if(!states.onground){
         newBrakes = 2;
     }
-    else if(states.onrunway && autotakeoff.active){
+    else if(states.onrunway){
         newBrakes = 3;
     }
-    else if(states.onground && states.groundspeed > 30 && states.autobrakes > 0 && (states.leftbrake > 0.3 || states.rightbrake > 0.3)){
+
+    if(states.onground && states.groundspeed > 30 && (states.leftbrake > 0.3 || states.rightbrake > 0.3)){
         newBrakes = 0;
     }
 
@@ -123,11 +125,8 @@ const autospoilers = new autofunction("spoilers", 1000, [], ["spoilers", "airspe
     const states = data.states;
 
     let newSpoilers = 0;
-    if(states.altitudeAGL < 1000){
-        newSpoilers = 2;
-    }
 
-    if(states.onrunway || (!states.onground && states.altitudeAGL < 200)){
+    if(states.onrunway || (!states.onground && states.altitudeAGL < 1000)){
         newSpoilers = 2;
     }
     else if(states.airspeed - states.spd >= 20 && states.altitude < 28000){

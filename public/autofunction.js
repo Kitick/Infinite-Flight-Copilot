@@ -137,7 +137,7 @@ class autofunction {
             valid = dependent.getInputs() && valid;
         });
 
-        this.#inputsValid = valid;
+        //this.#inputsValid = valid;
         return valid;
     }
 
