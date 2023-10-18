@@ -20,9 +20,9 @@ class Cache { // DOMCache
         this.#data[dom.id] = {dom:dom, value:value};
     }
 
-    #error(item){
-        item.dom.classList.add("error");
-        setTimeout(() => {item.dom.classList.remove("error");}, 2000);
+    #error(dom){
+        dom.classList.add("error");
+        setTimeout(() => {dom.classList.remove("error");}, 2000);
     }
 
     addDataArray(ids){
@@ -66,8 +66,9 @@ class Cache { // DOMCache
     }
 
     isValid(id, doError = false){
-        const valid = this.#data[id].value !== null;
-        if(!valid && doError){this.#error(this.#data[id]);}
+        const item = this.#data[id];
+        const valid = item.value !== null;
+        if(!valid && doError){this.#error(item.dom);}
         return valid;
     }
 
