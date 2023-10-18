@@ -110,41 +110,40 @@ function config() {
         } 
     }
 
-    const inputs = [];
+    let inputArray = [];
 
     for(const key in checked) {
-        if(checked[key].checked === true) {
-            const dependenciesInputsArray = [];
+        if(checked[key].checked) {
+            const inputs = checked[key].instance.inputs;
             const dependencies = checked[key].instance.dependents;
+
+            for(let id in inputs){
+                if(inputArray.indexOf(id) === -1){
+                    inputArray.push(id);
+                }
+            }
+
             dependencies.forEach(dependency => {
-                dependenciesInputsArray.push(dependency.inputs);
-            });
-            inputs.push(checked[key].instance.inputs, dependenciesInputsArray);
-        }
-    }
-
-    const dependenciesInputs = {};
-
-    inputs.forEach(func => {
-        if(Array.isArray(func)){
-            func.forEach(object => {
-                for(const input in object){
-                    dependenciesInputs[input] = undefined;
+                for(let id in dependency.inputs){
+                    if(inputArray.indexOf(id) === -1){
+                        inputArray.push(id);
+                    }
                 }
             });
         }
-    })
-
-    const concatenatedInputs = { ...inputs[0], ...dependenciesInputs };
-
-    for(const input in concatenatedInputs){
-        const inputElement = document.getElementById(input);
-        const placeholder = inputElement.getAttribute("placeholder")
-        if(inputElement !== null && inputElement.type !== "checkbox" && inputElement.tagName === "INPUT" && placeholder !== null){
-            const value = window.prompt(inputElement.getAttribute("placeholder"));
-            inputElement.value = value;
-        }
     }
+
+    inputArray.forEach(input => {
+        const dom = document.getElementById(input);
+
+        if(dom.type === "number"){
+            const value = prompt(dom.placeholder + "\nLeave blank to not change");
+
+            if(value !== ""){
+                dom.value = value;
+            }
+        }
+    });
 };
 
 function setConfig(){
