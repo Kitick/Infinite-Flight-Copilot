@@ -8,12 +8,13 @@
 
         <script src="socket.io.min.js"></script>
 
-        <script src="script.js"></script>
+        <script src="cache.js"></script>
         <script src="autofunction.js"></script>
 
+        <script src="script.js"></script>
         <script src="helpers.js"></script>
-        <script src="cache.js"></script>
-        <script src="functions.js"></script>
+
+        <script src="functions.js" defer></script>
 
 		<link href="style.css" rel="stylesheet">
 	</head>
@@ -48,19 +49,19 @@
 				<h2 class="module-name">DYNAMIC SYSTEMS</h2>
 				<div class="dyn-button-container">
 					<div class="button-row">
-                        <button id="gear" onclick="autogear.setActive();" class="off">GEAR</button>
-						<button id="lights" onclick="autolights.setActive();" class="off">LIGHTS</button>
+                        <button id="gear" onclick="autogear.setActive();">GEAR</button>
+						<button id="lights" onclick="autolights.setActive();">LIGHTS</button>
 					</div>
 					<div class="button-row">
-                        <button id="spoilers" onclick="autospoilers.setActive();" class="off">SPOILERS</button>
-                        <button id="autobrakes" onclick="autobrakes.setActive();" class="off">BRAKES</button>
+                        <button id="spoilers" onclick="autospoilers.setActive();">SPOILERS</button>
+                        <button id="autobrakes" onclick="autobrakes.setActive();">BRAKES</button>
 					</div>
 					<div class="button-row">
-                        <button id="trim" onclick="autotrim.setActive();" class="off">TRIM</button>
-						<button id="autospeed" onclick="autospeed.setActive();" class="off">SPEED</button>
+                        <button id="trim" onclick="autotrim.setActive();">TRIM</button>
+						<button id="autospeed" onclick="autospeed.setActive();">SPEED</button>
 					</div>
                     <div class="button-row">
-                        <button id="flaps" onclick="autoflaps.setActive();" class="off">FLAPS</button>
+                        <button id="flaps" onclick="autoflaps.setActive();">FLAPS</button>
                         <button id="all" class="off" onclick="setAll(this.className);" type="checkbox">ALL</button>
 					</div>
 				</div>
@@ -85,9 +86,9 @@
                     	<option value="agl">AGL</option>
                 	</select>
 				</div>
-				<button id="takeoffconfig" onclick="takeoffconfig.setActive();" class="off" style="width: 15rem;">CONFIGURE FOR TAKEOFF</button>
-				<button id="autotakeoff" onclick="autotakeoff.setActive();" class="off" style="width: 15rem;">AUTO TAKEOFF</button>
-				<button id="reject" onclick="rejecttakeoff.setActive();" class="off" style="width: 15rem;">REJECT TAKEOFF</button>
+				<button id="takeoffconfig" onclick="takeoffconfig.setActive();" style="width: 15rem;">CONFIGURE FOR TAKEOFF</button>
+				<button id="autotakeoff" onclick="autotakeoff.setActive();" style="width: 15rem;">AUTO TAKEOFF</button>
+				<button id="reject" onclick="rejecttakeoff.setActive();" style="width: 15rem;">REJECT TAKEOFF</button>
               	<div class="checkbox-container">
 					<div class="checkbox-row">
 						<input id="takeoffspool" type="checkbox">
@@ -108,7 +109,7 @@
                 <input id="flytolat" type="number" placeholder="Latitude (deg)" min="-90" max="90">
 				<input id="flytolong" type="number" placeholder="Longitude (deg)" min="-180" max="180">
 				<input id="flytohdg" type="number" placeholder="Heading (deg)" min="0" max="360" step="1">
-				<button id="flyto" onclick="flyto.setActive();" class="off" style="width: 15rem;">FLY TO</button>
+				<button id="flyto" onclick="flyto.setActive();" style="width: 15rem;">FLY TO</button>
 				<div class="input-option-container">
 					<input id="flcinput" class="input-option-s" type="number" placeholder="Climb Value" min="0">
                 	<select id="flcmode" class="input-option-l">
@@ -117,7 +118,7 @@
 						<option value="v">VPA (deg)</option>
                 	</select>
 				</div>
-				<button id="levelchange" onclick="levelchange.setActive();" class="off" style="width: 15rem;">LEVEL CHANGE</button>
+				<button id="levelchange" onclick="levelchange.setActive();" style="width: 15rem;">LEVEL CHANGE</button>
 				<h3>Leave heading blank for "Direct to"</h3>
 			</div>
 			<div class="panel" hidden>
@@ -140,10 +141,10 @@
 						<option value="f">Final</option>
 					</select>
 				</div>
-				<button id="flypattern" onclick="flypattern.setActive();" class="off" style="width: 15rem;">FLY PATTERN</button>
+				<button id="flypattern" onclick="flypattern.setActive();" style="width: 15rem;">FLY PATTERN</button>
                 <div class="checkbox-container">
 					<div class="checkbox-row">
-						<input id="approach" oninput="if(this.checked){this.checked = autoland.getInputs(true);}" type="checkbox">
+						<input id="approach" oninput="if(this.checked){this.checked = autoland.validateInputs(true);}" type="checkbox">
 						<h3>Approach on Final</h3>
 					</div>
 				</div>
@@ -151,8 +152,8 @@
 				<input id="latref" type="number" placeholder="Latitude Reference (deg)" min="-90" max="90">
 				<input id="longref" type="number" placeholder="Longitude Reference (deg)" min="-180" max="180">
 				<input id="hdgref" type="number" placeholder="HDG Reference (deg)" min="0" max="360" step="1">
-				<button id="markposition" onclick="markposition.setActive();" class="off" style="width: 15rem;">MARK POSITION</button>
-				<button id="setrunway" onclick="setrunway.setActive();" class="off" style="width: 15rem;">SET RUNWAY</button>
+				<button id="markposition" onclick="markposition.setActive();" style="width: 15rem;">MARK POSITION</button>
+				<button id="setrunway" onclick="setrunway.setActive();" style="width: 15rem;">SET RUNWAY</button>
 
 				<h4>Runway will set the first RWXX in your FPL as the target.</h4>
 				<h4>You must still update the heading to the exact runway heading.</h4>
@@ -173,15 +174,15 @@
                     <option value="p">Low Pass</option>
                	</select>
 
-				<button id="autoland" onclick="autoland.setActive();" class="off" style="width: 15rem;">APPROACH</button>
-               	<button id="goaround" onclick="goaround.setActive();" class="off" style="width: 15rem;">GO AROUND</button>
+				<button id="autoland" onclick="autoland.setActive();" style="width: 15rem;">APPROACH</button>
+               	<button id="goaround" onclick="goaround.setActive();" style="width: 15rem;">GO AROUND</button>
 
                 <h4>Flare Height is used as the altitude for the low pass.</h4>
                 <h4>This uses the runway refrences in pattern work.</h4>
                 <h4>This uses Autotakeoff for landing functions.</h4>
 			</div>
             <div class="panel" hidden>
-				<h2 class="module-name">CONFIG</h2>
+				<h2 class="module-name">CONFIGURATION HELP</h2>
 				<div class="checkbox-container">
 					<div class="checkbox-row">
 						<input id="configflaps" type="checkbox">
@@ -204,15 +205,15 @@
 						<h3>AUTO LAND</h3>
 					</div>
 				</div>
-				<button id="config" onclick="config();" class="off" style="width: 15rem;">CONFIG</button>
+				<button id="config" class="off" onclick="config();" style="width: 15rem;">CONFIGURE</button>
 			</div>
             <div class="panel" hidden>
 				<h2 class="module-name">VNAV</h2>
 				<div id="waypoints"></div>
 
 				<button id="speedpanel" class="off" style="width: 15rem;">SPEED PANEL</button>
-				<button id="updatefpl" onclick="updatefpl.setActive();" class="off" style="width: 15rem;">UPDATE FPL</button>
-				<button id="vnav" onclick="vnav.setActive();" class="off" style="width: 15rem;">VNAV</button>
+				<button id="updatefpl" onclick="updatefpl.setActive();" style="width: 15rem;">UPDATE FPL</button>
+				<button id="vnav" onclick="vnav.setActive();" style="width: 15rem;">VNAV</button>
 			</div>
 			<div class="panel" hidden>
 				<h2 class="module-name">CALLOUTS</h2>
@@ -220,8 +221,8 @@
 
 				<input id="utterancerate" type="number" placeholder="Voice Rate (1-4)" min="0.5" max="4">
 				<input id="minumuns" type="number" placeholder="Minumuns Altitude (ft)">
-				<button id="callout" onclick="callout.setActive();" class="off" style="width: 15rem;">CALLOUTS</button>
-				<button id="callouttest" onclick="speak('Testing')" class="off" style="width: 15rem;">TEST</button>
+				<button id="callout" onclick="callout.setActive();" style="width: 15rem;">CALLOUTS</button>
+				<button id="callouttest" onclick="speak('Testing')" style="width: 15rem;">TEST</button>
 			</div>
 		</div>
     </body>

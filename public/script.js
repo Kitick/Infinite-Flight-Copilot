@@ -4,8 +4,6 @@ window.onload = () => {
     statLog = document.getElementById("status");
     panels = document.getElementsByClassName("panel");
 
-    autofunction.loadButtonHTML();
-
     const select = document.getElementById("voices");
     const voices = speechSynthesis.getVoices();
     for(let i = 0, length = voices.length; i < length; i++){

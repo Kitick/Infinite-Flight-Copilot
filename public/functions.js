@@ -163,10 +163,10 @@ const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"
 const markposition = new autofunction("markposition", -1, [], ["latitude", "longitude", "altitude", "heading"], [], data => {
     const states = data.states;
 
-    document.getElementById("latref").value = states.latitude;
-    document.getElementById("longref").value = states.longitude;
-    document.getElementById("hdgref").value = Math.round(states.heading);
-    document.getElementById("altref").value = Math.round(states.altitude);
+    autofunction.cache.setData("latref", states.latitude);
+    autofunction.cache.setData("longref", states.longitude);
+    autofunction.cache.setData("hdgref", Math.round(states.heading));
+    autofunction.cache.setData("altref", Math.round(states.altitude));
 });
 
 const setrunway = new autofunction("setrunway", -1, [], ["route", "coordinates"], [], data => {
@@ -189,9 +189,9 @@ const setrunway = new autofunction("setrunway", -1, [], ["route", "coordinates"]
 
     const runwayCoords = states.coordinates.split(" ")[rwIndex].split(",");
 
-    document.getElementById("latref").value = runwayCoords[0];
-    document.getElementById("longref").value = runwayCoords[1];
-    document.getElementById("hdgref").value = parseInt(route[rwIndex][2] + route[rwIndex][3] + "0");
+    autofunction.cache.setData("latref", runwayCoords[0]);
+    autofunction.cache.setData("longref", runwayCoords[1]);
+    autofunction.cache.setData("hdgref", parseInt(route[rwIndex][2] + route[rwIndex][3] + "0"));
 });
 
 const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohdg"], ["latitude", "longitude", "variation", "groundspeed", "wind", "winddir"], [], data => {
@@ -252,7 +252,7 @@ const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "h
     const legs = ["u", "c", "d", "b", "f"];
 
     let leg = legs.indexOf(inputs.leg);
-    const direction = inputs.direction === "r" ? 1 : -1;
+    const direction = (inputs.direction === "r") ? 1 : -1;
 
     const hdg90 = inputs.hdgref + 90 * direction;
     const hdgs = [inputs.hdgref, hdg90, inputs.hdgref + 180, hdg90 + 180, inputs.hdgref];
@@ -279,10 +279,10 @@ const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "h
         autoland.active = true;
     }
 
-    document.getElementById("leg").value = legs[leg];
-    document.getElementById("flytolat").value = pattern[leg][0].toFixed(8);
-    document.getElementById("flytolong").value = pattern[leg][1].toFixed(8);
-    document.getElementById("flytohdg").value = cyclical(hdgs[leg]);
+    autofunction.cache.setData("leg", legs[leg]);
+    autofunction.cache.setData("flytolat", pattern[leg][0]);
+    autofunction.cache.setData("flytolong", pattern[leg][1]);
+    autofunction.cache.setData("flytohdg", cyclical(hdgs[leg]));
 
     flyto.active = true;
 });
@@ -297,8 +297,8 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     }
 
     // elevation is optional
-    const elevation = parseFloat(document.getElementById("altref").value);
-    const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
+    const elevation = autofunction.cache.getData("altref").altref;
+    const alt = (elevation === null) ? states.altitudeAGL : states.altitude - elevation;
 
     if(autoland.active){
         const distance = calcLLdistance(states.latitude, states.longitude, inputs.latref, inputs.longref);
@@ -338,9 +338,9 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     autospeed.active = false;
     autoland.error();
 
-    document.getElementById("flcmode").value = "g";
-    document.getElementById("flcinput").value = 500;
-    document.getElementById("leg").value = "u";
+    autofunction.cache.setData("flcmode", "g");
+    autofunction.cache.setData("flcinput", 500);
+    autofunction.cache.setData("leg", "u");
 
     let alt = inputs.climbalt;
     const inmsl = inputs.climbtype === "msl";
@@ -368,8 +368,8 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
     const states = data.states;
 
     if(autoland.stage === 0){
-        document.getElementById("leg").value = "f";
-        document.getElementById("flcmode").value = "v";
+        autofunction.cache.setData("leg", "f");
+        autofunction.cache.setData("flcmode", "v");
         autoland.stage++;
     }
 
@@ -387,7 +387,7 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
         vpaout = 0;
     }
 
-    document.getElementById("flcinput").value = vpaout;
+    autofunction.cache.setData("flcinput", vpaout);
 
     const stopalt = inputs.altref + inputs.flare;
     write("alt", stopalt);
@@ -400,8 +400,8 @@ const autoland = new autofunction("autoland", 500, ["latref", "longref", "altref
         autospeed.active = false;
         levelchange.active = false;
 
-        document.getElementById("flcmode").value = "g";
-        document.getElementById("flcinput").value = 500;
+        autofunction.cache.setData("flcmode", "g");
+        autofunction.cache.setData("flcinput", 500);
 
         if(type !== "p"){
             write("spdon", false);
@@ -523,13 +523,8 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", 
     }
     else if(stage === 3){
         if(inputs.climbspd - states.airspeed < 10){
-            if(inputs.takeofflnav){
-                write("navon", true);
-            }
-
-            if(document.getElementById("takeoffvnav").checked){
-                vnav.active = true;
-            }
+            if(inputs.takeofflnav){write("navon", true);}
+            if(inputs.takeoffvnav){vnav.active = true;}
 
             write("spdon", true);
             stage++;
@@ -654,8 +649,8 @@ const callout = new autofunction("callout", 250, ["rotate", "utterancerate", "mi
     const v1 = inputs.rotate;
     const v2 = inputs.rotate + 10;
 
-    const elevation = parseFloat(document.getElementById("altref").value);
-    const alt = isNaN(elevation) ? states.altitudeAGL : states.altitude - elevation;
+    const elevation = autofunction.cache.getData("altref").altref;
+    const alt = (elevation === null) ? states.altitudeAGL : states.altitude - elevation;
 
     let stage = callout.stage;
 

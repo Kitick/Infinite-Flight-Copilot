@@ -2,42 +2,39 @@ class autofunction {
     #button;
     #timeout;
     #states = {};
-    #inputs = {};
+    #inputs = [];
     #dependents = [];
     #numStates = 0;
     #validStates = 0;
-    #inputsValid = false;
     #active = false;
     #armed = false;
     #code = () => {};
 
     stage = 0;
 
-    static loadButtonHTML(){
-        autofunctions.forEach(autofunc => {
-            autofunc.#button = document.getElementById(autofunc.#button);
-        });
-    }
+    static cache = new Cache();
 
     constructor(button, delay, inputs, states, dependents, code = () => {}){
-        this.#button = button;
+        this.#button = document.getElementById(button);
+        this.#updateButton();
         this.delay = delay;
         this.#numStates = states.length;
+        this.#inputs = inputs;
         this.#dependents = dependents;
         this.#code = code;
 
-        inputs.forEach(input => {
-            this.#inputs[input] = undefined;
+        states.forEach(state => {
+            this.#states[state] = null;
         });
 
-        states.forEach(state => {
-            this.#states[state] = undefined;
-        });
+        autofunction.cache.addDataArray(inputs);
     }
 
     get active(){return this.#active;}
-
     set active(value){this.setActive(value)};
+
+    get inputs(){return this.#inputs;}
+    get dependents(){return this.#dependents;}
 
     setActive(value = !this.#active){
         if(this.active === value){return;}
@@ -54,17 +51,12 @@ class autofunction {
         this.#run();
     }
 
-    get inputs(){return this.#inputs;}
-
-    get dependents(){return this.#dependents;}
-
     #updateButton(){
         this.#button.className = this.active ? "active" : "off";
     }
 
     #run(){
-        let valid = this.getInputs();
-        this.#inputsValid = false;
+        const valid = this.validateInputs(true);
 
         if(!valid){
             this.error();
@@ -75,7 +67,7 @@ class autofunction {
             const wasArmed = this.#armed;
             this.#armed = false;
 
-            this.#code({states:this.#states, inputs:this.#inputs});
+            this.#code({states:this.#states, inputs:autofunction.cache.getDataArray(this.inputs)});
 
             if(!this.#armed && wasArmed){
                 this.#updateButton();
@@ -112,36 +104,13 @@ class autofunction {
         }
     }
 
-    getInputs(checkanyway = false){
-        if(this.#inputsValid && !checkanyway){return true;}
-
-        let valid = true;
-        for(let name in this.#inputs){
-            const input = document.getElementById(name);
-            const numberValue = parseFloat(input.value);
-
-            if(input.type === "number" && isNaN(numberValue)){
-                input.classList.add("error");
-                setTimeout(() => {input.classList.remove("error");}, 2000);
-
-                valid = false;
-                continue;
-            }
-
-            let value = numberValue;
-            switch(input.type){
-                case "checkbox": value = input.checked; break;
-                case "select-one": value = input.value; break;
-            }
-
-            this.#inputs[name] = value;
-        }
+    validateInputs(doError = false){
+        let valid = autofunction.cache.isValidArray(this.inputs, doError);
 
         this.#dependents.forEach(dependent => {
-            valid = dependent.getInputs() && valid;
+            valid = autofunction.cache.isValidArray(dependent.inputs, doError) && valid;
         });
 
-        //this.#inputsValid = valid;
         return valid;
     }
 

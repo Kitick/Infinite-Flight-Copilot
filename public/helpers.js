@@ -117,18 +117,18 @@ function config() {
             const inputs = checked[key].instance.inputs;
             const dependencies = checked[key].instance.dependents;
 
-            for(let id in inputs){
+            inputs.forEach(id => {
                 if(inputArray.indexOf(id) === -1){
                     inputArray.push(id);
                 }
-            }
+            });
 
             dependencies.forEach(dependency => {
-                for(let id in dependency.inputs){
+                dependency.forEach(id => {
                     if(inputArray.indexOf(id) === -1){
                         inputArray.push(id);
                     }
-                }
+                });
             });
         }
     }
@@ -148,37 +148,36 @@ function config() {
 
 function setConfig(){
     // CL350
-    document.getElementById("flaplow").value = 130;
-    document.getElementById("flaphigh").value = 200;
-    document.getElementById("flapto").value = 1;
-    document.getElementById("cruisespd").value = 250;
-    document.getElementById("cruisealt").value = 250000;
+    autofunction.cache.setData("flaplow", 130);
+    autofunction.cache.setData("flaphigh", 200);
+    autofunction.cache.setData("flapto", 1);
+    autofunction.cache.setData("cruisespd", 250);
+    autofunction.cache.setData("cruisealt", 250000);
 
-    document.getElementById("rotate").value = 120;
-    document.getElementById("climbspd").value = 200;
-    document.getElementById("climbthrottle").value = 100;
-    document.getElementById("climbalt").value = 1500;
+    autofunction.cache.setData("rotate", 120);
+    autofunction.cache.setData("climbspd", 200);
+    autofunction.cache.setData("climbthrottle", 100);
+    autofunction.cache.setData("climbalt", 2000);
 
-    document.getElementById("flcinput").value = 500;
+    autofunction.cache.setData("flcinput", 500);
 
-    document.getElementById("updist").value = 2;
-    document.getElementById("downwidth").value = 4;
-    document.getElementById("finallength").value = 6;
-    document.getElementById("turnconst").value = 300;
+    autofunction.cache.setData("updist", 2);
+    autofunction.cache.setData("downwidth", 4);
+    autofunction.cache.setData("finallength", 6);
+    autofunction.cache.setData("turnconst", 300);
 
-    document.getElementById("altref").value = 13;
-    document.getElementById("spdref").value = 130;
-    document.getElementById("flare").value = 10;
-    document.getElementById("touchdown").value = 1000;
-    document.getElementById("vparef").value = 3;
+    autofunction.cache.setData("altref", 13);
+    autofunction.cache.setData("spdref", 130);
+    autofunction.cache.setData("flare", 10);
+    autofunction.cache.setData("touchdown", 1000);
+    autofunction.cache.setData("vparef", 3);
 
     // SFO 28R
-    document.getElementById("latref").value = 37.61353302;
-    document.getElementById("longref").value = -122.35714722;
-    document.getElementById("hdgref").value = 284;
-    document.getElementById("direction").value = "r";
-    document.getElementById("leg").value = "f";
+    autofunction.cache.setData("latref", 37.61353302);
+    autofunction.cache.setData("longref", -122.35714722);
+    autofunction.cache.setData("hdgref", 284);
+    autofunction.cache.setData("direction", "r");
 
-    document.getElementById("utterancerate").value = 1;
-    document.getElementById("minumuns").value = 200;
+    autofunction.cache.setData("utterancerate", 1);
+    autofunction.cache.setData("minumuns", 200);
 }
