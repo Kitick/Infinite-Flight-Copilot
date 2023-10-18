@@ -54,6 +54,10 @@ class autofunction {
         this.#run();
     }
 
+    get inputs(){return this.#inputs;}
+
+    get dependents(){return this.#dependents;}
+
     #updateButton(){
         this.#button.className = this.active ? "active" : "off";
     }
