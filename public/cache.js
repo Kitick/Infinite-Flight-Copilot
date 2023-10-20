@@ -53,6 +53,16 @@ class Cache { // DOMCache
 
     getData(...ids){return this.getDataArray(ids);}
 
+    getAllData(){
+        let returnObject = {};
+
+        for(const key in this.#data){
+            returnObject[key] = this.#data[key].value;
+        }
+        
+        return returnObject;
+    }
+
     setData(id, value){
         const item = this.#data[id];
         item.value = value;
