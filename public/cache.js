@@ -5,19 +5,16 @@ class Cache { // DOMCache
 
     constructor(){}
 
-    #parse(dom, doError = false){
-        let value = parseFloat(dom.value);
+    #parse(dom){
+        let value;
 
-        if(dom.type === "number" && isNaN(value)){
-            value = null;
-            if(doError){this.#error(dom);}
+        switch(dom.type){
+            case "number": value = parseFloat(dom.value); break;
+            case "checkbox": value = dom.checked; break;
+            case "select-one": value = dom.value; break;
         }
-        else{
-            switch(dom.type){
-                case "checkbox": value = dom.checked; break;
-                case "select-one": value = dom.value; break;
-            }
-        }
+
+        if(dom.type === "number" && isNaN(value)){value = null;}
 
         this.#data[dom.id].value = value;
     }
@@ -33,13 +30,13 @@ class Cache { // DOMCache
                 const dom = document.getElementById(id);
 
                 dom.addEventListener("change", event => {
-                    this.#parse(event.target, true);
+                    this.#parse(event.target);
                 });
 
                 this.#data[dom.id] = {dom:dom, value:null};
                 this.#ids.push(dom.id);
 
-                this.#parse(dom, false);
+                this.#parse(dom);
             }
         });
     }
