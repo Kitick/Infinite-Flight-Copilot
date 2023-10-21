@@ -154,7 +154,6 @@
                 	</select>
 				</div>
 				<button id="levelchange" onclick="levelchange.setActive();" style="width: 15rem;">LEVEL CHANGE</button>
-				<h3>Leave heading blank for "Direct to"</h3>
 			</div>
 			<div class="panel" hidden>
 				<h2 class="module-name">PATTERN WORK</h2>
@@ -190,10 +189,6 @@
 				<input id="hdgref" type="number" placeholder="HDG Reference (deg)" min="0" max="360" step="1">
 				<button id="markposition" onclick="markposition.setActive();" style="width: 15rem;">MARK POSITION</button>
 				<button id="setrunway" onclick="setrunway.setActive();" style="width: 15rem;">SET RUNWAY</button>
-
-				<h4>Runway will set the first RWXX in your FPL as the target.</h4>
-				<h4>You must still update the heading to the exact runway heading.</h4>
-				<h4>Info about the turn constant is on the issues page of the github.</h4>
 			</div>
             <div class="panel" hidden>
 				<h2 class="module-name">AUTO APPROACH AND LAND</h2>
@@ -212,10 +207,6 @@
 
 				<button id="autoland" onclick="autoland.setActive();" style="width: 15rem;">APPROACH</button>
                	<button id="goaround" onclick="goaround.setActive();" style="width: 15rem;">GO AROUND</button>
-
-                <h4>Flare Height is used as the altitude for the low pass.</h4>
-                <h4>This uses the runway refrences in pattern work.</h4>
-                <h4>This uses Autotakeoff for landing functions.</h4>
 			</div>
             <div class="panel" hidden>
 				<h2 class="module-name">VNAV</h2>
