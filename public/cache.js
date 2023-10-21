@@ -73,7 +73,9 @@ class Cache { // DOMCache
     isValid(id, doError = false){
         const item = this.#data[id];
         const valid = item.value !== null;
+
         if(!valid && doError){this.#error(item.dom);}
+
         return valid;
     }
 
@@ -82,6 +84,7 @@ class Cache { // DOMCache
         ids.forEach(id => {
             valid = this.isValid(id, doError) && valid;
         });
+
         return valid;
     }
 }
