@@ -71,7 +71,7 @@ select{
 	color: white;
 	background-color: #333333;
 	font-size: 1rem;
-	font: Helvetica;
+	font: monospace;
 	margin: 0.5rem;
 	transition: 0.3s;
 }

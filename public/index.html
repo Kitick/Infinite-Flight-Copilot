@@ -24,19 +24,24 @@
 			<div id="setup" class="panel">
 				<h2 class="module-name">SETUP</h2>
         		<h3 class="status-heading">Welcome to IF-API! <br> Status: <span id="status">offline</span></h3>
-				<input id="address" onkeypress="if(event.key === 'Enter'){bridge();}" type="text" autocomplete="off" value="" class="ip-address-input" placeholder="IP Address">
+
+                <input id="address" onkeypress="if(event.key === 'Enter'){bridge();}" type="text" autocomplete="off" value="" class="ip-address-input" placeholder="IP Address">
         		<div class="setup-button-container">	
 					<button onclick="bridge();" class="connect-button">Connect</button>
         			<button onclick="closeBridge();" class="close-button">Close</button>
 				</div>
-					<h3>Ensure you are loaded in a flight before connecting</h3>
-					<h3>Restart the connection if you start a new flight</h3>
-						<h3 class="warning-text">
-							Please ensure you monitor your flight <u>AT ALL TIMES</u> when using the automation functions offered. 
-							<br>
-							We are <u>NOT</u> responsible for any violations you may acquire while using them.
-						</h3>
-				<div class="button-guide">
+
+                <h3>Ensure you are loaded in a flight before connecting</h3>
+                <h3>Restart the connection if you start a new flight</h3>
+                <h3 class="warning-text">
+                    Please ensure you monitor your flight <u>AT ALL TIMES</u> when using the automation functions offered. 
+                    <br>
+                    We are <u>NOT</u> responsible for any violations you may acquire while using them.
+                </h3>
+
+                <button onclick="window.open('/guide.html');" class="off" style="width: 15rem;">USER GUIDE</button>
+
+                <div class="button-guide">
 					<h3>Button Guide</h3>
 					<div class="example-buttons-container">
 						<button class="off example-buttons">Standby</button>
