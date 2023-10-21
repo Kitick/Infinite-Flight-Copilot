@@ -13,7 +13,6 @@ class autofunction {
     stage = 0;
 
     static cache = new Cache();
-    static localstorage = new localstorage();
 
     constructor(button, delay, inputs, states, dependents, code = () => {}){
         this.#button = document.getElementById(button);

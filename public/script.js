@@ -4,14 +4,14 @@ window.onload = () => {
     statLog = document.getElementById("status");
     panels = document.getElementsByClassName("panel");
 
+    storage.init(document.getElementById("configselect"));
+
     const select = document.getElementById("voices");
     const voices = speechSynthesis.getVoices();
     for(let i = 0, length = voices.length; i < length; i++){
         const newOption = new Option(voices[i].lang, i);
         select.add(newOption);
     }
-
-    loadSavedConfig();
 
     socket.emit("test", response => {
         statLog.innerText = response;
@@ -91,6 +91,7 @@ function reset(){
 let statLog;
 let panels;
 
+const storage = new Storage();
 const socket = io();
 
 socket.on("ready", address => {

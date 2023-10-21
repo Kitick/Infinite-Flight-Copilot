@@ -9,7 +9,7 @@
         <script src="socket.io.min.js"></script>
 
         <script src="cache.js"></script>
-		<script src="localstorage.js"></script>
+		<script src="storage.js"></script>
         <script src="autofunction.js"></script>
 
         <script src="script.js"></script>
@@ -48,11 +48,11 @@
 			</div>
             <div class="panel" hidden>
 				<h2 class="module-name">PROFILE CONFIGURATION</h2>
-
-                <button id="save" class="off" onclick="saveLocalStorage();" style="width: 15rem;">SAVE</button>
-				<select id="configselect" onload="loadSavedConfig()"></select>
-				<button id="load" class="off" onclick="loadLocalStorage(document.getElementById('configselect').value);" style="width: 15rem;">LOAD</button>
-				<button id="clear" class="off" onclick="clearLocalStorage(document.getElementById('configselect').value)" style="width: 15rem;">DELETE</button>
+                <button id="add" class="off" onclick="storage.add();" style="width: 15rem;">NEW PROFILE</button>
+                <select id="configselect"></select>
+                <button id="save" class="off" onclick="storage.save();" style="width: 15rem;">SAVE</button>
+				<button id="load" class="off" onclick="storage.load();" style="width: 15rem;">LOAD</button>
+				<button id="remove" class="off" onclick="storage.remove();" style="width: 15rem;">DELETE</button>
 
                 <h3 class="module-name">CONFIG GUIDE</h3>
                 <div class="checkbox-container">
@@ -146,7 +146,7 @@
 				<input id="flytohdg" type="number" placeholder="Heading (deg)" min="0" max="360" step="1">
 				<button id="flyto" onclick="flyto.setActive();" style="width: 15rem;">FLY TO</button>
 				<div class="input-option-container">
-					<input id="flcinput" class="input-option-s" type="number" placeholder="Climb Value" min="0">
+					<input id="flcinput" class="input-option-s" type="number" placeholder="Climb Rate" min="0">
                 	<select id="flcmode" class="input-option-l">
                         <option value="f">V/S (ft/min)</option>
                     	<option value="g">Gradient (ft/nm)</option>
