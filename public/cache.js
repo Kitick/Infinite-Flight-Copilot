@@ -1,9 +1,11 @@
 class Cache { // DOMCache
     #data = {};
+    #ids = [];
+    // Could possibly use Map
 
     constructor(){}
 
-    #save(dom, doError = false){
+    #parse(dom, doError = false){
         let value = parseFloat(dom.value);
 
         if(dom.type === "number" && isNaN(value)){
@@ -17,7 +19,7 @@ class Cache { // DOMCache
             }
         }
 
-        this.#data[dom.id] = {dom:dom, value:value};
+        this.#data[dom.id].value = value;
     }
 
     #error(dom){
@@ -25,23 +27,26 @@ class Cache { // DOMCache
         setTimeout(() => {dom.classList.remove("error");}, 2000);
     }
 
-    addDataArray(ids){
+    addArray(ids){
         ids.forEach(id => {
             if(this.#data[id] === undefined){
                 const dom = document.getElementById(id);
-    
+
                 dom.addEventListener("change", event => {
-                    this.#save(event.target, true);
+                    this.#parse(event.target, true);
                 });
-    
-                this.#save(dom, false);
+
+                this.#data[dom.id] = {dom:dom, value:null};
+                this.#ids.push(dom.id);
+
+                this.#parse(dom, false);
             }
         });
     }
 
-    addData(...ids){this.addDataArray(ids);}
+    add(...ids){this.addArray(ids);}
 
-    getDataArray(ids){
+    loadArray(ids){
         let returnObject = {};
 
         ids.forEach(id => {
@@ -51,28 +56,18 @@ class Cache { // DOMCache
         return returnObject;
     }
 
-    getData(...ids){return this.getDataArray(ids);}
+    load(...ids){return this.loadArray(ids);}
 
-    getAllData(){
-        let returnObject = {};
-
-        for(const key in this.#data){
-            returnObject[key] = this.#data[key].value;
-        }
-        
-        return returnObject;
+    loadAll(){
+        return this.loadArray(this.#ids);
     }
 
-    setData(id, value){
+    save(id, value){
         const item = this.#data[id];
         item.value = value;
 
-        if(item.dom.type === "checkbox"){
-            item.dom.checked = value;
-        }
-        else{
-            item.dom.value = value;
-        }
+        if(item.dom.type === "checkbox"){item.dom.checked = value;}
+        else{item.dom.value = value;}
     }
 
     isValid(id, doError = false){

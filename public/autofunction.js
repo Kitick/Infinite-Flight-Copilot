@@ -28,7 +28,7 @@ class autofunction {
             this.#states[state] = null;
         });
 
-        autofunction.cache.addDataArray(inputs);
+        autofunction.cache.addArray(inputs);
     }
 
     get active(){return this.#active;}
@@ -68,7 +68,7 @@ class autofunction {
             const wasArmed = this.#armed;
             this.#armed = false;
 
-            this.#code({states:this.#states, inputs:autofunction.cache.getDataArray(this.inputs)});
+            this.#code({states:this.#states, inputs:autofunction.cache.loadArray(this.inputs)});
 
             if(!this.#armed && wasArmed){
                 this.#updateButton();

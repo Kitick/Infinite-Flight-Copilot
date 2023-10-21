@@ -141,7 +141,7 @@ function config() {
 
             if(value !== ""){
                 dom.value = value;
-                autofunction.cache.setData(input, value);
+                autofunction.cache.save(input, value);
             }
         }
     });
@@ -163,7 +163,7 @@ function loadSavedConfig(){
 function loadLocalStorage(key){
     const data = JSON.parse(autofunction.localstorage.load(key));
     for(const key in data){
-        autofunction.cache.setData(key, data[key]);
+        autofunction.cache.save(key, data[key]);
     }
 }
 
@@ -171,7 +171,7 @@ function saveLocalStorage(){
     let name = prompt("Please say the name of the config");
     while(name === "") name = prompt("Please say a valid name");
     if(name !== null){
-        const inputs = autofunction.cache.getAllData();
+        const inputs = autofunction.cache.loadAll();
         let values = {};
         for(const key in inputs){
             if(inputs[key] !== null){
@@ -199,36 +199,36 @@ function clearLocalStorage(key){
 
 function setConfig(){
     // CL350
-    autofunction.cache.setData("flaplow", 130);
-    autofunction.cache.setData("flaphigh", 200);
-    autofunction.cache.setData("flapto", 1);
-    autofunction.cache.setData("cruisespd", 250);
-    autofunction.cache.setData("cruisealt", 250000);
+    autofunction.cache.save("flaplow", 130);
+    autofunction.cache.save("flaphigh", 200);
+    autofunction.cache.save("flapto", 1);
+    autofunction.cache.save("cruisespd", 250);
+    autofunction.cache.save("cruisealt", 250000);
 
-    autofunction.cache.setData("rotate", 120);
-    autofunction.cache.setData("climbspd", 200);
-    autofunction.cache.setData("climbthrottle", 100);
-    autofunction.cache.setData("climbalt", 2000);
+    autofunction.cache.save("rotate", 120);
+    autofunction.cache.save("climbspd", 200);
+    autofunction.cache.save("climbthrottle", 100);
+    autofunction.cache.save("climbalt", 2000);
 
-    autofunction.cache.setData("flcinput", 500);
+    autofunction.cache.save("flcinput", 500);
 
-    autofunction.cache.setData("updist", 2);
-    autofunction.cache.setData("downwidth", 4);
-    autofunction.cache.setData("finallength", 6);
-    autofunction.cache.setData("turnconst", 300);
+    autofunction.cache.save("updist", 2);
+    autofunction.cache.save("downwidth", 4);
+    autofunction.cache.save("finallength", 6);
+    autofunction.cache.save("turnconst", 300);
 
-    autofunction.cache.setData("altref", 13);
-    autofunction.cache.setData("spdref", 130);
-    autofunction.cache.setData("flare", 10);
-    autofunction.cache.setData("touchdown", 1000);
-    autofunction.cache.setData("vparef", 3);
+    autofunction.cache.save("altref", 13);
+    autofunction.cache.save("spdref", 130);
+    autofunction.cache.save("flare", 10);
+    autofunction.cache.save("touchdown", 1000);
+    autofunction.cache.save("vparef", 3);
 
     // SFO 28R
-    autofunction.cache.setData("latref", 37.61353302);
-    autofunction.cache.setData("longref", -122.35714722);
-    autofunction.cache.setData("hdgref", 284);
-    autofunction.cache.setData("direction", "r");
+    autofunction.cache.save("latref", 37.61353302);
+    autofunction.cache.save("longref", -122.35714722);
+    autofunction.cache.save("hdgref", 284);
+    autofunction.cache.save("direction", "r");
 
-    autofunction.cache.setData("utterancerate", 1);
-    autofunction.cache.setData("minumuns", 200);
+    autofunction.cache.save("utterancerate", 1);
+    autofunction.cache.save("minumuns", 200);
 }
