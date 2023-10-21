@@ -46,6 +46,40 @@
 					</div>
 				</div>
 			</div>
+            <div class="panel" hidden>
+				<h2 class="module-name">PROFILE CONFIGURATION</h2>
+
+                <button id="save" class="off" onclick="saveLocalStorage();" style="width: 15rem;">SAVE</button>
+				<select id="configselect" onload="loadSavedConfig()"></select>
+				<button id="load" class="off" onclick="loadLocalStorage(document.getElementById('configselect').value);" style="width: 15rem;">LOAD</button>
+				<button id="clear" class="off" onclick="clearLocalStorage(document.getElementById('configselect').value)" style="width: 15rem;">DELETE</button>
+
+                <h3 class="module-name">CONFIG GUIDE</h3>
+                <div class="checkbox-container">
+					<div class="checkbox-row">
+						<input id="configflaps" type="checkbox">
+						<h3>AUTO FLAPS</h3>
+					</div>
+					<div class="checkbox-row">
+						<input id="configspeed" type="checkbox">
+						<h3>AUTO SPEED</h3>
+					</div>
+					<div class="checkbox-row">
+						<input id="configtakeoff" type="checkbox">
+						<h3>AUTO TAKEOFF</h3>
+					</div>
+					<div class="checkbox-row">
+						<input id="configpattern" type="checkbox">
+						<h3>FLY PATTERN</h3>
+					</div>
+					<div class="checkbox-row">
+						<input id="configland" type="checkbox">
+						<h3>AUTO LAND</h3>
+					</div>
+				</div>
+
+				<button id="config" class="off" onclick="config();" style="width: 15rem;">CONFIGURE</button>
+			</div>
 			<div class="panel" hidden>
 				<h2 class="module-name">DYNAMIC SYSTEMS</h2>
 				<div class="dyn-button-container">
@@ -150,6 +184,7 @@
 					</div>
 				</div>
 
+                <h3>RUNWAY REFRENCE</h3>
 				<input id="latref" type="number" placeholder="Latitude Reference (deg)" min="-90" max="90">
 				<input id="longref" type="number" placeholder="Longitude Reference (deg)" min="-180" max="180">
 				<input id="hdgref" type="number" placeholder="HDG Reference (deg)" min="0" max="360" step="1">
@@ -181,36 +216,6 @@
                 <h4>Flare Height is used as the altitude for the low pass.</h4>
                 <h4>This uses the runway refrences in pattern work.</h4>
                 <h4>This uses Autotakeoff for landing functions.</h4>
-			</div>
-            <div class="panel" hidden>
-				<h2 class="module-name">CONFIGURATION HELP</h2>
-				<div class="checkbox-container">
-					<div class="checkbox-row">
-						<input id="configflaps" type="checkbox">
-						<h3>AUTO FLAPS</h3>
-					</div>
-					<div class="checkbox-row">
-						<input id="configspeed" type="checkbox">
-						<h3>AUTO SPEED</h3>
-					</div>
-					<div class="checkbox-row">
-						<input id="configtakeoff" type="checkbox">
-						<h3>AUTO TAKEOFF</h3>
-					</div>
-					<div class="checkbox-row">
-						<input id="configpattern" type="checkbox">
-						<h3>FLY PATTERN</h3>
-					</div>
-					<div class="checkbox-row">
-						<input id="configland" type="checkbox">
-						<h3>AUTO LAND</h3>
-					</div>
-				</div>
-				<button id="config" class="off" onclick="config();" style="width: 15rem;">CONFIGURE</button>
-				<button id="save" class="off" onclick="saveLocalStorage();" style="width: 15rem;">SAVE</button>
-				<select id="configselect" onload="loadSavedConfig()"></select>
-				<button id="load" class="off" onclick="loadLocalStorage(document.getElementById('configselect').value);" style="width: 15rem;">LOAD</button>
-				<button id="clear" class="off" onclick="clearLocalStorage(document.getElementById('configselect').value)" style="width: 15rem;">DELETE</button>
 			</div>
             <div class="panel" hidden>
 				<h2 class="module-name">VNAV</h2>
