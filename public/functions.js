@@ -207,20 +207,22 @@ const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohd
         return;
     }
 
+    // Direct To
     const deltaY = 60 * (inputs.flytolat - states.latitude);
     const deltaX = 60 * (inputs.flytolong - states.longitude) * Math.cos((states.latitude + inputs.flytolat) * 0.5 * toRad);
     let course = cyclical(Math.atan2(deltaX, deltaY) * toDeg - states.variation);
 
-    let hdgTarget = cyclical(inputs.flytohdg);
-    let diffrence = hdgTarget - course;
+    const hdgTarget = cyclical(inputs.flytohdg);
+    const diffrence = hdgTarget - course;
 
     if(diffrence > 180){diffrence -= 360;}
     else if(diffrence < -180){diffrence += 360;}
 
-    if(Math.abs(diffrence) <= 2){course -= 7.5 * diffrence;}
-    else if(Math.abs(diffrence) <= 5){course -= 5 * diffrence + 5;}
+    // Course Correction
+    if(Math.abs(diffrence) < 5){course -= -0.1 * diffrence ** 3 + 8.5 * diffrence;}
     else{course -= 30 * Math.sign(diffrence);}
 
+    // Wind Correction
     const winddir = cyclical(states.winddir - states.variation + 180);
     let courseMath = -course + 90;
     let windMath = -winddir + 90;
@@ -374,15 +376,14 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
     const altDiffrence = states.altitude - inputs.altref;
     const currentVPA = Math.asin(altDiffrence / touchdownDistance) * toDeg;
 
-    let vpaout = currentVPA - 2 * (inputs.vparef - currentVPA);
+    let mod = 2;
+    if(touchdownDistance <= 6076){mod = 1;}
+
+    let vpaout = currentVPA - mod * (inputs.vparef - currentVPA);
     vpaout = Math.round(vpaout * 10) / 10;
 
-    if(vpaout > inputs.vparef + 0.5){
-        vpaout = inputs.vparef + 0.5;
-    }
-    else if(vpaout < inputs.vparef - 0.5){
-        vpaout = 0;
-    }
+    vpaout = Math.min(vpaout, inputs.vparef + 0.5);
+    if(vpaout < inputs.vparef - 0.5){vpaout = 0;}
 
     autofunction.cache.setData("flcinput", vpaout);
 
