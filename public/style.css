@@ -23,6 +23,15 @@ button{
 	margin: 0.5rem;
 }
 
+p{
+    font-size:18px;
+}
+
+button.section{
+    width:15rem;
+    background:#4d4d4d;
+}
+
 button:hover{
 	opacity: 1;
 }
