@@ -165,10 +165,10 @@ const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"
 const markposition = new autofunction("markposition", -1, [], ["latitude", "longitude", "altitude", "heading"], [], data => {
     const states = data.states;
 
-    autofunction.cahce.save("latref", states.latitude);
-    autofunction.cahce.save("longref", states.longitude);
-    autofunction.cahce.save("hdgref", Math.round(states.heading));
-    autofunction.cahce.save("altref", Math.round(states.altitude));
+    autofunction.cache.save("latref", states.latitude);
+    autofunction.cache.save("longref", states.longitude);
+    autofunction.cache.save("hdgref", Math.round(states.heading));
+    autofunction.cache.save("altref", Math.round(states.altitude));
 });
 
 const setrunway = new autofunction("setrunway", -1, [], ["route", "coordinates"], [], data => {
@@ -191,9 +191,9 @@ const setrunway = new autofunction("setrunway", -1, [], ["route", "coordinates"]
 
     const runwayCoords = states.coordinates.split(" ")[rwIndex].split(",");
 
-    autofunction.cahce.save("latref", runwayCoords[0]);
-    autofunction.cahce.save("longref", runwayCoords[1]);
-    autofunction.cahce.save("hdgref", parseInt(route[rwIndex][2] + route[rwIndex][3] + "0"));
+    autofunction.cache.save("latref", runwayCoords[0]);
+    autofunction.cache.save("longref", runwayCoords[1]);
+    autofunction.cache.save("hdgref", parseInt(route[rwIndex][2] + route[rwIndex][3] + "0"));
 });
 
 const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohdg"], ["latitude", "longitude", "variation", "groundspeed", "wind", "winddir"], [], data => {
@@ -274,10 +274,10 @@ const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "h
         autoland.active = true;
     }
 
-    autofunction.cahce.save("leg", legs[leg]);
-    autofunction.cahce.save("flytolat", pattern[leg][0]);
-    autofunction.cahce.save("flytolong", pattern[leg][1]);
-    autofunction.cahce.save("flytohdg", cyclical(hdgs[leg]));
+    autofunction.cache.save("leg", legs[leg]);
+    autofunction.cache.save("flytolat", pattern[leg][0]);
+    autofunction.cache.save("flytolong", pattern[leg][1]);
+    autofunction.cache.save("flytohdg", cyclical(hdgs[leg]));
 
     flyto.active = true;
 });
@@ -292,7 +292,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     }
 
     // elevation is optional
-    const elevation = autofunction.cache.getData("altref").altref;
+    const elevation = autofunction.cache.load("altref").altref;
     const alt = (elevation === null) ? states.altitudeAGL : states.altitude - elevation;
 
     if(autoland.active){
@@ -331,9 +331,9 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     autospeed.active = false;
     autoland.error();
 
-    autofunction.cahce.save("flcmode", "g");
-    autofunction.cahce.save("flcinput", 500);
-    autofunction.cahce.save("leg", "u");
+    autofunction.cache.save("flcmode", "g");
+    autofunction.cache.save("flcinput", 500);
+    autofunction.cache.save("leg", "u");
 
     let alt = inputs.climbalt;
     const inmsl = inputs.climbtype === "msl";
@@ -366,8 +366,8 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
     const states = data.states;
 
     if(autoland.stage === 0){
-        autofunction.cahce.save("leg", "f");
-        autofunction.cahce.save("flcmode", "v");
+        autofunction.cache.save("leg", "f");
+        autofunction.cache.save("flcmode", "v");
         autoland.stage++;
     }
 
@@ -385,7 +385,7 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
     vpaout = Math.min(vpaout, inputs.vparef + 0.5);
     if(vpaout < inputs.vparef - 0.5){vpaout = 0;}
 
-    autofunction.cahce.save("flcinput", vpaout);
+    autofunction.cache.save("flcinput", vpaout);
 
     const stopalt = inputs.altref + inputs.flare;
     write("alt", stopalt);
@@ -397,8 +397,8 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
         autospeed.active = false;
         levelchange.active = false;
 
-        autofunction.cahce.save("flcmode", "g");
-        autofunction.cahce.save("flcinput", 500);
+        autofunction.cache.save("flcmode", "g");
+        autofunction.cache.save("flcinput", 500);
 
         if(type !== "p"){
             write("spdon", false);
@@ -646,7 +646,7 @@ const callout = new autofunction("callout", 250, ["rotate", "utterancerate", "mi
     const v1 = inputs.rotate;
     const v2 = inputs.rotate + 10;
 
-    const elevation = autofunction.cache.getData("altref").altref;
+    const elevation = autofunction.cache.load("altref").altref;
     const alt = (elevation === null) ? states.altitudeAGL : states.altitude - elevation;
 
     let stage = callout.stage;
