@@ -24,7 +24,7 @@ const autotrim = new autofunction("trim", 1000, [], ["pitch", "trim", "onground"
     }
 });
 
-const autolights = new autofunction("lights", 2000, [], ["altitudeAGL", "onground", "onrunway"], [], data => {
+const autolights = new autofunction("lights", 2000, [], ["altitudeAGL", "onground", "onrunway", "gear"], [], data => {
     const states = data.states;
 
     write("master", true);
@@ -38,7 +38,7 @@ const autolights = new autofunction("lights", 2000, [], ["altitudeAGL", "ongroun
     else{
         write("strobelights", true);
 
-        if(states.altitudeAGL < 1000){write("landinglights", true);}
+        if(states.altitudeAGL < 1000 && states.gear){write("landinglights", true);}
         else{write("landinglights", false);}
     }
 });
@@ -191,8 +191,8 @@ const setrunway = new autofunction("setrunway", -1, [], ["route", "coordinates"]
 
     const runwayCoords = states.coordinates.split(" ")[rwIndex].split(",");
 
-    autofunction.cache.save("latref", runwayCoords[0]);
-    autofunction.cache.save("longref", runwayCoords[1]);
+    autofunction.cache.save("latref", parseFloat(runwayCoords[0]));
+    autofunction.cache.save("longref", parseFloat(runwayCoords[1]));
     autofunction.cache.save("hdgref", parseInt(route[rwIndex][2] + route[rwIndex][3] + "0"));
 });
 
@@ -213,7 +213,7 @@ const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohd
     let course = cyclical(Math.atan2(deltaX, deltaY) * toDeg - states.variation);
 
     const hdgTarget = cyclical(inputs.flytohdg);
-    const diffrence = hdgTarget - course;
+    let diffrence = hdgTarget - course;
 
     if(diffrence > 180){diffrence -= 360;}
     else if(diffrence < -180){diffrence += 360;}
@@ -377,7 +377,7 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
     const currentVPA = Math.asin(altDiffrence / touchdownDistance) * toDeg;
 
     let mod = 2;
-    if(touchdownDistance <= 6076){mod = 1;}
+    if(touchdownDistance <= 6076){mod = 0.5;}
 
     let vpaout = currentVPA - mod * (inputs.vparef - currentVPA);
     vpaout = Math.round(vpaout * 10) / 10;
@@ -399,6 +399,8 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
 
         autofunction.cache.save("flcmode", "g");
         autofunction.cache.save("flcinput", 500);
+
+        write("vs", 0);
 
         if(type !== "p"){
             write("spdon", false);
