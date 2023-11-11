@@ -147,38 +147,16 @@ function config() {
     });
 };
 
-function setConfig(){
-    // CL350
-    autofunction.cache.save("flaplow", 130);
-    autofunction.cache.save("flaphigh", 200);
-    autofunction.cache.save("flapto", 1);
-    autofunction.cache.save("cruisespd", 250);
-    autofunction.cache.save("cruisealt", 250000);
-
-    autofunction.cache.save("rotate", 120);
-    autofunction.cache.save("climbspd", 200);
-    autofunction.cache.save("climbthrottle", 100);
-    autofunction.cache.save("climbalt", 2000);
-
-    autofunction.cache.save("flcinput", 500);
-
-    autofunction.cache.save("updist", 2);
-    autofunction.cache.save("downwidth", 4);
-    autofunction.cache.save("finallength", 6);
-    autofunction.cache.save("turnconst", 300);
-
-    autofunction.cache.save("altref", 13);
-    autofunction.cache.save("spdref", 130);
-    autofunction.cache.save("flare", 10);
-    autofunction.cache.save("touchdown", 1000);
-    autofunction.cache.save("vparef", 3);
-
-    // SFO 28R
-    autofunction.cache.save("latref", 37.61353302);
-    autofunction.cache.save("longref", -122.35714722);
-    autofunction.cache.save("hdgref", 284);
-    autofunction.cache.save("direction", "r");
-
-    autofunction.cache.save("utterancerate", 1);
-    autofunction.cache.save("minumuns", 200);
+function dependencyCheck(id){
+    if(id === "autoland" && autoland.active && autofunction.cache.load("approach")){
+        autofunction.cache.save("approach", false);
+    }
+    else if(id === "flypattern" && flypattern.active){
+        autoland.active = false;
+        flyto.active = false;
+    }
+    else if(id === "flyto" && flyto.active){
+        flypattern.active = false;
+        autoland.active = false;
+    }
 }

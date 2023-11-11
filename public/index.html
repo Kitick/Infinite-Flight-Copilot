@@ -149,7 +149,7 @@
                 <input id="flytolat" type="number" placeholder="Latitude (deg)" min="-90" max="90">
 				<input id="flytolong" type="number" placeholder="Longitude (deg)" min="-180" max="180">
 				<input id="flytohdg" type="number" placeholder="Heading (deg)" min="0" max="360" step="1">
-				<button id="flyto" onclick="flyto.setActive();" style="width: 15rem;">FLY TO</button>
+				<button id="flyto" onclick="dependencyCheck(this.id); flyto.setActive();" style="width: 15rem;">FLY TO</button>
 				<div class="input-option-container">
 					<input id="flcinput" class="input-option-s" type="number" placeholder="Climb Rate" min="0">
                 	<select id="flcmode" class="input-option-l">
@@ -180,7 +180,7 @@
 						<option value="f">Final</option>
 					</select>
 				</div>
-				<button id="flypattern" onclick="flypattern.setActive();" style="width: 15rem;">FLY PATTERN</button>
+				<button id="flypattern" onclick="dependencyCheck(this.id); flypattern.setActive();" style="width: 15rem;">FLY PATTERN</button>
                 <div class="checkbox-container">
 					<div class="checkbox-row">
 						<input id="approach" oninput="if(this.checked){this.checked = autoland.validateInputs(true);}" type="checkbox">
@@ -210,7 +210,7 @@
                     <option value="p">Low Pass</option>
                	</select>
 
-				<button id="autoland" onclick="autoland.setActive();" style="width: 15rem;">APPROACH</button>
+				<button id="autoland" onclick="dependencyCheck(this.id); autoland.setActive();" style="width: 15rem;">APPROACH</button>
                	<button id="goaround" onclick="goaround.setActive();" style="width: 15rem;">GO AROUND</button>
 			</div>
             <div class="panel" hidden>
