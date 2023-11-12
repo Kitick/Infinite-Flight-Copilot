@@ -48,7 +48,7 @@ const autogear = new autofunction("gear", 1000, [], ["gear", "altitudeAGL", "ver
 
     let newState = states.gear;
 
-    if(states.altitudeAGL < 100 || (states.verticalspeed <= -500 && states.altitudeAGL < 1000)){
+    if(states.altitudeAGL < 100 || (states.verticalspeed <= -500 && states.altitudeAGL < 1500)){
         newState = true;
     }
     else if(states.verticalspeed >= 500 || states.altitudeAGL >= 2000){
@@ -373,24 +373,9 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
 
     const touchdownZone = calcLLfromHD(inputs.latref, inputs.longref, inputs.hdgref, inputs.touchdown / 6076.12);
     const touchdownDistance = 6076.12 * calcLLdistance(states.latitude, states.longitude, touchdownZone[0], touchdownZone[1]); // nm to ft
-    const altDiffrence = states.altitude - inputs.altref;
-    const currentVPA = Math.asin(altDiffrence / touchdownDistance) * toDeg;
-
-    let mod = 2;
-    if(touchdownDistance <= 6076){mod = 0.5;}
-
-    let vpaout = currentVPA - mod * (inputs.vparef - currentVPA);
-    vpaout = Math.round(vpaout * 10) / 10;
-
-    vpaout = Math.min(vpaout, inputs.vparef + 0.5);
-    if(vpaout < inputs.vparef - 0.5){vpaout = 0;}
-
-    autofunction.cache.save("flcinput", vpaout);
-
-    const stopalt = inputs.altref + inputs.flare;
-    write("alt", stopalt);
-
+    
     const type = inputs.option;
+
     if(autoland.stage === 2 || touchdownDistance <= 1000){
         autoland.stage = 2;
 
@@ -400,7 +385,7 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
         autofunction.cache.save("flcmode", "g");
         autofunction.cache.save("flcinput", 500);
 
-        write("vs", 0);
+        write("vs", -200);
 
         if(type !== "p"){
             write("spdon", false);
@@ -426,6 +411,23 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
         }
     }
     else{
+        const altDiffrence = states.altitude - inputs.altref;
+        const currentVPA = Math.asin(altDiffrence / touchdownDistance) * toDeg;
+
+        let mod = 2;
+        if(touchdownDistance <= 6076){mod = 0.5;}
+
+        let vpaout = currentVPA - mod * (inputs.vparef - currentVPA);
+        vpaout = Math.round(vpaout * 10) / 10;
+
+        vpaout = Math.min(vpaout, inputs.vparef + 0.5);
+        if(vpaout < inputs.vparef - 0.5){vpaout = 0;}
+
+        autofunction.cache.save("flcinput", vpaout);
+
+        const stopalt = inputs.altref + inputs.flare;
+        write("alt", stopalt);
+
         levelchange.active = true;
         autospeed.active = true;
         flypattern.active = true;
