@@ -1,23 +1,25 @@
 {
-  "name": "ifapi",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "bin":"index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "pkg":{
-	"targets":["node16-win-x64", "node16-linux-x64"],
-	"assets":"public/*",
-	"outputPath":"executables"
-  },
-  "author": "Kevin Munson",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.18.2",
-    "net": "^1.0.2",
-    "pkg": "^5.8.1",
-    "socket.io": "^4.6.1"
-  }
+    "name": "ifcopilot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "bin": "index.js",
+    "scripts": {
+        "prebuild": "terser server.js -o index.js -c -m",
+        "build": "tsc",
+        "postbuild": "terser public/index.js -o public/index.js -c -m"
+    },
+    "pkg": {
+        "targets": ["node16-win-x64","node16-linux-x64"],
+        "assets": "public/*",
+        "outputPath": "executables"
+    },
+    "author": "Kevin Munson",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.18.2",
+        "net": "^1.0.2",
+        "pkg": "^5.8.1",
+        "socket.io": "^4.6.1"
+    }
 }

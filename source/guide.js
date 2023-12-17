@@ -1,3 +1,5 @@
+"use strict";
+
 function toggle(id){
     const element = document.getElementById(id);
     element.hidden = !element.hidden;
