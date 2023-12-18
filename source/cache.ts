@@ -45,8 +45,8 @@ class StateCache {
 
     add(...ids:string[]){this.addArray(ids);}
 
-    loadArray(ids:string[]):Map<string, dataValue> {
-        let returnMap = new Map<string, dataValue>();
+    loadArray(ids:string[]):dataMap {
+        let returnMap:dataMap = new Map();
 
         ids.forEach(id => {
             let refrence = this.#data.get(id);
@@ -58,8 +58,8 @@ class StateCache {
 
     load(...ids:string[]){return this.loadArray(ids);}
 
-    loadAll(){
-        let returnMap = new Map<string, dataValue>();
+    loadAll():dataMap {
+        let returnMap:dataMap = new Map();
 
         this.#data.forEach((refrence, key) => {
             returnMap.set(key, refrence.value);
@@ -90,7 +90,7 @@ class StateCache {
         return valid;
     }
 
-    isValidArray(ids:string[], doError = false){
+    isValidArray(ids:string[], doError = false):boolean {
         let valid = true;
         ids.forEach(id => {
             valid = this.isValid(id, doError) && valid;

@@ -1,7 +1,7 @@
 class autofunction {
     #button:HTMLButtonElement;
     #timeout:NodeJS.Timeout = setTimeout(() => {}, 0);
-    #states = new Map<string, dataValue>();
+    #states:dataMap = new Map();
     #inputs:string[] = [];
     #dependents:autofunction[] = [];
     #numStates = 0;
