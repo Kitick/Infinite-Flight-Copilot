@@ -1,11 +1,12 @@
 {
-"files":["source/cache.js", "source/storage.js", "source/autofunction.js", "source/helpers.js", "source/functions.js", "source/socket.js", "source/index.ts"],
+"files":["source/cache.ts", "source/storage.js", "source/autofunction.js", "source/helpers.js", "source/functions.js", "source/socket.js", "source/index.ts"],
 "compilerOptions": {
     "target": "esnext",
     "outFile": "public/index.js",
     "allowJs": true,
     "strict": true,
     "alwaysStrict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
     }
 }
