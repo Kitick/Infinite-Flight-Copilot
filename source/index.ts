@@ -1,5 +1,3 @@
-type stateValue = string | number | boolean;
-
 function bridge(){
     setVisibility(true);
 
@@ -74,9 +72,7 @@ function reset(){
 let statLog = document.getElementById("status") as HTMLSpanElement;
 let panels = document.getElementsByClassName("panel") as HTMLCollectionOf<HTMLDivElement>;
 
-const storage = new Storage();
-
-storage.init(document.getElementById("configselect"));
+const storage = new profileStorage(document.getElementById("configselect") as HTMLSelectElement);
 
 const select = document.getElementById("voices") as HTMLSelectElement;
 const voices = speechSynthesis.getVoices();

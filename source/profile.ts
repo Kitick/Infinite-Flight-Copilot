@@ -1,9 +1,7 @@
-class Storage { // Profile Storage
-    #selectDOM;
+class profileStorage {
+    #selectDOM:HTMLSelectElement;
 
-    constructor(){}
-
-    init(dom){
+    constructor(dom:HTMLSelectElement){
         this.#selectDOM = dom;
         this.#build();
     }
@@ -11,7 +9,7 @@ class Storage { // Profile Storage
     #build(){
         let configs = [""];
         for(let i = 0, length = localStorage.length; i < length; i++){
-            configs.push(localStorage.key(i));
+            configs.push(localStorage.key(i) as string);
         }
 
         configs.sort();
@@ -23,8 +21,10 @@ class Storage { // Profile Storage
         });
     }
 
-    #flash(id, colorName){
+    #flash(id:string, colorName:string){
         const dom = document.getElementById(id);
+        if(dom === null){return;}
+
         dom.className = colorName;
         setTimeout(() => {dom.className = "off";}, 500);
     }
@@ -34,7 +34,7 @@ class Storage { // Profile Storage
         while(name === ""){name = prompt("Name cannot be blank:");}
         if(name === null){return;}
 
-        localStorage.setItem(name, null);
+        localStorage.setItem(name, "");
         this.#build();
 
         this.#selectDOM.value = name;
@@ -53,12 +53,11 @@ class Storage { // Profile Storage
 
     load(){
         const name = this.#selectDOM.value;
-        if(name === ""){
-            this.#flash("load", "error");
-            return;
-        }
+        let item = localStorage.getItem(name);
 
-        const data = JSON.parse(localStorage.getItem(name));
+        if(name === "" || item === null){this.#flash("load", "error"); return;}
+
+        const data = JSON.parse(item);
         for(let id in data){
             autofunction.cache.save(id, data[id]);
         }

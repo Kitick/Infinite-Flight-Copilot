@@ -1,5 +1,3 @@
-type dataValue = string|number|boolean|null;
-
 class StateCache {
     #data = new Map<string, {dom:HTMLInputElement, value:dataValue}>();
 
@@ -29,9 +27,11 @@ class StateCache {
     addArray(ids:string[]){
         ids.forEach(id => {
             if(this.#data.get(id) === undefined){
-                const dom = document.getElementById(id) as HTMLInputElement|null;
+                const element = document.getElementById(id);
 
-                if(dom !== null){
+                if(element !== null && element.tagName === "INPUT"){
+                    const dom = element as HTMLInputElement;
+
                     dom.addEventListener("change", () => {
                         this.#parse(dom);
                     });

@@ -1,30 +1,32 @@
 class autofunction {
-    #button;
-    #timeout;
-    #states = {};
-    #inputs = [];
-    #dependents = [];
+    #button:HTMLButtonElement;
+    #timeout:NodeJS.Timeout = setTimeout(() => {}, 0);
+    #states = new Map<string, dataValue>();
+    #inputs:string[] = [];
+    #dependents:autofunction[] = [];
     #numStates = 0;
     #validStates = 0;
     #active = false;
     #armed = false;
-    #code = () => {};
+    #code:funcCode;
 
     stage = 0;
 
     static cache = new StateCache();
 
-    constructor(button, delay, inputs, states, dependents, code = () => {}){
-        this.#button = document.getElementById(button);
+    constructor(button:string, public delay:number, inputs:string[], states:string[], dependents:autofunction[], code:funcCode){
+        const element = document.getElementById(button);
+        if(element === null || element.tagName !== "BUTTON"){throw "Error";}
+
+        this.#button = element as HTMLButtonElement;
         this.#updateButton();
-        this.delay = delay;
         this.#numStates = states.length;
         this.#inputs = inputs;
         this.#dependents = dependents;
         this.#code = code;
 
         states.forEach(state => {
-            this.#states[state] = null;
+            this.#states.set(state, null);
         });
 
         autofunction.cache.addArray(inputs);
@@ -83,7 +85,7 @@ class autofunction {
         });
     }
 
-    #readStates(callback = () => {}){
+    #readStates(callback:() => void){
         if(this.#numStates === 0){
             callback();
         }
@@ -95,8 +97,8 @@ class autofunction {
         }
     }
 
-    #stateReturn(state, value, callback = () => {}){
-        this.#states[state] = value;
+    #stateReturn(state:string, value:stateValue, callback:() => void){
+        this.#states.set(state, value);
         this.#validStates++;
 
         if(this.#validStates === this.#numStates){
