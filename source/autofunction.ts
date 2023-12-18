@@ -60,10 +60,7 @@ class autofunction {
     #run(){
         const valid = this.validateInputs(true);
 
-        if(!valid){
-            this.error();
-            return;
-        }
+        if(!valid){this.error(); return;}
 
         this.#readStates(() => {
             const wasArmed = this.#armed;
@@ -106,7 +103,7 @@ class autofunction {
         }
     }
 
-    validateInputs(doError = false){
+    validateInputs(doError = false):boolean {
         let valid = autofunction.cache.isValidArray(this.inputs, doError);
 
         this.#dependents.forEach(dependent => {
