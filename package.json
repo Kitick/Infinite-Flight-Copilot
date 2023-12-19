@@ -5,9 +5,11 @@
     "main": "index.js",
     "bin": "index.js",
     "scripts": {
-        "prebuild": "terser server.js -o index.js -c -m",
+        "prebuild": "npm run buildalt",
+        "buildalt": "tsc -p source",
+        "postbuildalt": "terser public/index.js -o public/index.js -c -m",
         "build": "tsc",
-        "postbuild": "terser public/index.js -o public/index.js -c -m"
+        "postbuild": "terser index.js -o index.js -c -m"
     },
     "pkg": {
         "targets": [
