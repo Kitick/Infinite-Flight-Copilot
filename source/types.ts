@@ -2,6 +2,12 @@ type stateValue = string | number | boolean;
 type dataValue = string | number | boolean | null;
 type dataMap = Map<string, dataValue>;
 
+type latlong = {lat:number, long:number};
+
+type altType = "msl" | "agl";
+type climbType = "f" | "g" | "v";
+type patternLeg = "u" | "c" | "d" | "b" | "f";
+
 type funcCode = (data:{states:dataMap, inputs:dataMap}) => void;
 
 type fplStruct = {
@@ -55,8 +61,5 @@ type vnavWaypoint = {
     altitude:number,
     altitudeRestriction:number[],
     altitudeRestrictionDistance:number,
-    restrictionLocation:{
-        lat:number,
-        long:number
-    }
+    restrictionLocation:latlong
 }

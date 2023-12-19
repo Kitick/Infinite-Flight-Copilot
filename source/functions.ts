@@ -167,7 +167,7 @@ const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"
     const states = data.states;
 
     const flcinput = inputs.get("flcinput") as number;
-    const flcmode = inputs.get("flcmode") as string;
+    const flcmode = inputs.get("flcmode") as climbType;
 
     const airspeed = states.get("airspeed") as number;
     const altitude = states.get("altitude") as number;
@@ -256,7 +256,7 @@ const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohd
     const wind = states.get("wind") as number;
     const winddir = states.get("winddir") as number;
 
-    const distance = calcLLdistance(latitude, longitude, flytolat, flytolong);
+    const distance = calcLLdistance({lat:latitude, long:longitude}, {lat:flytolat, long:flytolong});
 
     if(distance < 1){
         flyto.active = false;
@@ -307,7 +307,7 @@ const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "h
     const downwidth = inputs.get("downwidth") as number;
     const finallength = inputs.get("finallength") as number;
     const turnconst = inputs.get("turnconst") as number;
-    const leg = inputs.get("leg") as string;
+    const leg = inputs.get("leg") as patternLeg;
     const direction = inputs.get("direction") as string;
     const approach = inputs.get("approach") as boolean;
 
@@ -316,40 +316,61 @@ const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "h
     const variation = states.get("variation") as number;
     const groundspeed = states.get("groundspeed") as number;
 
-    const legs = ["u", "c", "d", "b", "f"];
-
-    let legIndex = legs.indexOf(leg);
     const circuit = (direction === "r") ? 1 : -1;
-
     const hdg90 = hdgref + 90 * circuit;
-    const hdgs = [hdgref, hdg90, hdgref + 180, hdg90 + 180, hdgref];
 
-    let pattern = [];
-    pattern[0] = calcLLfromHD(latref, longref, hdgref, updist + 1.5, variation);
-    pattern[1] = calcLLfromHD(pattern[0][0], pattern[0][1], hdg90, downwidth, variation);
-    pattern[3] = calcLLfromHD(latref, longref, hdgref + 180, finallength, variation);
-    pattern[2] = calcLLfromHD(pattern[3][0], pattern[3][1], hdg90, downwidth, variation);
-    pattern[4] = [latref, longref];
+    const refrence = {location:{lat:latref, long:longref}, hdg:hdgref};
+    const final = refrence;
 
-    const distance = calcLLdistance(latitude, longitude, pattern[legIndex][0], pattern[legIndex][1]);
+    const upwind = {
+        location:calcLLfromHD(refrence.location, hdgref, updist + 1.5, variation),
+        hdg:hdgref,
+    };
+    const crosswind = {
+        location:calcLLfromHD(upwind.location, hdg90, downwidth, variation),
+        hdg:hdg90,
+    };
+    const base = {
+        location:calcLLfromHD(refrence.location, hdgref + 180, finallength, variation),
+        hdg:hdgref + 180,
+    };
+    const downwind = {
+        location:calcLLfromHD(base.location, hdg90, downwidth, variation),
+        hdg:hdg90,
+    };
+
+    const pattern = {
+        u:upwind,
+        c:crosswind,
+        d:downwind,
+        b:base,
+        f:final,
+    };
+
+    const currentLeg = pattern[leg];
+    const distance = calcLLdistance({lat:latitude, long:longitude}, currentLeg.location);
 
     const speed = groundspeed / 60; // kts to nm/m
     const turnrate = (turnconst / groundspeed) * 60 * toRad; // deg/s to rad/m
 
+    let legout = leg;
     if(distance < speed / turnrate){
-        if(legIndex !== 4 || (legIndex === 4 && distance < 1)){
+        const legOrder = ["u", "c", "d", "b", "f"];
+        let legIndex = legOrder.indexOf(leg);
+
+        if(leg !== "f" || (leg === "f" && distance < 1)){
             legIndex = (legIndex + 1) % 5;
+            legout = legOrder[legIndex] as patternLeg;
         }
     }
 
-    if(legIndex === 4 && approach){
+    if(legout === "f" && approach){
         autoland.active = true;
     }
 
-    const legout = legs[legIndex];
-    const latout = pattern[legIndex][0];
-    const longout = pattern[legIndex][1];
-    const hdgout = cyclical(hdgs[legIndex]);
+    const latout = currentLeg.location.lat;
+    const longout = currentLeg.location.long;
+    const hdgout = cyclical(currentLeg.hdg);
 
     autofunction.cache.save("leg", legout);
     autofunction.cache.save("flytolat", latout);
@@ -388,7 +409,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     const alt = (elevation === null) ? altitudeAGL : altitude - elevation;
 
     if(autoland.active){
-        const distance = calcLLdistance(latitude, longitude, latref, longref);
+        const distance = calcLLdistance({lat:latitude, long:longitude}, {lat:latref, long:longref});
         
         let speed = (distance - 2.5) * 10 + spdref;
         speed = Math.min(speed, spd);
@@ -422,7 +443,7 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
 
     const climbalt = inputs.get("climbalt") as number;
     const climbspd = inputs.get("climbspd") as number;
-    const climbtype = inputs.get("climbtype") as string;
+    const climbtype = inputs.get("climbtype") as altType;
     const flapto = inputs.get("flapto") as number;
 
     const altitude = states.get("altitude") as number;
@@ -484,8 +505,8 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
         autoland.stage++;
     }
 
-    const touchdownZone = calcLLfromHD(latref, longref, hdgref, touchdown / 6076.12);
-    const touchdownDistance = 6076.12 * calcLLdistance(latitude, longitude, touchdownZone[0], touchdownZone[1]); // nm to ft
+    const touchdownZone = calcLLfromHD({lat:latref, long:longref}, hdgref, touchdown / 6076.12);
+    const touchdownDistance = 6076.12 * calcLLdistance({lat:latitude, long:longitude}, touchdownZone); // nm to ft
 
     if(autoland.stage === 2 || touchdownDistance <= 1000){
         autoland.stage = 2;
@@ -564,7 +585,7 @@ const takeoffconfig = new autofunction("takeoffconfig", -1, ["climbalt", "climbt
     const states = data.states;
 
     const climbalt = inputs.get("climbalt") as number;
-    const climbtype = inputs.get("climbtype") as string;
+    const climbtype = inputs.get("climbtype") as altType;
     const onground = inputs.get("onground") as boolean;
 
     const heading = states.get("heading") as number;
@@ -707,20 +728,6 @@ const updatefpl = new autofunction("updatefpl", -1, [], ["fplinfo"], [], data =>
     }
 });
 
-function nextRestriction(item:fplItemStruct, waypoint:vnavWaypoint, itemIndex:number, childIndex:number):vnavWaypoint {
-    if(item.identifier === waypoint.name || item.name === waypoint.name) {
-        waypoint.index = itemIndex;
-        waypoint.children = childIndex;
-        waypoint.altitude = item.altitude;
-    }
-    if(itemIndex >= waypoint.index && item.altitude !== -1) {
-        waypoint.altitudeRestriction.push(item.altitude);
-        waypoint.restrictionLocation = {lat:item.location.Latitude, long:item.location.Longitude};
-    }
-
-    return waypoint;
-}
-
 const vnavSystem = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopilot", "groundspeed", "altitude", "vnavon"], [], data => {
     const states = data.states;
 
@@ -797,7 +804,7 @@ const vnavSystem = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "a
 		write("vs", fpm);
 	}
     else{
-		nextWaypoint.altitudeRestrictionDistance = calcLLdistance(fpl.nextWaypointLatitude, fpl.nextWaypointLongitude, nextWaypoint.restrictionLocation.lat, nextWaypoint.restrictionLocation.long);
+		nextWaypoint.altitudeRestrictionDistance = calcLLdistance({lat:fpl.nextWaypointLatitude, long:fpl.nextWaypointLongitude}, nextWaypoint.restrictionLocation);
 		const altDiffrence = nextWaypoint.altitudeRestriction[0] - altitude;
 		const eteToNext = ((fpl.distanceToNext + nextWaypoint.altitudeRestrictionDistance) / groundspeed) * 60;
 		const fpm = altDiffrence / eteToNext;
@@ -864,7 +871,7 @@ const callout = new autofunction("callout", 250, ["rotate", "minumuns"], ["onrun
     if(verticalspeed < -500){
         for(let i = 0, length = alts.length - 1; i < length; i++){
             if(!speechSynthesis.speaking && alt <= alts[i] && alt > alts[i + 1] && !calloutFlags[i]){
-                speak(alts[i]);
+                speak(alts[i].toString());
                 calloutFlags[i] = true;
                 break;
             }
