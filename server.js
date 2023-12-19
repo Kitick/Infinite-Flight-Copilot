@@ -257,7 +257,7 @@ class Item{
 		"aircraft/0/heading_magnetic":"heading",
 		"aircraft/0/vertical_speed":"verticalspeed",
 
-		"aircraft/0/systems/autopilot/vnav/on":"vnav",
+		"aircraft/0/systems/autopilot/vnav/on":"vnavon",
 		"aircraft/0/flightplan/full_info":"fplinfo",
 
 		"aircraft/0/systems/autopilot/on":"autopilot",

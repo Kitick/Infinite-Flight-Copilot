@@ -16,7 +16,7 @@ class autofunction {
 
     constructor(button:string, public delay:number, inputs:string[], states:string[], dependents:autofunction[], code:funcCode){
         const element = document.getElementById(button);
-        if(element === null || element.tagName !== "BUTTON"){throw "Error";}
+        if(element === null || element.tagName !== "BUTTON"){throw "Trigger is not a button";}
 
         this.#button = element as HTMLButtonElement;
         this.#updateButton();

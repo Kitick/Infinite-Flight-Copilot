@@ -32,13 +32,13 @@ function closeBridge(){
     });
 }
 
-function read(command:string, callback:(value:stateValue) => void){
+function read(command:string, callback = (value:stateValue) => {}){
     socket.emit("read", command, (value:stateValue) => {
         callback(value);
     });
 }
 
-function readAsync(command:string, callback:(value:stateValue) => void){
+function readAsync(command:string, callback = (value:stateValue) => {}){
     socket.emit("readAsync", command, (value:stateValue) => {
         callback(value);
     });
