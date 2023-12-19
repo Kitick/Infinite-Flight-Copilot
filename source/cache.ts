@@ -75,8 +75,10 @@ class StateCache {
         refrence.value = value;
         const dom = refrence.dom;
 
+        if(value === null){value = "";}
+
         if(dom.type === "checkbox" && typeof value === "boolean"){dom.checked = value;}
-        else if(typeof value === "string"){dom.value = value;}
+        else{dom.value = value.toString();}
     }
 
     isValid(id:string, doError = false):boolean {

@@ -46,20 +46,33 @@ class profileStorage {
         if(name === ""){this.add(); return;}
 
         const data = autofunction.cache.loadAll();
-        localStorage.setItem(name, JSON.stringify(data));
+
+        let profile:any = {};
+        data.forEach((value, key) => {
+            profile[key] = value;
+        });
+
+        localStorage.setItem(name, JSON.stringify(profile));
 
         this.#flash("save", "active");
     }
 
     load(){
         const name = this.#selectDOM.value;
-        let item = localStorage.getItem(name);
+        const profileString = localStorage.getItem(name);
 
-        if(name === "" || item === null){this.#flash("load", "error"); return;}
+        if(name === "" || profileString === null){this.#flash("load", "error"); return;}
 
-        const data = JSON.parse(item);
-        for(let id in data){
-            autofunction.cache.save(id, data[id]);
+        const profile = JSON.parse(profileString);
+        for(let id in profile){
+            let value = profile[id];
+
+            if(value !== null){
+                let testValue = parseFloat(value.toString());
+                if(!isNaN(testValue)){value = testValue;}
+            }
+
+            autofunction.cache.save(id, value);
         }
 
         this.#flash("load", "active");
