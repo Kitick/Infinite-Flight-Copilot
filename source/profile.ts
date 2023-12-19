@@ -6,7 +6,7 @@ class profileStorage {
         this.#build();
     }
 
-    #build(){
+    #build():void {
         let configs = [""];
         for(let i = 0, length = localStorage.length; i < length; i++){
             configs.push(localStorage.key(i) as string);
@@ -21,7 +21,7 @@ class profileStorage {
         });
     }
 
-    #flash(id:string, colorName:string){
+    #flash(id:string, colorName:string):void {
         const dom = document.getElementById(id);
         if(dom === null){return;}
 
@@ -29,7 +29,7 @@ class profileStorage {
         setTimeout(() => {dom.className = "off";}, 500);
     }
 
-    add(){
+    add():void {
         let name = prompt("Enter the name of the profile:");
         while(name === ""){name = prompt("Name cannot be blank:");}
         if(name === null){return;}
@@ -41,7 +41,7 @@ class profileStorage {
         this.save();
     }
 
-    save(){
+    save():void {
         const name = this.#selectDOM.value;
         if(name === ""){this.add(); return;}
 
@@ -57,7 +57,7 @@ class profileStorage {
         this.#flash("save", "active");
     }
 
-    load(){
+    load():void {
         const name = this.#selectDOM.value;
         const profileString = localStorage.getItem(name);
 
@@ -78,7 +78,7 @@ class profileStorage {
         this.#flash("load", "active");
     }
 
-    remove(){
+    remove():void {
         const name = this.#selectDOM.value;
         if(name === ""){return;}
 

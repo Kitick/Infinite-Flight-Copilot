@@ -38,7 +38,7 @@ class autofunction {
     get inputs(){return this.#inputs;}
     get dependents(){return this.#dependents;}
 
-    setActive(value = !this.#active){
+    setActive(value = !this.#active):void {
         if(this.active === value){return;}
 
         this.#active = value;
@@ -53,11 +53,11 @@ class autofunction {
         this.#run();
     }
 
-    #updateButton(){
+    #updateButton():void {
         this.#button.className = this.active ? "active" : "off";
     }
 
-    #run(){
+    #run():void {
         const valid = this.validateInputs(true);
 
         if(!valid){this.error(); return;}
@@ -82,7 +82,7 @@ class autofunction {
         });
     }
 
-    #readStates(callback:() => void){
+    #readStates(callback = () => {}):void {
         if(this.#numStates === 0){
             callback();
         }
@@ -94,7 +94,7 @@ class autofunction {
         }
     }
 
-    #stateReturn(state:string, value:stateValue, callback:() => void){
+    #stateReturn(state:string, value:stateValue, callback = () => {}):void {
         this.#states.set(state, value);
         this.#validStates++;
 
@@ -113,12 +113,12 @@ class autofunction {
         return valid;
     }
 
-    arm(){
+    arm():void {
         this.#armed = true;
         this.#button.className = "armed";
     }
 
-    error(){
+    error():void {
         this.active = false;
         this.#button.className = "error";
         this.#timeout = setTimeout(() => {this.#updateButton();}, 2000);

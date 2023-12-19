@@ -1,4 +1,4 @@
-function bridge(){
+function bridge():void {
     setVisibility(true);
 
     const addressInput = document.getElementById("address") as HTMLInputElement;
@@ -23,7 +23,7 @@ function bridge(){
     });
 }
 
-function closeBridge(){
+function closeBridge():void {
     reset();
 
     socket.emit("break", (response:string) => {
@@ -32,19 +32,19 @@ function closeBridge(){
     });
 }
 
-function read(command:string, callback = (value:stateValue) => {}){
+function read(command:string, callback = (value:stateValue) => {}):void {
     socket.emit("read", command, (value:stateValue) => {
         callback(value);
     });
 }
 
-function readAsync(command:string, callback = (value:stateValue) => {}){
+function readAsync(command:string, callback = (value:stateValue) => {}):void {
     socket.emit("readAsync", command, (value:stateValue) => {
         callback(value);
     });
 }
 
-function readLog(command:string){
+function readLog(command:string):void {
     read(command, (value:stateValue) => { console.log(value); });
 }
 
@@ -52,14 +52,14 @@ function write(command:string, value:stateValue){
     socket.emit("write", command, value);
 }
 
-function setVisibility(hidden:boolean){
+function setVisibility(hidden:boolean):void {
     for(let i = 1, length = panels.length; i < length; i++){
         const panel = panels[i] as HTMLDivElement;
         panel.hidden = hidden;
     }
 }
 
-function reset(){
+function reset():void {
     setVisibility(true);
 
     autofunctions.forEach(autofunc => {
