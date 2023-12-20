@@ -5,9 +5,16 @@
     "main": "index.js",
     "bin": "index.js",
     "scripts": {
-        "prebuild": "terser server.js -o index.js -c -m",
-        "build": "tsc",
-        "postbuild": "terser public/index.js -o public/index.js -c -m"
+        "prebuildAll": "tsc",
+        "buildAll": "terser index.js -o index.js -c -m",
+        "postbuildAll": "npm run build",
+
+        "prebuild": "tsc -p source",
+        "build": "terser public/index.js -o public/index.js -c -m",
+        "postbuild": "node .",
+
+        "compile": "pkg .",
+        "postcompile": "executables\\ifcopilot-win.exe"
     },
     "pkg": {
         "targets": [

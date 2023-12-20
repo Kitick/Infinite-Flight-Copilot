@@ -6,7 +6,7 @@ class profileStorage {
         this.#build();
     }
 
-    #build(){
+    #build():void {
         let configs = [""];
         for(let i = 0, length = localStorage.length; i < length; i++){
             configs.push(localStorage.key(i) as string);
@@ -21,7 +21,7 @@ class profileStorage {
         });
     }
 
-    #flash(id:string, colorName:string){
+    #flash(id:string, colorName:string):void {
         const dom = document.getElementById(id);
         if(dom === null){return;}
 
@@ -29,7 +29,7 @@ class profileStorage {
         setTimeout(() => {dom.className = "off";}, 500);
     }
 
-    add(){
+    add():void {
         let name = prompt("Enter the name of the profile:");
         while(name === ""){name = prompt("Name cannot be blank:");}
         if(name === null){return;}
@@ -41,31 +41,44 @@ class profileStorage {
         this.save();
     }
 
-    save(){
+    save():void {
         const name = this.#selectDOM.value;
         if(name === ""){this.add(); return;}
 
         const data = autofunction.cache.loadAll();
-        localStorage.setItem(name, JSON.stringify(data));
+
+        let profile:any = {};
+        data.forEach((value, key) => {
+            profile[key] = value;
+        });
+
+        localStorage.setItem(name, JSON.stringify(profile));
 
         this.#flash("save", "active");
     }
 
-    load(){
+    load():void {
         const name = this.#selectDOM.value;
-        let item = localStorage.getItem(name);
+        const profileString = localStorage.getItem(name);
 
-        if(name === "" || item === null){this.#flash("load", "error"); return;}
+        if(name === "" || profileString === null){this.#flash("load", "error"); return;}
 
-        const data = JSON.parse(item);
-        for(let id in data){
-            autofunction.cache.save(id, data[id]);
+        const profile = JSON.parse(profileString);
+        for(let id in profile){
+            let value = profile[id];
+
+            if(value !== null){
+                let testValue = parseFloat(value.toString());
+                if(!isNaN(testValue)){value = testValue;}
+            }
+
+            autofunction.cache.save(id, value);
         }
 
         this.#flash("load", "active");
     }
 
-    remove(){
+    remove():void {
         const name = this.#selectDOM.value;
         if(name === ""){return;}
 

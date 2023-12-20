@@ -3,7 +3,7 @@ class StateCache {
 
     constructor(){}
 
-    #parse(dom:HTMLInputElement){
+    #parse(dom:HTMLInputElement):void {
         let value:dataValue;
 
         switch(dom.type){
@@ -19,12 +19,12 @@ class StateCache {
         if(refrence !== undefined){refrence.value = value};
     }
 
-    #error(dom:HTMLInputElement){
+    #error(dom:HTMLInputElement):void {
         dom.classList.add("error");
         setTimeout(() => {dom.classList.remove("error");}, 2000);
     }
 
-    addArray(ids:string[]){
+    addArray(ids:string[]):void {
         ids.forEach(id => {
             if(this.#data.get(id) === undefined){
                 const element = document.getElementById(id);
@@ -43,7 +43,7 @@ class StateCache {
         });
     }
 
-    add(...ids:string[]){this.addArray(ids);}
+    add(...ids:string[]):void {this.addArray(ids);}
 
     loadArray(ids:string[]):dataMap {
         let returnMap:dataMap = new Map();
@@ -56,7 +56,7 @@ class StateCache {
         return returnMap;
     }
 
-    load(...ids:string[]){return this.loadArray(ids);}
+    load(...ids:string[]):dataMap {return this.loadArray(ids);}
 
     loadAll():dataMap {
         let returnMap:dataMap = new Map();
@@ -68,15 +68,17 @@ class StateCache {
         return returnMap;
     }
 
-    save(id:string, value:dataValue){
+    save(id:string, value:dataValue):void {
         const refrence = this.#data.get(id);
         if(refrence === undefined){return;}
 
         refrence.value = value;
         const dom = refrence.dom;
 
+        if(value === null){value = "";}
+
         if(dom.type === "checkbox" && typeof value === "boolean"){dom.checked = value;}
-        else if(typeof value === "string"){dom.value = value;}
+        else{dom.value = value.toString();}
     }
 
     isValid(id:string, doError = false):boolean {
