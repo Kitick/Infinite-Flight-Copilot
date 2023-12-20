@@ -19,11 +19,24 @@ class autofunction {
         if(element === null || element.tagName !== "BUTTON"){throw "Trigger is not a button";}
 
         this.#button = element as HTMLButtonElement;
+        this.#button.addEventListener("click", () => {dependencyCheck(button); this.setActive();});
         this.#updateButton();
+
         this.#numStates = states.length;
         this.#inputs = inputs;
         this.#dependents = dependents;
         this.#code = code;
+
+        this.#inputs.forEach(input => {
+            const elementInput = document.getElementById(input);
+            if(elementInput !== null && elementInput.tagName === "INPUT" && (elementInput as HTMLInputElement).type === "number"){
+                const input = elementInput as HTMLInputElement;
+                const tooltip = document.getElementById("tooltip") as HTMLHeadingElement;
+
+                input.addEventListener("mouseenter", () => {tooltip.innerText = input.placeholder;});
+                input.addEventListener("mouseout", () => {tooltip.innerText = "Tooltip";});
+            }
+        });
 
         states.forEach(state => {
             this.#states.set(state, null);
