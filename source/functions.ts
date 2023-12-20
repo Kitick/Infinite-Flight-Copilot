@@ -380,7 +380,7 @@ const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "h
     flyto.active = true;
 });
 
-const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "climbspd", "spdref"], ["onground", "airspeed", "verticalspeed", "altitudeAGL", "altitude", "latitude", "longitude", "spd"], [], data => {
+const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "climbspd", "spdref", "cruisespd"], ["onground", "airspeed", "verticalspeed", "altitudeAGL", "altitude", "latitude", "longitude", "spd"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -388,6 +388,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     const longref = inputs.get("longref") as number;
     const climbspd = inputs.get("climbspd") as number;
     const spdref = inputs.get("spdref") as number;
+    const cruisespd = inputs.get("cruisespd") as number;
 
     const onground = states.get("onground") as boolean;
     const airspeed = states.get("airspeed") as number;
@@ -403,9 +404,9 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
         return;
     }
 
-    // elevation and cruisespd is optional
+    // elevation os optional
     const elevation = autofunction.cache.load("altref").get("altref") as number|null;
-    const cruisespd = autofunction.cache.load("cruisespd").get("cruisespd") as number|null;
+    //const cruisespd = autofunction.cache.load("cruisespd").get("cruisespd") as number|null;
     const alt = (elevation === null) ? altitudeAGL : altitude - elevation;
 
     if(autoland.active){
