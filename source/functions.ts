@@ -744,10 +744,7 @@ const vnavSystem = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "a
         altitude:0,
         altitudeRestriction:[],
         altitudeRestrictionDistance:0,
-        restrictionLocation:{
-            lat:0,
-            long:0
-        }
+        restrictionLocation:{lat:0, long:0}
     };
 
 	let stage = vnavSystem.stage;
@@ -804,7 +801,7 @@ const vnavSystem = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "a
 	vnavSystem.stage = stage;
 });
 
-let calloutFlags:boolean[];
+let calloutFlags:boolean[] = [];
 
 const callout = new autofunction("callout", 250, ["rotate", "minumuns"], ["onrunway", "airspeed", "verticalspeed", "throttle", "gear", "altitudeAGL", "altitude"], [], data => {
     const inputs = data.inputs;
