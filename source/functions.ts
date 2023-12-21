@@ -296,7 +296,7 @@ const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohd
     write("hdg", course);
 });
 
-const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "hdgref", "updist", "downwidth", "finallength", "turnconst", "leg", "direction", "approach"], ["latitude", "longitude", "variation", "groundspeed"], [], data => {
+const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "hdgref", "updist", "downwidth", "finallength", "turnconst", "leg", "direction", "approach"], ["latitude", "longitude", "variation", "groundspeed"], [flyto], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -405,7 +405,7 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     }
 
     // elevation os optional
-    const elevation = autofunction.cache.load("altref").get("altref") as number|null;
+    const elevation = autofunction.cache.load("altref") as number|null;
     //const cruisespd = autofunction.cache.load("cruisespd").get("cruisespd") as number|null;
     const alt = (elevation === null) ? altitudeAGL : altitude - elevation;
 
@@ -438,19 +438,19 @@ const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "cli
     }
 });
 
-const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype", "flapto"], ["altitude", "vs"], [levelchange, autoflaps, autogear, autospoilers], data => {
+const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype"], ["altitude", "vs"], [levelchange], data => {
     const inputs = data.inputs;
     const states = data.states;
 
     const climbalt = inputs.get("climbalt") as number;
     const climbspd = inputs.get("climbspd") as number;
     const climbtype = inputs.get("climbtype") as altType;
-    const flapto = inputs.get("flapto") as number;
 
     const altitude = states.get("altitude") as number;
     const vs = states.get("vs") as number;
 
-    autospeed.active = false;
+    const flapto = autofunction.cache.load("flapto") as number|null;
+
     autoland.error();
 
     autofunction.cache.save("flcmode", "g");
@@ -466,19 +466,15 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     write("alt", alt);
     write("spdon", true);
     write("alton", true);
-    write("flaps", flapto);
+    write("hdgon", true);
+
+    if(autoflaps.active && flapto !== null){write("flaps", flapto);}
 
     if(vs < 0){write("vs", 0);}
-
-    flypattern.active = true;
 
     setTimeout(() => {
         levelchange.active = true;
     }, 500);
-
-    autoflaps.active = true;
-    autogear.active = true;
-    autospoilers.active = true;
 });
 
 const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altref", "hdgref", "vparef", "flare", "touchdown", "option"], ["latitude", "longitude", "altitude", "groundspeed", "onrunway"], [levelchange, autoflaps, autogear, autospeed, flypattern, goaround, autospoilers], data => {
@@ -836,7 +832,7 @@ const callout = new autofunction("callout", 250, ["rotate", "minumuns"], ["onrun
     const v1 = rotate;
     const v2 = rotate + 10;
 
-    const elevation = autofunction.cache.load("altref").get("altref") as number;
+    const elevation = autofunction.cache.load("altref") as number|null;
     const alt = (elevation === null) ? altitudeAGL : altitude - elevation;
 
     let stage = callout.stage;
