@@ -505,15 +505,17 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
     const touchdownZone = calcLLfromHD({lat:latref, long:longref}, hdgref, touchdown / 6076.12);
     const touchdownDistance = 6076.12 * calcLLdistance({lat:latitude, long:longitude}, touchdownZone); // nm to ft
 
-    if(autoland.stage === 2 || touchdownDistance <= 1000){
-        autoland.stage = 2;
+    if(autoland.stage >= 2 || touchdownDistance <= 1000){
+        if(autoland.stage === 2){
+            autoland.stage++;
 
-        levelchange.active = false;
+            levelchange.active = false;
 
-        autofunction.cache.save("flcmode", "g");
-        autofunction.cache.save("flcinput", 500);
+            autofunction.cache.save("flcmode", "g");
+            autofunction.cache.save("flcinput", 500);
 
-        write("vs", -200);
+            write("vs", -200);
+        }
 
         if(option !== "p"){
             write("spdon", false);
@@ -569,9 +571,7 @@ const rejecttakeoff = new autofunction("reject", -1, [], [], [], data => {
         autotakeoff.error();
         write("throttle", -100);
     }
-    else{
-        rejecttakeoff.error();
-    }
+    else{rejecttakeoff.error();}
 });
 
 const takeoffconfig = new autofunction("takeoffconfig", -1, ["climbalt", "climbtype"], ["onground", "heading", "altitude"], [], data => {
@@ -602,7 +602,7 @@ const takeoffconfig = new autofunction("takeoffconfig", -1, ["climbalt", "climbt
     write("parkingbrake", false);
 });
 
-const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", "climbthrottle", "takeoffspool", "takeofflnav", "takeoffvnav"], ["onrunway", "n1", "airspeed"], [takeoffconfig, levelchange, autotrim, autogear, autoflaps, autospoilers, rejecttakeoff], data => {
+const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", "climbthrottle", "takeoffspool", "takeofflnav", "takeoffvnav"], ["onrunway", "n1", "airspeed"], [takeoffconfig, levelchange, rejecttakeoff], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -629,11 +629,6 @@ const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", 
 
         takeoffconfig.active = true;
         levelchange.active = false;
-        autoland.active = false;
-
-        autogear.active = true;
-        autoflaps.active = true;
-        autospoilers.active = true;
 
         write("spd", climbspd);
 

@@ -133,7 +133,7 @@
 						<h3>Engage LNAV</h3>
 					</div>
 					<div class="checkbox-row">
-						<input id="takeoffvnav" type="checkbox">
+						<input id="takeoffvnav" oninput="if(this.checked){this.checked = vnavSystem.validateInputs(true);}" type="checkbox">
 						<h3>Engage VNAV</h3>
 				    </div>
 				</div>
