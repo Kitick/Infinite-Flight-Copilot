@@ -477,7 +477,7 @@ const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     }, 500);
 });
 
-const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altref", "hdgref", "vparef", "flare", "touchdown", "option"], ["latitude", "longitude", "altitude", "groundspeed", "onrunway"], [levelchange, autoflaps, autogear, autospeed, flypattern, goaround, autospoilers], data => {
+const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altref", "hdgref", "vparef", "flare", "touchdown", "option"], ["latitude", "longitude", "altitude", "groundspeed", "onrunway"], [levelchange, flypattern, goaround], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -497,8 +497,8 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
     const onrunway = states.get("onrunway") as boolean;
 
     if(autoland.stage === 0){
-        autofunction.cache.save("leg", "f");
         autofunction.cache.save("flcmode", "v");
+        autofunction.cache.save("leg", "f");
         autoland.stage++;
     }
 
@@ -508,7 +508,6 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
     if(autoland.stage === 2 || touchdownDistance <= 1000){
         autoland.stage = 2;
 
-        autospeed.active = false;
         levelchange.active = false;
 
         autofunction.cache.save("flcmode", "g");
@@ -538,33 +537,31 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
             autoland.active = false;
             autotakeoff.active = true;
         }
+
+        return;
     }
-    else{
-        const altDiffrence = altitude - altref;
-        const currentVPA = Math.asin(altDiffrence / touchdownDistance) * toDeg;
 
-        let mod = 2;
-        if(touchdownDistance <= 6076){mod = 0.5;}
+    const altDiffrence = altitude - altref;
+    const currentVPA = Math.asin(altDiffrence / touchdownDistance) * toDeg;
 
-        let vpaout = currentVPA - mod * (vparef - currentVPA);
-        vpaout = Math.round(vpaout * 10) / 10;
+    let mod = 2;
+    if(touchdownDistance <= 6076){mod = 0.5;}
 
-        vpaout = Math.min(vpaout, vparef + 0.5);
-        if(vpaout < vparef - 0.5){vpaout = 0;}
+    let vpaout = currentVPA - mod * (vparef - currentVPA);
+    vpaout = Math.round(vpaout * 10) / 10;
 
-        autofunction.cache.save("flcinput", vpaout);
+    vpaout = Math.min(vpaout, vparef + 0.5);
+    if(vpaout < vparef - 0.5){vpaout = 0;}
 
-        const stopalt = altref + flare;
-        write("alt", stopalt);
+    autofunction.cache.save("flcinput", vpaout);
 
-        levelchange.active = true;
-        autospeed.active = true;
-        flypattern.active = true;
-        autoflaps.active = true;
-        autospeed.active = true;
-        autospoilers.active = true;
-        autogear.active = option !== "p";
-    }
+    const stopalt = altref + flare;
+    write("alt", stopalt);
+
+    levelchange.active = true;
+    flypattern.active = true;
+
+    if(autogear.active){autogear.active = option !== "p"};
 });
 
 const rejecttakeoff = new autofunction("reject", -1, [], [], [], data => {
