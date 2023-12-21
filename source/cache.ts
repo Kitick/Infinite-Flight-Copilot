@@ -49,14 +49,17 @@ class StateCache {
         let returnMap:dataMap = new Map();
 
         ids.forEach(id => {
-            let refrence = this.#data.get(id);
-            if(refrence !== undefined){returnMap.set(id, refrence.value);}
+            const value = this.#data.get(id)?.value;
+            if(value === undefined){throw `"${id}" is undefined`;}
+            returnMap.set(id, value);
         });
 
         return returnMap;
     }
-
-    load(...ids:string[]):dataMap {return this.loadArray(ids);}
+ 
+    load(id:string):dataValue {
+        return this.loadArray([id]).get(id) as dataValue;
+    }
 
     loadAll():dataMap {
         let returnMap:dataMap = new Map();
