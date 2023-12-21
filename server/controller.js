@@ -2,14 +2,11 @@ class Controller {
 	static clients = {};
 
 	static bridge(socket, address){
-        let client = this.clients.get(socket.id);
-
-		if(client === undefined){
-			client = new Client(socket, address);
-            this.clients.set(socket.id, client);
+		if(this.clients[socket.id] === undefined){
+			this.clients[socket.id] = new Client(socket, address);
 		}
 
-		client.connect();
+		this.clients[socket.id].connect();
 	}
 
 	static close(socket){
