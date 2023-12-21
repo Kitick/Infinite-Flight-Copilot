@@ -1,0 +1,1 @@
+type stateValue = string | number | bigint | boolean;

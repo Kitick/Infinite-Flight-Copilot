@@ -1,5 +1,5 @@
-type stateValue = string | number | boolean;
-type dataValue = string | number | boolean | null;
+type stateValue = string | number | bigint | boolean;
+type dataValue = stateValue | null;
 type dataMap = Map<string, dataValue>;
 
 type latlong = {lat:number, long:number};
@@ -62,4 +62,4 @@ type vnavWaypoint = {
     altitudeRestriction:number[],
     altitudeRestrictionDistance:number,
     restrictionLocation:latlong
-}
+};
