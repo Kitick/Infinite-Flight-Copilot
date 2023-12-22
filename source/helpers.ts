@@ -105,7 +105,7 @@ function setAll(className:string):void {
 }
 
 function config():void {
-    const configs = new Map<string, {instance:autofunction, checked:boolean}>();
+    const configs = new Map<string, {instance:Autofunction, checked:boolean}>();
 
     configs.set("autoflaps", {
         instance: autoflaps,
@@ -158,15 +158,15 @@ function config():void {
             const value = prompt(dom.placeholder + "\nLeave blank to not change");
 
             if(value !== null && value !== ""){
-                autofunction.cache.save(input, value);
+                Autofunction.cache.save(input, value);
             }
         }
     });
 };
 
 function dependencyCheck(id:string):void {
-    if(id === "autoland" && autoland.active && autofunction.cache.load("approach")){
-        autofunction.cache.save("approach", false);
+    if(id === "autoland" && autoland.active && Autofunction.cache.load("approach")){
+        Autofunction.cache.save("approach", false);
     }
     else if(id === "flypattern" && flypattern.active){
         autoland.active = false;

@@ -1,4 +1,4 @@
-class profileStorage {
+class ProfileStorage {
     #selectDOM:HTMLSelectElement;
 
     constructor(dom:HTMLSelectElement){
@@ -45,7 +45,7 @@ class profileStorage {
         const name = this.#selectDOM.value;
         if(name === ""){this.add(); return;}
 
-        const data = autofunction.cache.loadAll();
+        const data = Autofunction.cache.loadAll();
 
         let profile:any = {};
         data.forEach((value, key) => {
@@ -72,7 +72,7 @@ class profileStorage {
                 if(!isNaN(testValue)){value = testValue;}
             }
 
-            autofunction.cache.save(id, value);
+            Autofunction.cache.save(id, value);
         }
 
         this.#flash("load", "active");

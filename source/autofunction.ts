@@ -1,9 +1,9 @@
-class autofunction {
+class Autofunction {
     #button:HTMLButtonElement;
     #timeout:NodeJS.Timeout = setTimeout(() => {}, 0);
     #states:dataMap = new Map();
     #inputs:string[] = [];
-    #dependents:autofunction[] = [];
+    #dependents:Autofunction[] = [];
     #numStates = 0;
     #validStates = 0;
     #active = false;
@@ -14,7 +14,7 @@ class autofunction {
 
     static cache = new StateCache();
 
-    constructor(button:string, public delay:number, inputs:string[], states:string[], dependents:autofunction[], code:funcCode){
+    constructor(button:string, public delay:number, inputs:string[], states:string[], dependents:Autofunction[], code:funcCode){
         const element = document.getElementById(button);
         if(element === null || element.tagName !== "BUTTON"){throw "Trigger is not a button";}
 
@@ -42,7 +42,7 @@ class autofunction {
             this.#states.set(state, null);
         });
 
-        autofunction.cache.addArray(inputs);
+        Autofunction.cache.addArray(inputs);
     }
 
     get active(){return this.#active;}
@@ -79,7 +79,7 @@ class autofunction {
             const wasArmed = this.#armed;
             this.#armed = false;
 
-            this.#code({states:this.#states, inputs:autofunction.cache.loadArray(this.inputs)});
+            this.#code({states:this.#states, inputs:Autofunction.cache.loadArray(this.inputs)});
 
             if(!this.#armed && wasArmed){
                 this.#updateButton();
@@ -117,10 +117,10 @@ class autofunction {
     }
 
     validateInputs(doError = false):boolean {
-        let valid = autofunction.cache.isValidArray(this.inputs, doError);
+        let valid = Autofunction.cache.isValidArray(this.inputs, doError);
 
         this.#dependents.forEach(dependent => {
-            valid = autofunction.cache.isValidArray(dependent.inputs, doError) && valid;
+            valid = Autofunction.cache.isValidArray(dependent.inputs, doError) && valid;
         });
 
         return valid;
