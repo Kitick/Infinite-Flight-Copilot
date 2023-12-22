@@ -85,11 +85,12 @@ class Autofunction {
                 this.#updateButton();
             }
 
-            if(this.delay === -1){this.active = false;}
-
-            if(this.active && valid){
-                this.#timeout = setTimeout(() => {this.#run();}, this.delay);
+            if(this.delay === -1){
+                this.active = false;
+                return;
             }
+
+            this.#timeout = setTimeout(() => {this.#run();}, this.delay);
         });
     }
 
