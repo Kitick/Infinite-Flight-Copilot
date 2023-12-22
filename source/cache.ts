@@ -1,25 +1,25 @@
 class StateCache {
-    #data = new Map<string, {dom:HTMLInputElement, value:dataValue}>();
+    #data = new Map<string, {dom:inputHTML, value:dataValue}>();
 
     constructor(){}
 
-    #parse(dom:HTMLInputElement):void {
+    #parse(dom:inputHTML):void {
         let value:dataValue;
 
         switch(dom.type){
             case "number": value = parseFloat(dom.value); break;
-            case "checkbox": value = dom.checked; break;
+            case "checkbox": value = (dom as HTMLInputElement).checked; break;
             case "select-one": value = dom.value; break;
             default: value = null;
         }
 
         if(dom.type === "number" && typeof value === "number" && isNaN(value)){value = null;}
 
-        let refrence = this.#data.get(dom.id);
+        const refrence = this.#data.get(dom.id);
         if(refrence !== undefined){refrence.value = value};
     }
 
-    #error(dom:HTMLInputElement):void {
+    #error(dom:inputHTML):void {
         dom.classList.add("error");
         setTimeout(() => {dom.classList.remove("error");}, 2000);
     }
@@ -29,8 +29,8 @@ class StateCache {
             if(this.#data.get(id) === undefined){
                 const element = document.getElementById(id);
 
-                if(element !== null && element.tagName === "INPUT"){
-                    const dom = element as HTMLInputElement;
+                if(element !== null){
+                    const dom = element as inputHTML;
 
                     dom.addEventListener("change", () => {
                         this.#parse(dom);
@@ -50,7 +50,7 @@ class StateCache {
 
         ids.forEach(id => {
             const value = this.#data.get(id)?.value;
-            if(value === undefined){throw `"${id}" is undefined`;}
+            if(value === undefined){throw id + " is undefined";}
             returnMap.set(id, value);
         });
 
@@ -80,7 +80,7 @@ class StateCache {
 
         if(value === null){value = "";}
 
-        if(dom.type === "checkbox" && typeof value === "boolean"){dom.checked = value;}
+        if(dom.type === "checkbox" && typeof value === "boolean"){(dom as HTMLInputElement).checked = value;}
         else{dom.value = value.toString();}
     }
 

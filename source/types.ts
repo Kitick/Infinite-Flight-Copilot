@@ -1,6 +1,7 @@
 type stateValue = string | number | bigint | boolean;
 type dataValue = stateValue | null;
 type dataMap = Map<string, dataValue>;
+type inputHTML = HTMLInputElement | HTMLSelectElement;
 
 type latlong = {lat:number, long:number};
 
