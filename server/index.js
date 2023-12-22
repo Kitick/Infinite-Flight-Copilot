@@ -3,9 +3,6 @@ const app = new Express();
 const server = app.listen(8080);
 const io = require("socket.io")(server);
 
-const Net = require("net");
-const UDP = require("dgram");
-
 app.use(Express.static(__dirname + "/public"));
 
 // Sockets

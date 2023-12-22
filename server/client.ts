@@ -1,17 +1,20 @@
+const Net = require("net");
+const UDP = require("dgram");
+
 class Client {
-	constructor(socket, address = ""){
-		this.address = address;
+    device = new Net.Socket();
+    scanner = UDP.createSocket("udp4");
+    scanning = false;
+    active = false;
+    dataBuffer:number[] = [];
+    manifest = new Map<string, Item>();
 
-		this.socket = socket;
-		this.device = new Net.Socket();
-		this.scanner = UDP.createSocket("udp4");
-		this.scanning = false;
-		this.active = false;
-
-		this.dataBuffer = [];
+	constructor(public socket:any, public address = ""){
 		this.initManifest();
 
-		this.device.on("data", buffer => {console.log(this.address + " Rx\t\t", buffer);
+		this.device.on("data", (buffer:Buffer) => {
+            console.log(this.address + " Rx\t\t", buffer);
+
 			for(let binary of buffer){
 				this.dataBuffer.push(binary);
 			}
@@ -19,7 +22,7 @@ class Client {
 			this.validate();
 		});
 
-		this.device.on("error", error => {
+		this.device.on("error", (error:any) => {
 			if(error.code === "ECONNREFUSED"){
 				this.log(this.address + " TCP Connection Refused");
 			}
@@ -28,17 +31,17 @@ class Client {
 		this.log(this.address + " TCP Socket Created");
 	}
 
-	initManifest(){
-		this.manifest = {};
+	initManifest():void {
+		this.manifest = new Map();
 		this.addItem(new Item(-1, 4, "manifest"));
 	}
 
-	log(message){
+	log(message:string):void {
 		this.socket.emit("log", message);
 		console.log(message);
 	}
 
-	findAddress(callback = () => {}){
+	findAddress(callback = () => {}):void {
 		if(this.scanning){
 			this.log("Already Searching for UDP Packets");
 			return;
@@ -46,7 +49,7 @@ class Client {
 
 		this.log("Searching for UDP Packets...");
 
-		this.scanner.on("message", (data, info) => {
+		this.scanner.on("message", (data:any, info:any) => {
 			this.address = info.address;
 			this.log(this.address + " UDP Packet Found");
 
@@ -60,7 +63,7 @@ class Client {
 		this.scanner.bind(15000);
 	}
 
-	connect(){
+	connect():void {
 		this.log(this.address + " Attempting TCP Connection");
 
 		if(this.address === ""){
@@ -82,30 +85,27 @@ class Client {
 		});
 	}
 
-	close(){
+	close():void {
 		if(this.scanning){
 			this.scanner.close();
 			this.scanning = false;
 		}
 
 		if(this.active){
+            this.active = false;
+
 			this.device.end(() => {
 				this.log(this.address + " TCP Closed");
 			});
-			this.active = false;
 		}
 	}
 
-	validate(){
-		if(this.dataBuffer.length < 9){
-			return;
-		}
+	validate():void {
+		if(this.dataBuffer.length < 9){return;}
 
 		const length = Buffer.from(this.dataBuffer.slice(4, 8)).readInt32LE() + 8;
 
-		if(this.dataBuffer.length < length){
-			return;
-		}
+		if(this.dataBuffer.length < length){return;}
 
 		const id = Buffer.from(this.dataBuffer.slice(0, 4)).readInt32LE();
 		const data = Buffer.from(this.dataBuffer.slice(8, length));
@@ -114,36 +114,39 @@ class Client {
 
 		this.processData(id, data);
 
-		if(this.dataBuffer.length > 0){
-			this.validate();
-		}
+		if(this.dataBuffer.length > 0){this.validate();}
 	}
 
-	processData(id, data){
+	processData(id:number, data:Buffer):void {
 		if(id === -1){
 			this.initManifest();
 
-			data = data.toString().split("\n");
+			const stringData = data.toString().split("\n");
 
-			data.forEach(itemRaw => {
-				itemRaw = itemRaw.split(",");
-			
-				let item = new Item(itemRaw[0], itemRaw[1], itemRaw[2]);
+			stringData.forEach(raw => {
+				const itemRaw = raw.split(",");
+
+                const id = parseInt(itemRaw[0]);
+                const type = parseInt(itemRaw[1]);
+                const name = itemRaw[2];
+
+				const item = new Item(id, type, name);
 
 				this.addItem(item);
 			});
 
 			this.log(this.address + " Manifest Built, API Ready");
 			this.socket.emit("ready", this.address);
+
+            return;
 		}
-		else{
-			const item = this.getItem(id);
-			item.buffer = data;
-			item.callback();
-		}
+
+        const item = this.getItem(id.toString());
+        item.buffer = data;
+        item.callback();
 	}
 
-	initalBuffer(id, state){
+	initalBuffer(id:number, state:number):Buffer {
 		let buffer = Buffer.allocUnsafe(5);
 
 		buffer.writeInt32LE(id);
@@ -152,7 +155,7 @@ class Client {
 		return buffer;
 	}
 
-	readState(itemID, callback = () => {}){
+	readState(itemID:string, callback = () => {}):void {
 		const item = this.getItem(itemID);
 
 		if(item.type === -1){
@@ -160,10 +163,7 @@ class Client {
 		}
 		else{
 			item.callbacks.push(callback);
-
-			if(item.callbacks.length > 1){
-				return;
-			}
+			if(item.callbacks.length > 1){return;}
 		}
 
 		const buffer = this.initalBuffer(item.id, 0);
@@ -172,7 +172,7 @@ class Client {
 		console.log(this.address + " Tx " + item.id + "\t", buffer);
 	}
 
-	writeState(itemID){
+	writeState(itemID:string):void {
 		const item = this.getItem(itemID);
 		let buffer = this.initalBuffer(item.id, 1);
 
@@ -182,16 +182,18 @@ class Client {
 		console.log(this.address + " Tx " + item.id + "\t", buffer);
 	}
 
-	addItem(item){
-		this.manifest[item.id] = item;
-		this.manifest[item.name] = item;
-		
+	addItem(item:Item):void {
+        this.manifest.set(item.id.toString(), item);
+		this.manifest.set(item.name, item);
+
 		if(item.alias !== undefined){
-			this.manifest[item.alias] = item;
-		}
+            this.manifest.set(item.alias, item);
+        }
 	}
 
-	getItem(itemID){
-		return this.manifest[itemID];
+	getItem(itemID:string):Item {
+        const item = this.manifest.get(itemID);
+        if(item === undefined){throw "item is not defined.";}
+		return item;
 	}
 }

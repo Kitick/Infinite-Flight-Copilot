@@ -63,16 +63,14 @@ function reset():void {
     setVisibility(true);
 
     autofunctions.forEach(autofunc => {
-        if(autofunc.active){
-            autofunc.active = false;
-        }
+        if(autofunc.active){autofunc.active = false;}
     });
 }
 
 let statLog = document.getElementById("status") as HTMLSpanElement;
 let panels = document.getElementsByClassName("panel") as HTMLCollectionOf<HTMLDivElement>;
 
-const storage = new profileStorage(document.getElementById("configselect") as HTMLSelectElement);
+const storage = new ProfileStorage(document.getElementById("configselect") as HTMLSelectElement);
 
 const select = document.getElementById("voices") as HTMLSelectElement;
 const voices = speechSynthesis.getVoices();
