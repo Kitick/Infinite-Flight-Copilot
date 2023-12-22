@@ -24,14 +24,16 @@ class Controller {
 
 	static read(socket:any, command:string, callback = (data:stateValue|undefined) => {}){
 		const client = this.clients.get(socket.id);
+        const item = client?.getItem(command);
 
-		if(client?.getItem(command) === undefined){
+		if(item === undefined || client === undefined){
 			callback(undefined);
+            console.log(command + " is not defined");
 			return;
 		}
 
 		client.readState(command, () => {
-			const value = client.getItem(command)?.value;
+			const value = item.value;
 			callback(value);
 		});
 	}
@@ -40,7 +42,10 @@ class Controller {
 		const client = this.clients.get(socket.id);
         const item = client?.getItem(command);
 
-		if(item === undefined || client === undefined){return;}
+		if(item === undefined || client === undefined){
+            console.log(command + " is not defined");
+            return;
+        }
 
 		item.value = value;
 		client.writeState(command);
