@@ -31,17 +31,18 @@ class Controller {
 		}
 
 		client.readState(command, () => {
-			const value = client.getItem(command).value;
+			const value = client.getItem(command)?.value;
 			callback(value);
 		});
 	}
 
 	static write(socket:any, command:string, value:stateValue){
 		const client = this.clients.get(socket.id);
+        const item = client?.getItem(command);
 
-		if(client?.getItem(command) === undefined){return;}
+		if(item === undefined || client === undefined){return;}
 
-		client.getItem(command).value = value;
+		item.value = value;
 		client.writeState(command);
 	}
 }

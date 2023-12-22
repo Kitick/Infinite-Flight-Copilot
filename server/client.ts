@@ -142,6 +142,11 @@ class Client {
 		}
 
         const item = this.getItem(id.toString());
+        if(item === undefined){
+            console.log(this.address + " Invalid Item " + id.toString());
+            return;
+        }
+
         item.buffer = data;
         item.callback();
 	}
@@ -158,13 +163,14 @@ class Client {
 	readState(itemID:string, callback = () => {}):void {
 		const item = this.getItem(itemID);
 
-		if(item.type === -1){
+		if(item === undefined || item.type === -1){
+            if(item === undefined){console.log(this.address + " Invalid Item " + itemID);}
 			callback();
+            return;
 		}
-		else{
-			item.callbacks.push(callback);
-			if(item.callbacks.length > 1){return;}
-		}
+
+        item.callbacks.push(callback);
+        if(item.callbacks.length > 1){return;}
 
 		const buffer = this.initalBuffer(item.id, 0);
 
@@ -174,6 +180,11 @@ class Client {
 
 	writeState(itemID:string):void {
 		const item = this.getItem(itemID);
+        if(item === undefined){
+            console.log(this.address + " Invalid Item " + itemID);
+            return;
+        }
+
 		let buffer = this.initalBuffer(item.id, 1);
 
 		buffer = Buffer.concat([buffer, item.buffer]);
@@ -191,9 +202,7 @@ class Client {
         }
 	}
 
-	getItem(itemID:string):Item {
-        const item = this.manifest.get(itemID);
-        if(item === undefined){throw "item is not defined.";}
-		return item;
-	}
+    getItem(itemID:string):Item|undefined {
+        return this.manifest.get(itemID);
+    }
 }
