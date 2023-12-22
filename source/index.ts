@@ -1,5 +1,5 @@
 function bridge():void {
-    setVisibility(true);
+    setHidden(true);
 
     const addressInput = document.getElementById("address") as HTMLInputElement;
     let address = addressInput.value;
@@ -52,7 +52,7 @@ function write(command:string, value:stateValue){
     socket.emit("write", command, value);
 }
 
-function setVisibility(hidden:boolean):void {
+function setHidden(hidden:boolean):void {
     for(let i = 1, length = panels.length; i < length; i++){
         const panel = panels[i] as HTMLDivElement;
         panel.hidden = hidden;
@@ -60,7 +60,7 @@ function setVisibility(hidden:boolean):void {
 }
 
 function reset():void {
-    setVisibility(true);
+    setHidden(true);
 
     autofunctions.forEach(autofunc => {
         if(autofunc.active){autofunc.active = false;}
@@ -87,7 +87,7 @@ socket.emit("test", (response:string) => {
 socket.on("ready", (address:string) => {
     const addressInput = document.getElementById("address") as HTMLInputElement;
     addressInput.value = address;
-    setVisibility(false);
+    setHidden(false);
 });
 
 socket.on("log", (response:string) => {
