@@ -566,12 +566,22 @@ const autoland = new Autofunction("autoland", 1000, ["latref", "longref", "altre
     if(autogear.active){autogear.active = option !== "p"};
 });
 
-const rejecttakeoff = new Autofunction("reject", -1, [], [], [], data => {
+const rejecttakeoff = new Autofunction("reject", -1, [], ["onrunway"], [], data => {
+    const states = data.states;
+
+    const onrunway = states.get("onrunway") as boolean;
+
+    if(!onrunway){
+        rejecttakeoff.error();
+        console.log("Not on a runway");
+        return;
+    }
+
     if(autotakeoff.active){
         autotakeoff.error();
-        write("throttle", -100);
     }
-    else{rejecttakeoff.error();}
+
+    write("throttle", -100);
 });
 
 const takeoffconfig = new Autofunction("takeoffconfig", -1, ["climbalt", "climbtype"], ["onground", "heading", "altitude"], [], data => {
@@ -580,13 +590,14 @@ const takeoffconfig = new Autofunction("takeoffconfig", -1, ["climbalt", "climbt
 
     const climbalt = inputs.get("climbalt") as number;
     const climbtype = inputs.get("climbtype") as altType;
-    const onground = inputs.get("onground") as boolean;
 
+    const onground = states.get("onground") as boolean;
     const heading = states.get("heading") as number;
     const altitude = states.get("altitude") as number;
 
     if(!onground){
         takeoffconfig.error();
+        console.log("Not on the ground");
         return;
     }
 
@@ -624,6 +635,7 @@ const autotakeoff = new Autofunction("autotakeoff", 500, ["rotate", "climbspd", 
     if(stage === 0){
         if(!onrunway){
             autotakeoff.error();
+            console.log("Not on a runway");
             return;
         }
 
