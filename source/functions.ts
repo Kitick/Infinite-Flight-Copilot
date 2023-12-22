@@ -438,7 +438,7 @@ const autospeed = new Autofunction("autospeed", 1000, ["latref", "longref", "cli
     }
 });
 
-const goaround = new Autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype"], ["altitude", "vs"], [levelchange], data => {
+const goaround = new Autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype"], ["onground", "altitude", "vs"], [levelchange], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -446,10 +446,17 @@ const goaround = new Autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     const climbspd = inputs.get("climbspd") as number;
     const climbtype = inputs.get("climbtype") as altType;
 
+    const onground = states.get("onground") as boolean;
     const altitude = states.get("altitude") as number;
     const vs = states.get("vs") as number;
 
     const flapto = Autofunction.cache.load("flapto") as number|null;
+
+    if(onground){
+        goaround.error();
+        console.log("Cannot goaround on the ground");
+        return;
+    }
 
     autoland.error();
 
