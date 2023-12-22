@@ -1,5 +1,5 @@
 class Autofunction {
-    #button:HTMLButtonElement;
+    #button:HTMLElement;
     #timeout:NodeJS.Timeout = setTimeout(() => {}, 0);
     #states:dataMap = new Map();
     #inputs:string[] = [];
@@ -16,9 +16,9 @@ class Autofunction {
 
     constructor(button:string, public delay:number, inputs:string[], states:string[], dependents:Autofunction[], code:funcCode){
         const element = document.getElementById(button);
-        if(element === null || element.tagName !== "BUTTON"){throw "Trigger is not a button";}
+        if(element === null){throw "Element " + button + " is undefined";}
 
-        this.#button = element as HTMLButtonElement;
+        this.#button = element as HTMLElement;
         this.#button.addEventListener("click", () => {dependencyCheck(button); this.setActive();});
         this.#updateButton();
 
@@ -85,9 +85,7 @@ class Autofunction {
                 this.#updateButton();
             }
 
-            if(this.delay === -1){
-                this.active = false;
-            }
+            if(this.delay === -1){this.active = false;}
 
             if(this.active && valid){
                 this.#timeout = setTimeout(() => {this.#run();}, this.delay);
@@ -101,9 +99,9 @@ class Autofunction {
         }
         else{
             this.#validStates = 0;
-            for(let state in this.#states){
+            this.#states.forEach((value, state) => {
                 read(state, value => {this.#stateReturn(state, value, callback);});
-            }
+            });
         }
     }
 
@@ -111,9 +109,7 @@ class Autofunction {
         this.#states.set(state, value);
         this.#validStates++;
 
-        if(this.#validStates === this.#numStates){
-            callback();
-        }
+        if(this.#validStates === this.#numStates){callback();}
     }
 
     validateInputs(doError = false):boolean {
