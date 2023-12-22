@@ -100,7 +100,7 @@ class Autofunction {
         else{
             this.#validStates = 0;
             this.#states.forEach((value, state) => {
-                read(state, value => {this.#stateReturn(state, value, callback);});
+                read(state, returnValue => {this.#stateReturn(state, returnValue, callback);});
             });
         }
     }
