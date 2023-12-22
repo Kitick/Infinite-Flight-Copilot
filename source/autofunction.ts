@@ -79,7 +79,10 @@ class Autofunction {
             const wasArmed = this.#armed;
             this.#armed = false;
 
-            this.#code({states:this.#states, inputs:Autofunction.cache.loadArray(this.inputs)});
+            this.#code({
+                states:this.#states,
+                inputs:Autofunction.cache.loadArray(this.inputs)
+            });
 
             if(!this.#armed && wasArmed){
                 this.#updateButton();
@@ -90,7 +93,9 @@ class Autofunction {
                 return;
             }
 
-            this.#timeout = setTimeout(() => {this.#run();}, this.delay);
+            if(this.active){
+                this.#timeout = setTimeout(() => {this.#run();}, this.delay);
+            }
         });
     }
 
