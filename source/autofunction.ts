@@ -45,18 +45,18 @@ class Autofunction {
         Autofunction.cache.addArray(inputs);
     }
 
-    isActive(){return this.#active;}
-
     getInputs(){return this.#inputs}
     getDependents(){return this.#dependents;}
 
-    setActive(state = !this.isActive()):void {console.log("setActive");
-        if(this.isActive() === state){return;}
+    isActive(){return this.#active;}
+
+    setActive(state = !this.#active):void {console.log("setActive", state);
+        if(this.#active === state){return;}
 
         this.#active = state;
         this.#updateButton();
 
-        if(this.isActive()){
+        if(this.#active){
             this.stage = 0;
             this.#run();
             return;
@@ -69,7 +69,7 @@ class Autofunction {
     }
 
     #updateButton():void {console.log("updateButton");
-        this.#button.className = this.isActive() ? "active" : "off";
+        this.#button.className = this.#active ? "active" : "off";
     }
 
     #run():void {console.log("run");
@@ -95,7 +95,7 @@ class Autofunction {
                 return;
             }
 
-            if(this.isActive() && this.#timeout === null){
+            if(this.#active && this.#timeout === null){
                 this.#timeout = setTimeout(() => {this.#timeout = null; this.#run();}, this.delay);
             }
         });
@@ -108,19 +108,19 @@ class Autofunction {
         }
 
         this.#validStates = 0;
-        this.#states.forEach((value, state) => {
+        this.#states.forEach((value, state) => {console.log("read", state);
             read(state, returnValue => {this.#stateReturn(state, returnValue, callback);});
         });
     }
 
-    #stateReturn(state:string, value:stateValue, callback = () => {}):void {console.log("stateReturn");
+    #stateReturn(state:string, value:stateValue, callback = () => {}):void {console.log("stateReturn", state, value);
         this.#states.set(state, value);
         this.#validStates++;
 
         if(this.#validStates === this.#numStates){callback();}
     }
 
-    validateInputs(doError = false):boolean {console.log("validateInputs");
+    validateInputs(doError = false):boolean {console.log("validateInputs", doError);
         let valid = Autofunction.cache.isValidArray(this.#inputs, doError);
 
         this.#dependents.forEach(dependent => {
