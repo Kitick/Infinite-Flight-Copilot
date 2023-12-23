@@ -39,5 +39,5 @@ io.on("connection", socket => {
 	});
 });
 
-console.log("Loading Complete, Server Ready");
-console.log("\nOpen Browser to localhost:8080");
+console.log("\nLoading Complete, Server Ready");
+console.log("\nOpen Browser to localhost:8080\n");
