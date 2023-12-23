@@ -10,14 +10,14 @@ class Client {
     manifest = new Map<string, Item>();
 
 	constructor(public socket:any, public address = ""){
-		this.initManifest();
+		this.#initManifest();
 
 		this.device.on("data", (buffer:Buffer) => {
             console.log(this.address + " Rx\t\t", buffer);
 
 			for(let binary of buffer){this.dataBuffer.push(binary);}
 
-			this.validate();
+			this.#validate();
 		});
 
 		this.device.on("error", (error:any) => {
@@ -29,7 +29,7 @@ class Client {
 		this.log(this.address + " TCP Socket Created");
 	}
 
-	initManifest():void {
+	#initManifest():void {
 		this.manifest = new Map();
 		this.addItem(new Item(-1, 4, "manifest"));
 	}
@@ -39,7 +39,7 @@ class Client {
 		console.log(message);
 	}
 
-	findAddress(callback = () => {}):void {
+	#findAddress(callback = () => {}):void {
 		if(this.scanning){
 			this.log("Already Searching for UDP Packets");
 			return;
@@ -65,7 +65,7 @@ class Client {
 		this.log(this.address + " Attempting TCP Connection");
 
 		if(this.address === ""){
-			this.findAddress(() => {this.connect();});
+			this.#findAddress(() => {this.connect();});
 			return;
 		}
 
@@ -98,7 +98,7 @@ class Client {
 		}
 	}
 
-	validate():void {
+	#validate():void {
 		if(this.dataBuffer.length < 9){return;}
 
 		const length = Buffer.from(this.dataBuffer.slice(4, 8)).readInt32LE() + 8;
@@ -110,14 +110,14 @@ class Client {
 
 		this.dataBuffer.splice(0, length);
 
-		this.processData(id, data);
+		this.#processData(id, data);
 
-		if(this.dataBuffer.length > 0){this.validate();}
+		if(this.dataBuffer.length > 0){this.#validate();}
 	}
 
-	processData(id:number, data:Buffer):void {
+	#processData(id:number, data:Buffer):void {
 		if(id === -1){
-			this.initManifest();
+			this.#initManifest();
 
 			const stringData = data.toString().split("\n");
 
@@ -146,7 +146,7 @@ class Client {
         item.callback();
 	}
 
-	initalBuffer(id:number, state:number):Buffer {
+	#initalBuffer(id:number, state:number):Buffer {
 		let buffer = Buffer.allocUnsafe(5);
 
 		buffer.writeInt32LE(id);
@@ -163,27 +163,25 @@ class Client {
             return;
 		}
 
-        item.callbacks.push(callback);
-        if(item.callbacks.length > 1){return;}
+        const length = item.addCallback(callback);
+        if(length > 1){return;}
 
-		const buffer = this.initalBuffer(item.id, 0);
+		const buffer = this.#initalBuffer(item.id, 0);
 
 		this.device.write(buffer);
-		console.log(this.address + " Tx " + item.id + "\t", buffer);
+		console.log(this.address + " Tx " + itemID + " (" + item.id + ")\t", buffer);
 	}
 
 	writeState(itemID:string):void {
 		const item = this.getItem(itemID);
-        if(item === undefined){
-            return;
-        }
+        if(item === undefined){return;}
 
-		let buffer = this.initalBuffer(item.id, 1);
+		let buffer = this.#initalBuffer(item.id, 1);
 
 		buffer = Buffer.concat([buffer, item.buffer]);
 
 		this.device.write(buffer);
-		console.log(this.address + " Tx " + item.id + "\t", buffer);
+		console.log(this.address + " Tx " + itemID + " (" + item.id + ")\t", buffer);
 	}
 
 	addItem(item:Item):void {

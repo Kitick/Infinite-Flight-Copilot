@@ -1,12 +1,12 @@
 class Alias {
-    static storage = new Map<string, Alias>();
+    static #storage = new Map<string, Alias>();
 
     static get(name:string):Alias|undefined {
-        return this.storage.get(name);
+        return this.#storage.get(name);
     }
 
     constructor(name:string, public alt:string, public conversion:number|null = null){
-        Alias.storage.set(name, this);
+        Alias.#storage.set(name, this);
     }
 }
 
@@ -73,7 +73,7 @@ class Item {
     alias:string|null = null;
     conversion:number|null = null;
     value:stateValue|null = null;
-    callbacks:(() => void)[] = [];
+    #callbacks:(() => void)[] = [];
 
 	constructor(public id:number, public type:bufferType, public name:string){
         const alias = Alias.get(this.name);
@@ -128,8 +128,14 @@ class Item {
         this.value = value;
 	}
 
+    addCallback(callback = () => {}):number {
+        this.#callbacks.push(callback);
+        const length = this.#callbacks.length;
+        return length;
+    }
+
 	callback():void {
-		this.callbacks.forEach(callback => {callback();});
-		this.callbacks = [];
+		this.#callbacks.forEach(callback => {callback();});
+		this.#callbacks = [];
 	}
 }

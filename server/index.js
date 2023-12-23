@@ -29,12 +29,10 @@ io.on("connection", socket => {
 	});
 
 	socket.on("read", (command, callback) => {
-        console.log("Read " + command);
 		Controller.read(socket, command, callback);
 	});
 
 	socket.on("write", (command, value) => {
-        console.log("Write " + command + " = " + value.toString());
 		Controller.write(socket, command, value);
 	});
 });
