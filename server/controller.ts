@@ -22,18 +22,17 @@ class Controller {
 		return true;
 	}
 
-	static read(socket:any, command:string, callback = (data:stateValue|null) => {}){
+	static read(socket:any, command:string, callback = (data:stateValue|null|undefined) => {}){
 		const client = this.clients.get(socket.id);
         const item = client?.getItem(command);
 
 		if(item === undefined || client === undefined){
-			callback(null);
-            console.log(command + " is not defined");
+			callback(undefined);
 			return;
 		}
 
 		client.readState(command, () => {
-			const value = item.value;
+			let value = item.value;
 			callback(value);
 		});
 	}
@@ -43,7 +42,6 @@ class Controller {
         const item = client?.getItem(command);
 
 		if(item === undefined || client === undefined){
-            console.log(command + " is not defined");
             return;
         }
 
