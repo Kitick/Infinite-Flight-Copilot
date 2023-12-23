@@ -1,6 +1,6 @@
 class Autofunction {
     #button:HTMLElement;
-    #timeout:NodeJS.Timeout = setTimeout(() => {}, 0);
+    #timeout:NodeJS.Timeout|null = null;
     #states:dataMap = new Map();
     #inputs:string[] = [];
     #dependents:Autofunction[] = [];
@@ -45,37 +45,39 @@ class Autofunction {
         Autofunction.cache.addArray(inputs);
     }
 
-    get active(){return this.#active;}
-    set active(state){this.setActive(state)};
+    isActive(){return this.#active;}
 
     getInputs(){return this.#inputs}
     getDependents(){return this.#dependents;}
 
-    setActive(state = !this.#active):void {
-        if(this.active === state){return;}
+    setActive(state = !this.isActive()):void {console.log("setActive");
+        if(this.isActive() === state){return;}
 
         this.#active = state;
         this.#updateButton();
 
-        if(!state){
-            clearTimeout(this.#timeout);
+        if(this.isActive()){
+            this.stage = 0;
+            this.#run();
             return;
         }
 
-        this.stage = 0;
-        this.#run();
+        if(this.#timeout !== null){
+            clearTimeout(this.#timeout);
+            this.#timeout = null;
+        }
     }
 
-    #updateButton():void {
-        this.#button.className = this.active ? "active" : "off";
+    #updateButton():void {console.log("updateButton");
+        this.#button.className = this.isActive() ? "active" : "off";
     }
 
-    #run():void {
+    #run():void {console.log("run");
         const valid = this.validateInputs(true);
 
         if(!valid){this.error(); return;}
 
-        this.#readStates(() => {
+        this.#readStates(() => {console.log("readStatesCallback");
             const wasArmed = this.#armed;
             this.#armed = false;
 
@@ -89,17 +91,17 @@ class Autofunction {
             }
 
             if(this.delay === -1){
-                this.active = false;
+                this.setActive(false);
                 return;
             }
 
-            if(this.active){
-                this.#timeout = setTimeout(() => {this.#run();}, this.delay);
+            if(this.isActive() && this.#timeout === null){
+                this.#timeout = setTimeout(() => {this.#timeout = null; this.#run();}, this.delay);
             }
         });
     }
 
-    #readStates(callback = () => {}):void {
+    #readStates(callback = () => {}):void {console.log("readStates");
         if(this.#numStates === 0){
             callback();
             return;
@@ -111,14 +113,14 @@ class Autofunction {
         });
     }
 
-    #stateReturn(state:string, value:stateValue, callback = () => {}):void {
+    #stateReturn(state:string, value:stateValue, callback = () => {}):void {console.log("stateReturn");
         this.#states.set(state, value);
         this.#validStates++;
 
         if(this.#validStates === this.#numStates){callback();}
     }
 
-    validateInputs(doError = false):boolean {
+    validateInputs(doError = false):boolean {console.log("validateInputs");
         let valid = Autofunction.cache.isValidArray(this.#inputs, doError);
 
         this.#dependents.forEach(dependent => {
@@ -128,13 +130,13 @@ class Autofunction {
         return valid;
     }
 
-    arm():void {
+    arm():void {console.log("arm");
         this.#armed = true;
         this.#button.className = "armed";
     }
 
-    error():void {
-        this.active = false;
+    error():void {console.log("error");
+        this.#active = false;
         this.#button.className = "error";
         this.#timeout = setTimeout(() => {this.#updateButton();}, 2000);
     }

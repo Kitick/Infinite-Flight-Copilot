@@ -92,13 +92,13 @@ const toRad = Math.PI / 180;
 function setAll(className:string):void {
     const state = className === "off";
 
-    autogear.active = state;
-    autospoilers.active = state;
-    autotrim.active = state;
-    autoflaps.active = state;
-    autolights.active = state;
-    autobrakes.active = state;
-    autospeed.active = state;
+    autogear.setActive(state);
+    autospoilers.setActive(state);
+    autotrim.setActive(state);
+    autoflaps.setActive(state);
+    autolights.setActive(state);
+    autobrakes.setActive(state);
+    autospeed.setActive(state);
 
     const all = document.getElementById("all") as HTMLButtonElement;
     all.className = state ? "active" : "off";
@@ -159,15 +159,15 @@ function config():void {
 };
 
 function dependencyCheck(id:string):void {
-    if(id === "autoland" && autoland.active && Autofunction.cache.load("approach")){
+    if(id === "autoland" && autoland.isActive() && Autofunction.cache.load("approach")){
         Autofunction.cache.save("approach", false);
     }
-    else if(id === "flypattern" && flypattern.active){
-        autoland.active = false;
-        flyto.active = false;
+    else if(id === "flypattern" && flypattern.isActive()){
+        autoland.setActive(false);
+        flyto.setActive(false);
     }
-    else if(id === "flyto" && flyto.active){
-        flypattern.active = false;
-        autoland.active = false;
+    else if(id === "flyto" && flyto.isActive()){
+        flypattern.setActive(false);
+        autoland.setActive(false);
     }
 }

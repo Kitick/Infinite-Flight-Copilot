@@ -63,7 +63,7 @@ function reset():void {
     setHidden(true);
 
     autofunctions.forEach(autofunc => {
-        if(autofunc.active){autofunc.active = false;}
+        if(autofunc.isActive()){autofunc.setActive(false);}
     });
 }
 
