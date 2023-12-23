@@ -13,7 +13,7 @@ class Client {
 		this.#initManifest();
 
 		this.device.on("data", (buffer:Buffer) => {
-            console.log(this.address + " Rx\t\t", buffer);
+            console.log(this.address + " Rx\t\t\t", buffer);
 
 			for(let binary of buffer){this.dataBuffer.push(binary);}
 
