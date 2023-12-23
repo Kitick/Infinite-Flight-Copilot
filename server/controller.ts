@@ -22,12 +22,12 @@ class Controller {
 		return true;
 	}
 
-	static read(socket:any, command:string, callback = (data:stateValue|undefined) => {}){
+	static read(socket:any, command:string, callback = (data:stateValue|null) => {}){
 		const client = this.clients.get(socket.id);
         const item = client?.getItem(command);
 
 		if(item === undefined || client === undefined){
-			callback(undefined);
+			callback(null);
             console.log(command + " is not defined");
 			return;
 		}

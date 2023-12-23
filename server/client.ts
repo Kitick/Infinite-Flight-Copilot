@@ -15,9 +15,7 @@ class Client {
 		this.device.on("data", (buffer:Buffer) => {
             console.log(this.address + " Rx\t\t", buffer);
 
-			for(let binary of buffer){
-				this.dataBuffer.push(binary);
-			}
+			for(let binary of buffer){this.dataBuffer.push(binary);}
 
 			this.validate();
 		});
@@ -127,7 +125,7 @@ class Client {
 				const itemRaw = raw.split(",");
 
                 const id = parseInt(itemRaw[0]);
-                const type = parseInt(itemRaw[1]);
+                const type = parseInt(itemRaw[1]) as bufferType;
                 const name = itemRaw[2];
 
 				const item = new Item(id, type, name);
@@ -142,10 +140,7 @@ class Client {
 		}
 
         const item = this.getItem(id.toString());
-        if(item === undefined){
-            console.log(this.address + " Invalid Item " + id.toString());
-            return;
-        }
+        if(item === undefined){return;}
 
         item.buffer = data;
         item.callback();
@@ -164,7 +159,6 @@ class Client {
 		const item = this.getItem(itemID);
 
 		if(item === undefined || item.type === -1){
-            if(item === undefined){console.log(this.address + " Invalid Item " + itemID);}
 			callback();
             return;
 		}
@@ -181,7 +175,6 @@ class Client {
 	writeState(itemID:string):void {
 		const item = this.getItem(itemID);
         if(item === undefined){
-            console.log(this.address + " Invalid Item " + itemID);
             return;
         }
 
@@ -197,12 +190,14 @@ class Client {
         this.manifest.set(item.id.toString(), item);
 		this.manifest.set(item.name, item);
 
-		if(item.alias !== undefined){
+		if(item.alias !== null){
             this.manifest.set(item.alias, item);
         }
 	}
 
     getItem(itemID:string):Item|undefined {
-        return this.manifest.get(itemID);
+        const item = this.manifest.get(itemID);
+        if(item === undefined){this.log(this.address + " Invalid Item " + itemID);}
+        return item;
     }
 }

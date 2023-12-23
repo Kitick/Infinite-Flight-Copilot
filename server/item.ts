@@ -5,7 +5,7 @@ class Alias {
         return this.storage.get(name);
     }
 
-    constructor(name:string, public alt:string, public conversion:number|undefined = undefined){
+    constructor(name:string, public alt:string, public conversion:number|null = null){
         Alias.storage.set(name, this);
     }
 }
@@ -70,22 +70,24 @@ new Alias("aircraft/0/systems/electrical_switch/landing_lights_switch/state", "l
 new Alias("aircraft/0/systems/electrical_switch/beacon_lights_switch/state", "beaconlights"); // 0, 1
 
 class Item {
-    alias:string|undefined;
-    conversion:number|undefined;
-    value:stateValue|undefined = undefined;
+    alias:string|null = null;
+    conversion:number|null = null;
+    value:stateValue|null = null;
     callbacks:(() => void)[] = [];
 
-	constructor(public id:number, public type:number, public name:string){
+	constructor(public id:number, public type:bufferType, public name:string){
         const alias = Alias.get(this.name);
-        this.alias = alias?.alt;
-        this.conversion = alias?.conversion;
+        if(alias !== undefined){
+            this.alias = alias.alt;
+            this.conversion = alias.conversion;
+        }
 	}
 
 	get buffer():Buffer {
 		let value = this.value;
-        if(value === undefined){throw "value is undefined";}
+        if(value === null){return Buffer.from([0]);}
 
-		if(this.conversion !== undefined){
+		if(this.conversion !== null){
             value = value as number;
 			value /= this.conversion;
 		}
@@ -118,7 +120,7 @@ class Item {
             default: throw "buffer type is not valid";
         }
 
-		if(this.conversion !== undefined){
+		if(this.conversion !== null){
             value = value as number;
 			value *= this.conversion;
 		}
