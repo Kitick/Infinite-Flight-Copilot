@@ -132,17 +132,11 @@ function config():void {
 
     configs.forEach(config => {
         if(config.checked){
-            const inputs = config.instance.inputs;
-            const dependencies = config.instance.dependents;
+            const functions = [config.instance];
+            functions.concat(config.instance.getDependents());
 
-            inputs.forEach(id => {
-                if(inputArray.indexOf(id) === -1){
-                    inputArray.push(id);
-                }
-            });
-
-            dependencies.forEach(dependency => {
-                dependency.inputs.forEach(id => {
+            functions.forEach(func => {
+                func.getInputs().forEach(id => {
                     if(inputArray.indexOf(id) === -1){
                         inputArray.push(id);
                     }

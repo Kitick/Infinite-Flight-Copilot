@@ -4,19 +4,20 @@ class StateCache {
     constructor(){}
 
     #parse(dom:inputHTML):void {
-        let value:dataValue;
+        const refrence = this.#data.get(dom.id);
+        if(refrence === undefined){return;}
+
+        let value:dataValue = null;
 
         switch(dom.type){
             case "number": value = parseFloat(dom.value); break;
             case "checkbox": value = (dom as HTMLInputElement).checked; break;
             case "select-one": value = dom.value; break;
-            default: value = null;
         }
 
-        if(dom.type === "number" && typeof value === "number" && isNaN(value)){value = null;}
+        if(typeof value === "number" && isNaN(value)){value = null;}
 
-        const refrence = this.#data.get(dom.id);
-        if(refrence !== undefined){refrence.value = value};
+        refrence.value = value;
     }
 
     #error(dom:inputHTML):void {
@@ -49,16 +50,16 @@ class StateCache {
         let returnMap:dataMap = new Map();
 
         ids.forEach(id => {
-            const value = this.#data.get(id)?.value;
-            if(value === undefined){throw id + " is undefined";}
-            returnMap.set(id, value);
+            const value = this.load(id);
+            if(value !== undefined){returnMap.set(id, value);}
         });
 
         return returnMap;
     }
  
-    load(id:string):dataValue {
-        return this.loadArray([id]).get(id) as dataValue;
+    load(id:string):dataValue|undefined {
+        const value = this.#data.get(id)?.value;
+        return value;
     }
 
     loadAll():dataMap {
@@ -78,10 +79,13 @@ class StateCache {
         refrence.value = value;
         const dom = refrence.dom;
 
-        if(value === null){value = "";}
+        if(typeof value === "boolean"){
+            (dom as HTMLInputElement).checked = value;
+            return;
+        }
 
-        if(dom.type === "checkbox" && typeof value === "boolean"){(dom as HTMLInputElement).checked = value;}
-        else{dom.value = value.toString();}
+        if(value === null){value = "";}
+        dom.value = value.toString();
     }
 
     isValid(id:string, doError = false):boolean {

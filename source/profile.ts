@@ -29,8 +29,7 @@ class ProfileStorage {
         setTimeout(() => {dom.className = "off";}, 500);
     }
 
-    add():void {
-        let name = prompt("Enter the name of the profile:");
+    add(name = prompt("Enter the name of the profile:")):void {
         while(name === ""){name = prompt("Name cannot be blank:");}
         if(name === null){return;}
 
@@ -41,8 +40,7 @@ class ProfileStorage {
         this.save();
     }
 
-    save():void {
-        const name = this.#selectDOM.value;
+    save(name:string = this.#selectDOM.value):void {
         if(name === ""){this.add(); return;}
 
         const data = Autofunction.cache.loadAll();
@@ -57,8 +55,7 @@ class ProfileStorage {
         this.#flash("save", "active");
     }
 
-    load():void {
-        const name = this.#selectDOM.value;
+    load(name:string = this.#selectDOM.value):void {
         const profileString = localStorage.getItem(name);
 
         if(name === "" || profileString === null){this.#flash("load", "error"); return;}
@@ -78,8 +75,7 @@ class ProfileStorage {
         this.#flash("load", "active");
     }
 
-    remove():void {
-        const name = this.#selectDOM.value;
+    remove(name:string = this.#selectDOM.value):void {
         if(name === ""){return;}
 
         const conf = confirm("Are you sure you want to delete: " + name);

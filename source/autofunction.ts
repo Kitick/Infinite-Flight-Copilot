@@ -46,18 +46,18 @@ class Autofunction {
     }
 
     get active(){return this.#active;}
-    set active(value){this.setActive(value)};
+    set active(state){this.setActive(state)};
 
-    get inputs(){return this.#inputs;}
-    get dependents(){return this.#dependents;}
+    getInputs(){return this.#inputs}
+    getDependents(){return this.#dependents;}
 
-    setActive(value = !this.#active):void {
-        if(this.active === value){return;}
+    setActive(state = !this.#active):void {
+        if(this.active === state){return;}
 
-        this.#active = value;
+        this.#active = state;
         this.#updateButton();
 
-        if(!value){
+        if(!state){
             clearTimeout(this.#timeout);
             return;
         }
@@ -81,7 +81,7 @@ class Autofunction {
 
             this.#code({
                 states:this.#states,
-                inputs:Autofunction.cache.loadArray(this.inputs)
+                inputs:Autofunction.cache.loadArray(this.#inputs)
             });
 
             if(!this.#armed && wasArmed){
@@ -102,13 +102,13 @@ class Autofunction {
     #readStates(callback = () => {}):void {
         if(this.#numStates === 0){
             callback();
+            return;
         }
-        else{
-            this.#validStates = 0;
-            this.#states.forEach((value, state) => {
-                read(state, returnValue => {this.#stateReturn(state, returnValue, callback);});
-            });
-        }
+
+        this.#validStates = 0;
+        this.#states.forEach((value, state) => {
+            read(state, returnValue => {this.#stateReturn(state, returnValue, callback);});
+        });
     }
 
     #stateReturn(state:string, value:stateValue, callback = () => {}):void {
@@ -119,10 +119,10 @@ class Autofunction {
     }
 
     validateInputs(doError = false):boolean {
-        let valid = Autofunction.cache.isValidArray(this.inputs, doError);
+        let valid = Autofunction.cache.isValidArray(this.#inputs, doError);
 
         this.#dependents.forEach(dependent => {
-            valid = Autofunction.cache.isValidArray(dependent.inputs, doError) && valid;
+            valid = dependent.validateInputs() && valid;
         });
 
         return valid;
