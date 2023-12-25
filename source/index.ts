@@ -14,12 +14,12 @@ function bridge():void {
         }
     }
 
-    socket.emit("bridge", address);
+    socket.volatile.emit("bridge", address);
 }
 
 function closeBridge():void {
     reset();
-    socket.emit("break");
+    socket.volatile.emit("break");
 }
 
 function read(command:string, callback = (value:stateValue) => {}):void {

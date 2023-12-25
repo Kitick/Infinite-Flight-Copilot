@@ -5,7 +5,7 @@ socket.on("connect", () => {
 });
 
 socket.on("disconnect", () => {
-    setHidden(true);
+    reset();
     log("Server Disconnected\n\nPlease Restart Server");
 });
 
