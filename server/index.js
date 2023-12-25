@@ -7,27 +7,18 @@ app.use(Express.static(__dirname + "/public"));
 
 // Sockets
 io.on("connection", socket => {
-    console.log("New Client Connected");
-    socket.emit("connected", "Connected to Server");
-
     socket.on("disconnect", () => {
         console.log("Client Disconnected");
         Controller.remove(socket);
     });
 
-	socket.on("bridge", (address, callback) => {
-		const message = address + " Connection Requested";
-		callback(message);
-		console.log(message);
-
+	socket.on("bridge", (address) => {
+        Controller.log(socket, "Connection Requested");
 		Controller.bridge(socket, address);
 	});
 
-	socket.on("break", callback => {
-		const message = "Closure Requested";
-		callback(message);
-		console.log(message);
-
+	socket.on("break", () => {
+        Controller.log(socket, "Closure Requested");
 		Controller.close(socket);
 	});
 
@@ -38,6 +29,9 @@ io.on("connection", socket => {
 	socket.on("write", (command, value) => {
 		Controller.write(socket, command, value);
 	});
+
+    console.log("New Client Connected");
+    socket.emit("connected", "Connected to Server");
 });
 
 console.log("\nLoading Complete, Server Ready");

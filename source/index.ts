@@ -1,8 +1,5 @@
 function bridge():void {
-    setHidden(true);
-
-    const addressInput = document.getElementById("address") as HTMLInputElement;
-    let address = addressInput.value;
+    let address = (document.getElementById("address") as HTMLInputElement).value;
     const parts = address.split(".");
 
     if(address !== ""){
@@ -17,19 +14,12 @@ function bridge():void {
         }
     }
 
-    socket.emit("bridge", address, (response:string) => {
-        statLog.innerText = response;
-        console.log(response);
-    });
+    socket.emit("bridge", address);
 }
 
 function closeBridge():void {
     reset();
-
-    socket.emit("break", (response:string) => {
-        statLog.innerText = response;
-        console.log(response);
-    });
+    socket.emit("break");
 }
 
 function read(command:string, callback = (value:stateValue) => {}):void {
@@ -83,22 +73,3 @@ for(let i = 0, length = voices.length; i < length; i++){
     const newOption = new Option(voices[i].lang, i.toString());
     select.add(newOption);
 }
-
-socket.on("connected", (response:string) => {
-    log(response);
-});
-
-socket.on("disconnect", () => {
-    setHidden(true);
-    log("Server Disconnected\n\nPlease Restart Server");
-});
-
-socket.on("ready", (address:string) => {
-    const addressInput = document.getElementById("address") as HTMLInputElement;
-    addressInput.value = address;
-    setHidden(false);
-});
-
-socket.on("log", (response:string) => {
-    log(response);
-});

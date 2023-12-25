@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Infinite Flight API</title>
+		<title>Infinite Flight Copilot</title>
 
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width">
@@ -16,7 +16,7 @@
 		<div class="panel-container">
 			<div id="setup" class="panel">
 				<h2 class="module-name">SETUP</h2>
-        		<h3 class="status-heading">Welcome to IF-API! <br> Status: <span id="status">offline</span></h3>
+        		<h3 class="status-heading">Welcome to Infinite Flight Copilot!<br><br>Status: <span id="status">Offline</span></h3>
 
                 <input id="address" onkeypress="if(event.key === 'Enter'){bridge();}" type="text" autocomplete="off" value="" class="ip-address-input" placeholder="IP Address">
         		<div class="setup-button-container">	
@@ -192,7 +192,7 @@
             <div class="panel" hidden>
 				<h2 class="module-name">AUTO APPROACH AND LAND</h2>
                 <input id="altref" type="number" step="1" placeholder="Airport Elevation (ft)" min="0">
-                <input id="spdref" type="number" step="5" placeholder="Landing Speed VRef(kts)" min="0">
+                <input id="spdref" type="number" step="5" placeholder="Landing Speed VRef (kts)" min="0">
                	<input id="flare" type="number" placeholder="Flare Height (ft)" min="0" step="5">
                	<input id="touchdown" type="number" placeholder="Distance from threshold (ft)" min="0" step="100">
                	<input id="vparef" type="number" placeholder="VPA Refrence (deg)" min="0" max="6" step="0.1">

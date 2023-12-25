@@ -11,9 +11,8 @@ class Client {
     #dataBuffer:number[] = [];
     #manifest = new Map<string, Item>();
 
-	constructor(socket:any, address = ""){
+	constructor(socket:any){
         this.#socket = socket;
-        this.#address = address;
 
 		this.#initManifest();
 
@@ -31,7 +30,7 @@ class Client {
 			}
 		});
 
-		this.log(this.#address + " TCP Socket Created");
+		this.log("TCP Socket Created");
 	}
 
     get #scanning(){return this.#scanner !== null;}
@@ -62,11 +61,11 @@ class Client {
         this.#scanner = UDP.createSocket("udp4");
 
         this.#scanner.on("message", (data:any, info:any) => {
-			this.#address = info.address;
-			this.log(this.#address + " UDP Packet Found");
+			let address = info.address;
+			this.log(address + " UDP Packet Found");
 
 			this.#closeScanner();
-            this.connect();
+            this.connect(address);
 		});
 
 		this.#scanner.bind(15000);
@@ -112,7 +111,7 @@ class Client {
 				this.addItem(item);
 			});
 
-			this.log(this.#address + " Manifest Built, API Ready");
+			this.log(this.#address + "\nManifest Built, API Ready");
 			this.#socket.emit("ready", this.#address);
 
             return;
@@ -139,24 +138,25 @@ class Client {
 		console.log(message);
 	}
 
-    connect():void {
-		this.log(this.#address + " Attempting TCP Connection");
+    connect(address = ""):void {
+		if(this.#active){
+			this.log(this.#address + " TCP Already Active");
+            this.#socket.emit("ready", this.#address);
+			return;
+		}
 
-		if(this.#address === ""){
+        this.#address = address;
+
+        if(this.#address === ""){
 			this.#findAddress();
 			return;
 		}
 
-		if(this.#active){
-			this.log(this.#address + " TCP Already Active");
-			this.#socket.emit("ready", this.#address);
-			return;
-		}
+        this.log(this.#address + " Attempting TCP Connection");
 
 		this.#device.connect({host:this.#address, port:10112}, () => {
+            this.#active = true;
 			this.log(this.#address + " TCP Established, Requesting Manifest");
-
-			this.#active = true;
 			this.readState("manifest");
 		});
 	}
@@ -164,13 +164,17 @@ class Client {
 	close():void {
 		if(this.#scanning){this.#closeScanner();}
 
-		if(this.#active){
-            this.#active = false;
+		if(!this.#active){
+            this.log("TCP Closed");
+            return;
+        }
 
-			this.#device.end(() => {
-				this.log(this.#address + " TCP Closed");
-			});
-		}
+        this.#active = false;
+
+        this.#device.end(() => {
+            this.log(this.#address + " TCP Closed");
+            this.#address = "";
+        });
 	}
 
 	readState(itemID:string, callback = () => {}):void {

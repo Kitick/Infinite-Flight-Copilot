@@ -5,11 +5,11 @@ class Controller {
         let client = this.clients.get(socket.id);
 
 		if(client === undefined){
-			client = new Client(socket, address);
+			client = new Client(socket);
             this.clients.set(socket.id, client);
 		}
 
-		client.connect();
+		client.connect(address);
 	}
 
 	static close(socket:any):boolean {
@@ -29,7 +29,7 @@ class Controller {
         return exists;
     }
 
-	static read(socket:any, command:string, callback = (data:stateValue|null|undefined) => {}){
+	static read(socket:any, command:string, callback = (data:stateValue|null|undefined) => {}):void {
 		const client = this.clients.get(socket.id);
         const item = client?.getItem(command);
 
@@ -44,7 +44,7 @@ class Controller {
 		});
 	}
 
-	static write(socket:any, command:string, value:stateValue){
+	static write(socket:any, command:string, value:stateValue):void {
 		const client = this.clients.get(socket.id);
         const item = client?.getItem(command);
 
@@ -55,4 +55,9 @@ class Controller {
 		item.value = value;
 		client.writeState(command);
 	}
+
+    static log(socket:any, message:string):void {
+        const client = this.clients.get(socket.id);
+        if(client !== undefined){client.log(message);}
+    }
 }
