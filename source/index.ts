@@ -67,6 +67,11 @@ function reset():void {
     });
 }
 
+function log(message:string){
+    statLog.innerText = message;
+    console.log(message);
+}
+
 let statLog = document.getElementById("status") as HTMLSpanElement;
 let panels = document.getElementsByClassName("panel") as HTMLCollectionOf<HTMLDivElement>;
 
@@ -79,9 +84,13 @@ for(let i = 0, length = voices.length; i < length; i++){
     select.add(newOption);
 }
 
-socket.emit("test", (response:string) => {
-    statLog.innerText = response;
-    console.log(response);
+socket.on("connected", (response:string) => {
+    log(response);
+});
+
+socket.on("disconnect", () => {
+    setHidden(true);
+    log("Server Disconnected\n\nPlease Restart Server");
 });
 
 socket.on("ready", (address:string) => {
@@ -91,6 +100,5 @@ socket.on("ready", (address:string) => {
 });
 
 socket.on("log", (response:string) => {
-    statLog.innerText = response;
-    console.log(response);
+    log(response);
 });

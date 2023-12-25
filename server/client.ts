@@ -5,7 +5,7 @@ class Client {
     #socket:any;
     #address:string = "";
     #device = new Net.Socket();
-    #scanner = UDP.createSocket("udp4");
+    #scanner:any|null = null;
     #scannerTimeout:NodeJS.Timeout|null = null;
     #active = false;
     #dataBuffer:number[] = [];
@@ -31,18 +31,10 @@ class Client {
 			}
 		});
 
-        this.#scanner.on("message", (data:any, info:any) => {
-			this.#address = info.address;
-			this.log(this.#address + " UDP Packet Found");
-
-			this.#closeScanner();
-            this.connect();
-		});
-
 		this.log(this.#address + " TCP Socket Created");
 	}
 
-    get #scanning(){return this.#scannerTimeout !== null;}
+    get #scanning(){return this.#scanner !== null;}
 
 	#initManifest():void {
 		this.#manifest = new Map();
@@ -56,6 +48,7 @@ class Client {
         this.#scannerTimeout = null;
 
         this.#scanner.close();
+        this.#scanner = null;
     }
 
 	#findAddress():void {
@@ -66,12 +59,22 @@ class Client {
 
 		this.log("Searching for UDP Packets...");
 
+        this.#scanner = UDP.createSocket("udp4");
+
+        this.#scanner.on("message", (data:any, info:any) => {
+			this.#address = info.address;
+			this.log(this.#address + " UDP Packet Found");
+
+			this.#closeScanner();
+            this.connect();
+		});
+
+		this.#scanner.bind(15000);
+
         this.#scannerTimeout = setTimeout(() => {
             this.#closeScanner();
             this.log("UDP Search Timed out");
         }, 10000);
-
-		this.#scanner.bind(15000);
 	}
 
 	#validate():void {

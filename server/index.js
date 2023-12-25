@@ -7,10 +7,13 @@ app.use(Express.static(__dirname + "/public"));
 
 // Sockets
 io.on("connection", socket => {
-	socket.on("test", callback => {
-		callback("Connected to Server");
-		console.log("New Client Connected");
-	});
+    console.log("New Client Connected");
+    socket.emit("connected", "Connected to Server");
+
+    socket.on("disconnect", () => {
+        console.log("Client Disconnected");
+        Controller.remove(socket);
+    });
 
 	socket.on("bridge", (address, callback) => {
 		const message = address + " Connection Requested";

@@ -17,10 +17,17 @@ class Controller {
 		if(client === undefined){return false;}
 
 		client.close();
-		this.clients.delete(socket.id);
 
 		return true;
 	}
+
+    static remove(socket:any):boolean {
+        const exists = this.close(socket);
+        
+        if(exists){this.clients.delete(socket.id);}
+
+        return exists;
+    }
 
 	static read(socket:any, command:string, callback = (data:stateValue|null|undefined) => {}){
 		const client = this.clients.get(socket.id);
