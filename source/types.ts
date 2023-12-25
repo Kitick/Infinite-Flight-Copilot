@@ -56,7 +56,7 @@ type fplItemStruct = {
 };
 
 type vnavWaypoint = {
-    name:string|null,
+    name:string | null,
     index:number,
     children:number,
     altitude:number,
