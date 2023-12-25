@@ -31,7 +31,6 @@ io.on("connection", socket => {
 	});
 
     console.log("New Client Connected");
-    socket.emit("connected", "Connected to Server");
 });
 
 console.log("\nLoading Complete, Server Ready");

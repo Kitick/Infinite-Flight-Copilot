@@ -1,12 +1,16 @@
 const socket = io();
 
-socket.on("connected", (response) => {
-    log(response);
+socket.on("connect", () => {
+    log("Connected to Server");
 });
 
 socket.on("disconnect", () => {
     setHidden(true);
     log("Server Disconnected\n\nPlease Restart Server");
+});
+
+socket.on("connect_error", () => {
+    console.clear();
 });
 
 socket.on("ready", (address) => {
