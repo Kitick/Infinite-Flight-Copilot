@@ -50,7 +50,7 @@ class Autofunction {
 
     isActive(){return this.#active;}
 
-    setActive(state = !this.#active):void {console.log("setActive", state);
+    setActive(state = !this.#active):void {
         if(this.#active === state){return;}
 
         this.#active = state;
@@ -68,16 +68,16 @@ class Autofunction {
         }
     }
 
-    #updateButton():void {console.log("updateButton");
+    #updateButton():void {
         this.#button.className = this.#active ? "active" : "off";
     }
 
-    #run():void {console.log("run");
+    #run():void {
         const valid = this.validateInputs(true);
 
         if(!valid){this.error(); return;}
 
-        this.#readStates(() => {console.log("readStatesCallback");
+        this.#readStates(() => {
             const wasArmed = this.#armed;
             this.#armed = false;
 
@@ -101,26 +101,26 @@ class Autofunction {
         });
     }
 
-    #readStates(callback = () => {}):void {console.log("readStates");
+    #readStates(callback = () => {}):void {
         if(this.#numStates === 0){
             callback();
             return;
         }
 
         this.#validStates = 0;
-        this.#states.forEach((value, state) => {console.log("read", state);
+        this.#states.forEach((value, state) => {
             read(state, returnValue => {this.#stateReturn(state, returnValue, callback);});
         });
     }
 
-    #stateReturn(state:string, value:stateValue, callback = () => {}):void {console.log("stateReturn", state, value);
+    #stateReturn(state:string, value:stateValue, callback = () => {}):void {
         this.#states.set(state, value);
         this.#validStates++;
 
         if(this.#validStates === this.#numStates){callback();}
     }
 
-    validateInputs(doError = false):boolean {console.log("validateInputs", doError);
+    validateInputs(doError = false):boolean {
         let valid = Autofunction.cache.isValidArray(this.#inputs, doError);
 
         this.#dependents.forEach(dependent => {
@@ -130,12 +130,12 @@ class Autofunction {
         return valid;
     }
 
-    arm():void {console.log("arm");
+    arm():void {
         this.#armed = true;
         this.#button.className = "armed";
     }
 
-    error():void {console.log("error");
+    error():void {
         this.#active = false;
         this.#button.className = "error";
         this.#timeout = setTimeout(() => {this.#updateButton();}, 2000);
