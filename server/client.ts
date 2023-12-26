@@ -4,12 +4,12 @@ const UDP = require("dgram");
 class Client {
     #socket:any;
     #address:string = "";
-    #device = new Net.Socket();
+    #device:any = new Net.Socket();
     #scanner:any|null = null;
     #scannerTimeout:NodeJS.Timeout|null = null;
-    #active = false;
-    #dataBuffer:number[] = [];
-    #manifest = new Map<string, Item>();
+    #active:boolean = false;
+    #dataBuffer:Buffer = Buffer.alloc(0);
+    #manifest:Map<string, Item> = new Map();
 
 	constructor(socket:any){
         this.#socket = socket;
@@ -19,7 +19,7 @@ class Client {
 		this.#device.on("data", (buffer:Buffer) => {
             console.log(this.#address + " Rx\t\t\t", buffer);
 
-			for(let binary of buffer){this.#dataBuffer.push(binary);}
+			this.#dataBuffer = Buffer.concat([this.#dataBuffer, buffer]);
 
 			this.#validate();
 		});
@@ -79,14 +79,14 @@ class Client {
 	#validate():void {
 		if(this.#dataBuffer.length < 9){return;}
 
-		const length = Buffer.from(this.#dataBuffer.slice(4, 8)).readInt32LE() + 8;
+		const dataLength = this.#dataBuffer.readInt32LE(4) + 8; // 4 byte id + 4 byte length
 
-		if(this.#dataBuffer.length < length){return;}
+		if(this.#dataBuffer.length < dataLength){return;}
 
-		const id = Buffer.from(this.#dataBuffer.slice(0, 4)).readInt32LE();
-		const data = Buffer.from(this.#dataBuffer.slice(8, length));
+		const id = this.#dataBuffer.readInt32LE(0);
+		const data = this.#dataBuffer.subarray(8, dataLength);
 
-		this.#dataBuffer.splice(0, length);
+		this.#dataBuffer = this.#dataBuffer.subarray(dataLength);
 
 		this.#processData(id, data);
 
