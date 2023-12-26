@@ -133,6 +133,12 @@ class Client {
 		return buffer;
 	}
 
+    #serverLog(name:string, item:Item, buffer:Buffer, writing = false){
+        const equals = writing ? " =":"";
+        const value = writing ? item.value:"";
+        console.log(this.#address, "Tx", name, "(" + item.id.toString() + ")" + equals, value, buffer);
+    }
+
     log(message:string):void {
 		this.#socket.emit("log", message);
 		console.log(message);
@@ -191,7 +197,7 @@ class Client {
 		const buffer = this.#initalBuffer(item.id, 0);
 
 		this.#device.write(buffer);
-		console.log(this.#address + " Tx " + itemID + " (" + item.id + ")\t", buffer);
+		this.#serverLog(itemID, item, buffer);
 	}
 
 	writeState(itemID:string):void {
@@ -203,7 +209,7 @@ class Client {
 		buffer = Buffer.concat([buffer, item.buffer]);
 
 		this.#device.write(buffer);
-		console.log(this.#address + " Tx " + itemID + " (" + item.id + ")\t", buffer);
+		this.#serverLog(itemID, item, buffer, true);
 	}
 
 	addItem(item:Item):void {
