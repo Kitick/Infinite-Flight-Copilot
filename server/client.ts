@@ -52,11 +52,11 @@ class Client {
 
 	#findAddress():void {
 		if(this.#scanning){
-			this.log("Already Searching for UDP Packets");
+			this.log("Already searching for packets");
 			return;
 		}
 
-		this.log("Searching for UDP Packets...");
+		this.log("Searching for UDP packets...");
 
         this.#scanner = UDP.createSocket("udp4");
 
@@ -72,7 +72,7 @@ class Client {
 
         this.#scannerTimeout = setTimeout(() => {
             this.#closeScanner();
-            this.log("UDP Search Timed out");
+            this.log("UDP search timed out\n\nTry using an IP address");
         }, 10000);
 	}
 
@@ -145,7 +145,7 @@ class Client {
 
     connect(address = ""):void {
 		if(this.#active){
-			this.log(this.#address + " TCP Already Active");
+			this.log(this.#address + " TCP is already active");
             this.#socket.emit("ready", this.#address);
 			return;
 		}
