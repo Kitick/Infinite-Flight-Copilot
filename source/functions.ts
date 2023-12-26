@@ -518,11 +518,11 @@ const flypattern = new Autofunction("flypattern", 1000, ["latref", "longref", "h
     };
     const base = {
         location:calcLLfromHD(refrence.location, hdgref + 180, finallength, variation),
-        hdg:hdgref + 180,
+        hdg:hdg90 + 180,
     };
     const downwind = {
         location:calcLLfromHD(base.location, hdg90, downwidth, variation),
-        hdg:hdg90,
+        hdg:hdgref + 180,
     };
 
     const pattern = {

@@ -107,7 +107,6 @@ class Client {
                 const name = itemRaw[2];
 
 				const item = new Item(id, type, name);
-
 				this.addItem(item);
 			});
 
@@ -185,14 +184,13 @@ class Client {
 
 	readState(itemID:string, callback = () => {}):void {
 		const item = this.getItem(itemID);
+        if(item === undefined){callback(); return;}
 
-		if(item === undefined || item.type === -1){
-			callback();
-            return;
-		}
-
-        const length = item.addCallback(callback);
-        if(length > 1){return;}
+        if(item.type === -1){callback();}
+        else{
+            const length = item.addCallback(callback);
+            if(length > 1){return;}
+        }
 
 		const buffer = this.#initalBuffer(item.id, 0);
 
