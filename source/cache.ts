@@ -1,25 +1,26 @@
 class StateCache {
-    #data = new Map<string, {dom:HTMLInputElement, value:dataValue}>();
+    #data = new Map<string, {dom:inputHTML, value:dataValue}>();
 
     constructor(){}
 
-    #parse(dom:HTMLInputElement):void {
-        let value:dataValue;
+    #parse(dom:inputHTML):void {
+        const refrence = this.#data.get(dom.id);
+        if(refrence === undefined){return;}
+
+        let value:dataValue = null;
 
         switch(dom.type){
             case "number": value = parseFloat(dom.value); break;
-            case "checkbox": value = dom.checked; break;
+            case "checkbox": value = (dom as HTMLInputElement).checked; break;
             case "select-one": value = dom.value; break;
-            default: value = null;
         }
 
-        if(dom.type === "number" && typeof value === "number" && isNaN(value)){value = null;}
+        if(typeof value === "number" && isNaN(value)){value = null;}
 
-        let refrence = this.#data.get(dom.id);
-        if(refrence !== undefined){refrence.value = value};
+        refrence.value = value;
     }
 
-    #error(dom:HTMLInputElement):void {
+    #error(dom:inputHTML):void {
         dom.classList.add("error");
         setTimeout(() => {dom.classList.remove("error");}, 2000);
     }
@@ -29,8 +30,8 @@ class StateCache {
             if(this.#data.get(id) === undefined){
                 const element = document.getElementById(id);
 
-                if(element !== null && element.tagName === "INPUT"){
-                    const dom = element as HTMLInputElement;
+                if(element !== null){
+                    const dom = element as inputHTML;
 
                     dom.addEventListener("change", () => {
                         this.#parse(dom);
@@ -49,14 +50,17 @@ class StateCache {
         let returnMap:dataMap = new Map();
 
         ids.forEach(id => {
-            let refrence = this.#data.get(id);
-            if(refrence !== undefined){returnMap.set(id, refrence.value);}
+            const value = this.load(id);
+            if(value !== undefined){returnMap.set(id, value);}
         });
 
         return returnMap;
     }
-
-    load(...ids:string[]):dataMap {return this.loadArray(ids);}
+ 
+    load(id:string):dataValue|undefined {
+        const value = this.#data.get(id)?.value;
+        return value;
+    }
 
     loadAll():dataMap {
         let returnMap:dataMap = new Map();
@@ -75,10 +79,13 @@ class StateCache {
         refrence.value = value;
         const dom = refrence.dom;
 
-        if(value === null){value = "";}
+        if(typeof value === "boolean"){
+            (dom as HTMLInputElement).checked = value;
+            return;
+        }
 
-        if(dom.type === "checkbox" && typeof value === "boolean"){dom.checked = value;}
-        else{dom.value = value.toString();}
+        if(value === null){value = "";}
+        dom.value = value.toString();
     }
 
     isValid(id:string, doError = false):boolean {

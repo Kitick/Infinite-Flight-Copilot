@@ -1,8 +1,5 @@
 function bridge():void {
-    setVisibility(true);
-
-    const addressInput = document.getElementById("address") as HTMLInputElement;
-    let address = addressInput.value;
+    let address = (document.getElementById("address") as HTMLInputElement).value;
     const parts = address.split(".");
 
     if(address !== ""){
@@ -17,19 +14,12 @@ function bridge():void {
         }
     }
 
-    socket.emit("bridge", address, (response:string) => {
-        statLog.innerText = response;
-        console.log(response);
-    });
+    socket.volatile.emit("bridge", address);
 }
 
 function closeBridge():void {
     reset();
-
-    socket.emit("break", (response:string) => {
-        statLog.innerText = response;
-        console.log(response);
-    });
+    socket.volatile.emit("break");
 }
 
 function read(command:string, callback = (value:stateValue) => {}):void {
@@ -52,7 +42,7 @@ function write(command:string, value:stateValue){
     socket.emit("write", command, value);
 }
 
-function setVisibility(hidden:boolean):void {
+function setHidden(hidden:boolean):void {
     for(let i = 1, length = panels.length; i < length; i++){
         const panel = panels[i] as HTMLDivElement;
         panel.hidden = hidden;
@@ -60,19 +50,24 @@ function setVisibility(hidden:boolean):void {
 }
 
 function reset():void {
-    setVisibility(true);
-
+    setHidden(true);
+    
     autofunctions.forEach(autofunc => {
-        if(autofunc.active){
-            autofunc.active = false;
-        }
+        if(autofunc.isActive()){autofunc.setActive(false);}
     });
+
+    storage.load(ProfileStorage.defaultName);
+}
+
+function log(message:string){
+    statLog.innerText = message;
+    console.log(message);
 }
 
 let statLog = document.getElementById("status") as HTMLSpanElement;
 let panels = document.getElementsByClassName("panel") as HTMLCollectionOf<HTMLDivElement>;
 
-const storage = new profileStorage(document.getElementById("configselect") as HTMLSelectElement);
+const storage = new ProfileStorage(document.getElementById("configselect") as HTMLSelectElement);
 
 const select = document.getElementById("voices") as HTMLSelectElement;
 const voices = speechSynthesis.getVoices();
@@ -80,19 +75,3 @@ for(let i = 0, length = voices.length; i < length; i++){
     const newOption = new Option(voices[i].lang, i.toString());
     select.add(newOption);
 }
-
-socket.emit("test", (response:string) => {
-    statLog.innerText = response;
-    console.log(response);
-});
-
-socket.on("ready", (address:string) => {
-    const addressInput = document.getElementById("address") as HTMLInputElement;
-    addressInput.value = address;
-    setVisibility(false);
-});
-
-socket.on("log", (response:string) => {
-    statLog.innerText = response;
-    console.log(response);
-});

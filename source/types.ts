@@ -1,6 +1,7 @@
-type stateValue = string | number | boolean;
-type dataValue = string | number | boolean | null;
+type stateValue = string | number | bigint | boolean;
+type dataValue = stateValue | null;
 type dataMap = Map<string, dataValue>;
+type inputHTML = HTMLInputElement | HTMLSelectElement;
 
 type latlong = {lat:number, long:number};
 
@@ -55,11 +56,11 @@ type fplItemStruct = {
 };
 
 type vnavWaypoint = {
-    name:string|null,
+    name:string | null,
     index:number,
     children:number,
     altitude:number,
     altitudeRestriction:number[],
     altitudeRestrictionDistance:number,
     restrictionLocation:latlong
-}
+};

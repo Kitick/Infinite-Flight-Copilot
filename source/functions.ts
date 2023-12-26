@@ -1,4 +1,4 @@
-const autotrim = new autofunction("trim", 1000, [], ["pitch", "trim", "onground"], [], data => {
+const autotrim = new Autofunction("trim", 1000, [], ["pitch", "trim", "onground"], [], data => {
     const states = data.states;
 
     const onground = states.get("onground") as boolean;
@@ -28,7 +28,7 @@ const autotrim = new autofunction("trim", 1000, [], ["pitch", "trim", "onground"
     }
 });
 
-const autolights = new autofunction("lights", 2000, [], ["altitudeAGL", "onground", "onrunway", "gear"], [], data => {
+const autolights = new Autofunction("lights", 2000, [], ["altitudeAGL", "onground", "onrunway", "gear"], [], data => {
     const states = data.states;
 
     const altitudeAGL = states.get("altitudeAGL") as number;
@@ -52,7 +52,7 @@ const autolights = new autofunction("lights", 2000, [], ["altitudeAGL", "ongroun
     }
 });
 
-const autogear = new autofunction("gear", 1000, [], ["gear", "altitudeAGL", "verticalspeed"], [], data => {
+const autogear = new Autofunction("gear", 1000, [], ["gear", "altitudeAGL", "verticalspeed"], [], data => {
     const states = data.states;
 
     const gear = states.get("gear") as boolean;
@@ -72,7 +72,7 @@ const autogear = new autofunction("gear", 1000, [], ["gear", "altitudeAGL", "ver
     if(newState !== gear){read("commands/LandingGear");}
 });
 
-const autobrakes = new autofunction("autobrakes", 1000, [], ["leftbrake", "rightbrake", "autobrakes", "onground", "onrunway", "groundspeed"], [], data => {
+const autobrakes = new Autofunction("autobrakes", 1000, [], ["leftbrake", "rightbrake", "autobrakes", "onground", "onrunway", "groundspeed"], [], data => {
     const states = data.states;
 
     const leftbrake = states.get("leftbrake") as number;
@@ -95,7 +95,7 @@ const autobrakes = new autofunction("autobrakes", 1000, [], ["leftbrake", "right
     if(newBrakes !== autobrakes){write("autobrakes", newBrakes);}
 });
 
-const autoflaps = new autofunction("flaps", 1000, ["flaplow", "flaphigh", "flapto"], ["flaps", "airspeed", "altitudeAGL", "verticalspeed", "flapcount", "onground", "onrunway"], [], data => {
+const autoflaps = new Autofunction("flaps", 1000, ["flaplow", "flaphigh", "flapto"], ["flaps", "airspeed", "altitudeAGL", "verticalspeed", "flapcount", "onground", "onrunway"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -139,7 +139,7 @@ const autoflaps = new autofunction("flaps", 1000, ["flaplow", "flaphigh", "flapt
     if(newFlaps !== flaps){write("flaps", newFlaps);}
 });
 
-const autospoilers = new autofunction("spoilers", 1000, [], ["spoilers", "airspeed", "spd", "altitude", "altitudeAGL", "onrunway", "onground"], [], data => {
+const autospoilers = new Autofunction("spoilers", 1000, [], ["spoilers", "airspeed", "spd", "altitude", "altitudeAGL", "onrunway", "onground"], [], data => {
     const states = data.states;
 
     const spoilers = states.get("spoilers") as number;
@@ -162,7 +162,65 @@ const autospoilers = new autofunction("spoilers", 1000, [], ["spoilers", "airspe
     if(newSpoilers !== spoilers){write("spoilers", newSpoilers);}
 });
 
-const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"], ["airspeed", "altitude", "alt", "vs"], [], data => {
+const autospeed = new Autofunction("autospeed", 1000, ["latref", "longref", "climbspd", "spdref", "cruisespd"], ["onground", "airspeed", "verticalspeed", "altitudeAGL", "altitude", "latitude", "longitude", "spd"], [], data => {
+    const inputs = data.inputs;
+    const states = data.states;
+
+    const latref = inputs.get("latref") as number;
+    const longref = inputs.get("longref") as number;
+    const climbspd = inputs.get("climbspd") as number;
+    const spdref = inputs.get("spdref") as number;
+    const cruisespd = inputs.get("cruisespd") as number;
+
+    const onground = states.get("onground") as boolean;
+    const airspeed = states.get("airspeed") as number;
+    const verticalspeed = states.get("verticalspeed") as number;
+    const altitudeAGL = states.get("altitudeAGL") as number;
+    const altitude = states.get("altitude") as number;
+    const latitude = states.get("latitude") as number;
+    const longitude = states.get("longitude") as number;
+    const spd = states.get("spd") as number;
+
+    if(onground){
+        autospeed.arm();
+        return;
+    }
+
+    // elevation os optional
+    const elevation = Autofunction.cache.load("altref") as number|null;
+    //const cruisespd = autofunction.cache.load("cruisespd").get("cruisespd") as number|null;
+    const alt = (elevation === null) ? altitudeAGL : altitude - elevation;
+
+    if(autoland.isActive()){
+        const distance = calcLLdistance({lat:latitude, long:longitude}, {lat:latref, long:longref});
+        
+        let speed = (distance - 2.5) * 10 + spdref;
+        speed = Math.min(speed, spd);
+        speed = Math.round(speed / 10) * 10;
+        speed = Math.max(speed, spdref);
+
+        write("spd", speed);
+    }
+    else if(flypattern.isActive()){
+
+    }
+    else if(autotakeoff.isActive()){
+        if(verticalspeed > 500 && alt <= 10000 && climbspd - airspeed < 10){
+            write("spd", climbspd);
+            write("spdon", true);
+        }
+    }
+
+    if(verticalspeed < -500 && alt <= 12000 && alt >= 10000){
+        write("spd", 250);
+    }
+
+    if(cruisespd !== null && verticalspeed > 500 && alt > 10000){
+        write("spd", cruisespd);
+    }
+});
+
+const levelchange = new Autofunction("levelchange", 1000, ["flcinput", "flcmode"], ["airspeed", "altitude", "alt", "vs"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -179,7 +237,7 @@ const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"
     const diffrence = alt - altitude;
 
     if(Math.abs(diffrence) < 100){
-        levelchange.active = false;
+        levelchange.setActive(false);
         return;
     }
 
@@ -196,7 +254,7 @@ const levelchange = new autofunction("levelchange", 1000, ["flcinput", "flcmode"
     if(output !== vs){write("vs", output);}
 });
 
-const markposition = new autofunction("markposition", -1, [], ["latitude", "longitude", "altitude", "heading"], [], data => {
+const markposition = new Autofunction("markposition", -1, [], ["latitude", "longitude", "altitude", "heading"], [], data => {
     const states = data.states;
 
     const latitude = states.get("latitude") as number;
@@ -204,13 +262,13 @@ const markposition = new autofunction("markposition", -1, [], ["latitude", "long
     const altitude = states.get("altitude") as number;
     const heading = states.get("heading") as number;
 
-    autofunction.cache.save("latref", latitude);
-    autofunction.cache.save("longref", longitude);
-    autofunction.cache.save("hdgref", Math.round(heading));
-    autofunction.cache.save("altref", Math.round(altitude));
+    Autofunction.cache.save("latref", latitude);
+    Autofunction.cache.save("longref", longitude);
+    Autofunction.cache.save("hdgref", Math.round(heading));
+    Autofunction.cache.save("altref", Math.round(altitude));
 });
 
-const setrunway = new autofunction("setrunway", -1, [], ["route", "coordinates"], [], data => {
+const setrunway = new Autofunction("setrunway", -1, [], ["route", "coordinates"], [], data => {
     const states = data.states;
 
     const route = states.get("route") as string;
@@ -231,17 +289,145 @@ const setrunway = new autofunction("setrunway", -1, [], ["route", "coordinates"]
         return;
     }
 
+    const runway = fpl[rwIndex][2] + fpl[rwIndex][3] + "0";
     const runwayCoords = coordinates.split(" ")[rwIndex].split(",");
+
     const latref = parseFloat(runwayCoords[0]);
     const longref = parseFloat(runwayCoords[1]);
-    const hdgref = parseInt(route[rwIndex][2] + route[rwIndex][3] + "0");
+    const hdgref = parseInt(runway);
 
-    autofunction.cache.save("latref", latref);
-    autofunction.cache.save("longref", longref);
-    autofunction.cache.save("hdgref", hdgref);
+    Autofunction.cache.save("latref", latref);
+    Autofunction.cache.save("longref", longref);
+    Autofunction.cache.save("hdgref", hdgref);
 });
 
-const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohdg"], ["latitude", "longitude", "variation", "groundspeed", "wind", "winddir"], [], data => {
+const rejecttakeoff = new Autofunction("reject", -1, [], ["onrunway"], [], data => {
+    const states = data.states;
+
+    const onrunway = states.get("onrunway") as boolean;
+
+    if(!onrunway){
+        rejecttakeoff.error();
+        console.log("Not on a runway");
+        return;
+    }
+
+    if(autotakeoff.isActive()){
+        autotakeoff.error();
+    }
+
+    write("throttle", -100);
+});
+
+const takeoffconfig = new Autofunction("takeoffconfig", -1, ["climbalt", "climbtype"], ["onground", "heading", "altitude"], [], data => {
+    const inputs = data.inputs;
+    const states = data.states;
+
+    const climbalt = inputs.get("climbalt") as number;
+    const climbtype = inputs.get("climbtype") as altType;
+
+    const onground = states.get("onground") as boolean;
+    const heading = states.get("heading") as number;
+    const altitude = states.get("altitude") as number;
+
+    if(!onground){
+        takeoffconfig.error();
+        console.log("Not on the ground");
+        return;
+    }
+
+    let alt = climbalt;
+    if(climbtype === "agl"){
+        const agl = Math.round(altitude / 100) * 100;
+        alt += agl;
+    }
+
+    write("alt", alt);
+    write("hdg", heading);
+    write("vs", 0);
+
+    write("parkingbrake", false);
+});
+
+const autotakeoff = new Autofunction("autotakeoff", 500, ["rotate", "climbspd", "climbthrottle", "takeoffspool", "takeofflnav", "takeoffvnav"], ["onrunway", "n1", "airspeed"], [takeoffconfig, levelchange, rejecttakeoff], data => {
+    const inputs = data.inputs;
+    const states = data.states;
+
+    const rotate = inputs.get("rotate") as number;
+    const climbspd = inputs.get("climbspd") as number;
+    const climbthrottle = inputs.get("climbthrottle") as number;
+    const takeoffspool = inputs.get("takeoffspool") as boolean;
+    const takeofflnav = inputs.get("takeofflnav") as boolean;
+    const takeoffvnav = inputs.get("takeoffvnav") as boolean;
+
+    const onrunway = states.get("onrunway") as boolean;
+    const n1 = states.get("n1") as number|null;
+    const airspeed = states.get("airspeed") as number;
+
+    const throttle = 2 * climbthrottle - 100;
+
+    let stage = autotakeoff.stage;
+
+    if(stage === 0){
+        if(!onrunway){
+            autotakeoff.error();
+            console.log("Not on a runway");
+            return;
+        }
+
+        takeoffconfig.setActive(true);
+        levelchange.setActive(false);
+
+        write("spd", climbspd);
+
+        write("autopilot", true);
+        write("alton", true);
+        write("vson", false);
+        write("hdgon", true);
+
+        const initalThrottle = takeoffspool ? -20 : throttle;
+        write("throttle", initalThrottle);
+
+        stage++;
+    }
+    else if(stage === 1){
+        write("vson", true);
+
+        if(!takeoffspool){
+            stage++;
+        }
+        else if(n1 === null){
+            write("throttle", throttle);
+            stage++;
+        }
+        else if(n1 >= 40){
+            write("throttle", throttle);
+            stage++;
+        }
+    }
+    else if(stage === 2){
+        if(airspeed >= rotate){
+            levelchange.setActive(true);
+            stage++;
+        }
+    }
+    else if(stage === 3){
+        if(climbspd - airspeed < 10){
+            if(takeofflnav){write("navon", true);}
+            if(takeoffvnav){vnavSystem.setActive(true);}
+
+            write("spdon", true);
+            stage++;
+        }
+    }
+    else{
+        autotakeoff.setActive(false);
+    }
+
+    autotakeoff.stage = stage;
+});
+
+const flyto = new Autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohdg"], ["latitude", "longitude", "variation", "groundspeed", "wind", "winddir"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -259,7 +445,7 @@ const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohd
     const distance = calcLLdistance({lat:latitude, long:longitude}, {lat:flytolat, long:flytolong});
 
     if(distance < 1){
-        flyto.active = false;
+        flyto.setActive(false);
         return;
     }
 
@@ -296,7 +482,7 @@ const flyto = new autofunction("flyto", 1000, ["flytolat", "flytolong", "flytohd
     write("hdg", course);
 });
 
-const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "hdgref", "updist", "downwidth", "finallength", "turnconst", "leg", "direction", "approach"], ["latitude", "longitude", "variation", "groundspeed"], [], data => {
+const flypattern = new Autofunction("flypattern", 1000, ["latref", "longref", "hdgref", "updist", "downwidth", "finallength", "turnconst", "leg", "direction", "approach"], ["latitude", "longitude", "variation", "groundspeed"], [flyto], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -365,123 +551,69 @@ const flypattern = new autofunction("flypattern", 1000, ["latref", "longref", "h
     }
 
     if(legout === "f" && approach){
-        autoland.active = true;
+        autoland.setActive(true);
     }
 
     const latout = currentLeg.location.lat;
     const longout = currentLeg.location.long;
     const hdgout = cyclical(currentLeg.hdg);
 
-    autofunction.cache.save("leg", legout);
-    autofunction.cache.save("flytolat", latout);
-    autofunction.cache.save("flytolong", longout);
-    autofunction.cache.save("flytohdg", hdgout);
+    Autofunction.cache.save("leg", legout);
+    Autofunction.cache.save("flytolat", latout);
+    Autofunction.cache.save("flytolong", longout);
+    Autofunction.cache.save("flytohdg", hdgout);
 
-    flyto.active = true;
+    flyto.setActive(true);
 });
 
-const autospeed = new autofunction("autospeed", 1000, ["latref", "longref", "climbspd", "spdref", "cruisespd"], ["onground", "airspeed", "verticalspeed", "altitudeAGL", "altitude", "latitude", "longitude", "spd"], [], data => {
-    const inputs = data.inputs;
-    const states = data.states;
-
-    const latref = inputs.get("latref") as number;
-    const longref = inputs.get("longref") as number;
-    const climbspd = inputs.get("climbspd") as number;
-    const spdref = inputs.get("spdref") as number;
-    const cruisespd = inputs.get("cruisespd") as number;
-
-    const onground = states.get("onground") as boolean;
-    const airspeed = states.get("airspeed") as number;
-    const verticalspeed = states.get("verticalspeed") as number;
-    const altitudeAGL = states.get("altitudeAGL") as number;
-    const altitude = states.get("altitude") as number;
-    const latitude = states.get("latitude") as number;
-    const longitude = states.get("longitude") as number;
-    const spd = states.get("spd") as number;
-
-    if(onground){
-        autospeed.arm();
-        return;
-    }
-
-    // elevation os optional
-    const elevation = autofunction.cache.load("altref").get("altref") as number|null;
-    //const cruisespd = autofunction.cache.load("cruisespd").get("cruisespd") as number|null;
-    const alt = (elevation === null) ? altitudeAGL : altitude - elevation;
-
-    if(autoland.active){
-        const distance = calcLLdistance({lat:latitude, long:longitude}, {lat:latref, long:longref});
-        
-        let speed = (distance - 2.5) * 10 + spdref;
-        speed = Math.min(speed, spd);
-        speed = Math.round(speed / 10) * 10;
-        speed = Math.max(speed, spdref);
-
-        write("spd", speed);
-    }
-    else if(flypattern.active){
-
-    }
-    else if(autotakeoff.active){
-        if(verticalspeed > 500 && alt <= 10000 && climbspd - airspeed < 10){
-            write("spd", climbspd);
-            write("spdon", true);
-        }
-    }
-
-    if(verticalspeed < -500 && alt <= 12000 && alt >= 10000){
-        write("spd", 250);
-    }
-
-    if(cruisespd !== null && verticalspeed > 500 && alt > 10000){
-        write("spd", cruisespd);
-    }
-});
-
-const goaround = new autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype", "flapto"], ["altitude", "vs"], [levelchange, autoflaps, autogear, autospoilers], data => {
+const goaround = new Autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype"], ["onground", "altitude", "vs"], [levelchange], data => {
     const inputs = data.inputs;
     const states = data.states;
 
     const climbalt = inputs.get("climbalt") as number;
     const climbspd = inputs.get("climbspd") as number;
     const climbtype = inputs.get("climbtype") as altType;
-    const flapto = inputs.get("flapto") as number;
 
+    const onground = states.get("onground") as boolean;
     const altitude = states.get("altitude") as number;
     const vs = states.get("vs") as number;
 
-    autospeed.active = false;
+    const flapto = Autofunction.cache.load("flapto") as number|null;
+
+    if(onground){
+        goaround.error();
+        console.log("Cannot goaround on the ground");
+        return;
+    }
+
     autoland.error();
 
-    autofunction.cache.save("flcmode", "g");
-    autofunction.cache.save("flcinput", 500);
-    autofunction.cache.save("leg", "u");
+    Autofunction.cache.save("flcmode", "g");
+    Autofunction.cache.save("flcinput", 500);
+    Autofunction.cache.save("leg", "u");
 
     let alt = climbalt;
-    const inmsl = climbtype === "msl";
-    const agl = Math.round(altitude / 100) * 100;
-    alt += inmsl ? 0 : agl;
+    if(climbtype === "agl"){
+        const agl = Math.round(altitude / 100) * 100;
+        alt += agl;
+    }
 
     write("spd", climbspd);
     write("alt", alt);
     write("spdon", true);
     write("alton", true);
-    write("flaps", flapto);
+    write("hdgon", true);
+
+    if(autoflaps.isActive() && flapto !== null){write("flaps", flapto);}
 
     if(vs < 0){write("vs", 0);}
 
-    flypattern.active = true;
-
     setTimeout(() => {
-        levelchange.active = true;
+        levelchange.setActive(true);
     }, 500);
-
-    autoflaps.active = true;
-    autogear.active = true;
-    autospoilers.active = true;
 });
 
-const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altref", "hdgref", "vparef", "flare", "touchdown", "option"], ["latitude", "longitude", "altitude", "groundspeed", "onrunway"], [levelchange, autoflaps, autogear, autospeed, flypattern, goaround, autospoilers], data => {
+const autoland = new Autofunction("autoland", 1000, ["latref", "longref", "altref", "hdgref", "vparef", "flare", "touchdown", "option"], ["latitude", "longitude", "altitude", "groundspeed", "onrunway"], [levelchange, flypattern, goaround], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -501,24 +633,25 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
     const onrunway = states.get("onrunway") as boolean;
 
     if(autoland.stage === 0){
-        autofunction.cache.save("leg", "f");
-        autofunction.cache.save("flcmode", "v");
+        Autofunction.cache.save("flcmode", "v");
+        Autofunction.cache.save("leg", "f");
         autoland.stage++;
     }
 
     const touchdownZone = calcLLfromHD({lat:latref, long:longref}, hdgref, touchdown / 6076.12);
     const touchdownDistance = 6076.12 * calcLLdistance({lat:latitude, long:longitude}, touchdownZone); // nm to ft
 
-    if(autoland.stage === 2 || touchdownDistance <= 1000){
-        autoland.stage = 2;
+    if(autoland.stage >= 2 || touchdownDistance <= 1000){
+        if(autoland.stage === 2){
+            autoland.stage++;
 
-        autospeed.active = false;
-        levelchange.active = false;
+            levelchange.setActive(false);
 
-        autofunction.cache.save("flcmode", "g");
-        autofunction.cache.save("flcinput", 500);
+            Autofunction.cache.save("flcmode", "g");
+            Autofunction.cache.save("flcinput", 500);
 
-        write("vs", -200);
+            write("vs", -200);
+        }
 
         if(option !== "p"){
             write("spdon", false);
@@ -526,172 +659,50 @@ const autoland = new autofunction("autoland", 1000, ["latref", "longref", "altre
         }
 
         if(option === "p"){
-            autoland.active = false;
-            setTimeout(() => {goaround.active = true;}, 10000);
+            autoland.setActive(false);
+            setTimeout(() => {goaround.setActive(true);}, 10000);
         }
         else if(option === "l"){
-            autoland.active = false;
-            flypattern.active = false;
-            flyto.active = false;
+            autoland.setActive(false);
+            flypattern.setActive(false);
+            flyto.setActive(false);
         }
         else if(option === "t" && onrunway){
-            autoland.active = false;
-            setTimeout(() => {autotakeoff.active = true;}, 5000);
+            autoland.setActive(false);
+            setTimeout(() => {autotakeoff.setActive(true);}, 5000);
         }
         else if(option === "s" && groundspeed < 1){
-            autoland.active = false;
-            autotakeoff.active = true;
+            autoland.setActive(false);
+            autotakeoff.setActive(true);
         }
-    }
-    else{
-        const altDiffrence = altitude - altref;
-        const currentVPA = Math.asin(altDiffrence / touchdownDistance) * toDeg;
 
-        let mod = 2;
-        if(touchdownDistance <= 6076){mod = 0.5;}
-
-        let vpaout = currentVPA - mod * (vparef - currentVPA);
-        vpaout = Math.round(vpaout * 10) / 10;
-
-        vpaout = Math.min(vpaout, vparef + 0.5);
-        if(vpaout < vparef - 0.5){vpaout = 0;}
-
-        autofunction.cache.save("flcinput", vpaout);
-
-        const stopalt = altref + flare;
-        write("alt", stopalt);
-
-        levelchange.active = true;
-        autospeed.active = true;
-        flypattern.active = true;
-        autoflaps.active = true;
-        autospeed.active = true;
-        autospoilers.active = true;
-        autogear.active = option !== "p";
-    }
-});
-
-const rejecttakeoff = new autofunction("reject", -1, [], [], [], data => {
-    if(autotakeoff.active){
-        autotakeoff.error();
-        write("throttle", -100);
-    }
-    else{
-        rejecttakeoff.error();
-    }
-});
-
-const takeoffconfig = new autofunction("takeoffconfig", -1, ["climbalt", "climbtype"], ["onground", "heading", "altitude"], [], data => {
-    const inputs = data.inputs;
-    const states = data.states;
-
-    const climbalt = inputs.get("climbalt") as number;
-    const climbtype = inputs.get("climbtype") as altType;
-    const onground = inputs.get("onground") as boolean;
-
-    const heading = states.get("heading") as number;
-    const altitude = states.get("altitude") as number;
-
-    if(!onground){
-        takeoffconfig.error();
         return;
     }
 
-    let alt = climbalt;
-    const inmsl = climbtype === "msl";
-    const agl = Math.round(altitude / 100) * 100;
-    alt += inmsl ? 0 : agl;
+    const altDiffrence = altitude - altref;
+    const currentVPA = Math.asin(altDiffrence / touchdownDistance) * toDeg;
 
-    write("alt", alt);
-    write("hdg", heading);
-    write("vs", 0);
+    let mod = 2;
+    if(touchdownDistance <= 6076){mod = 0.5;}
 
-    write("parkingbrake", false);
+    let vpaout = currentVPA - mod * (vparef - currentVPA);
+    vpaout = Math.round(vpaout * 10) / 10;
+
+    vpaout = Math.min(vpaout, vparef + 0.5);
+    if(vpaout < vparef - 0.5){vpaout = 0;}
+
+    Autofunction.cache.save("flcinput", vpaout);
+
+    const stopalt = altref + flare;
+    write("alt", stopalt);
+
+    levelchange.setActive(true);
+    flypattern.setActive(true);
+
+    if(autogear.isActive()){autogear.setActive(option !== "p");}
 });
 
-const autotakeoff = new autofunction("autotakeoff", 500, ["rotate", "climbspd", "climbthrottle", "takeoffspool", "takeofflnav", "takeoffvnav"], ["onrunway", "n1", "airspeed"], [takeoffconfig, levelchange, autotrim, autogear, autoflaps, autospoilers, rejecttakeoff], data => {
-    const inputs = data.inputs;
-    const states = data.states;
-
-    const rotate = inputs.get("rotate") as number;
-    const climbspd = inputs.get("climbspd") as number;
-    const climbthrottle = inputs.get("climbthrottle") as number;
-    const takeoffspool = inputs.get("takeoffspool") as boolean;
-    const takeofflnav = inputs.get("takeofflnav") as boolean;
-    const takeoffvnav = inputs.get("takeoffvnav") as boolean;
-
-    const onrunway = states.get("onrunway") as boolean;
-    const n1 = states.get("n1") as number;
-    const airspeed = states.get("airspeed") as number;
-
-    const throttle = 2 * climbthrottle - 100;
-
-    let stage = autotakeoff.stage;
-
-    if(stage === 0){
-        if(!onrunway){
-            autotakeoff.error();
-            return;
-        }
-
-        takeoffconfig.active = true;
-        levelchange.active = false;
-        autoland.active = false;
-
-        autogear.active = true;
-        autoflaps.active = true;
-        autospoilers.active = true;
-
-        write("spd", climbspd);
-
-        write("autopilot", true);
-        write("alton", true);
-        write("vson", false);
-        write("hdgon", true);
-
-        const initalThrottle = takeoffspool ? -20 : throttle;
-        write("throttle", initalThrottle);
-
-        stage++;
-    }
-    else if(stage === 1){
-        write("vson", true);
-
-        if(!takeoffspool){
-            stage++;
-        }
-        else if(n1 === null){
-            write("throttle", throttle);
-            stage++;
-        }
-        else if(n1 >= 40){
-            write("throttle", throttle);
-            stage++;
-        }
-    }
-    else if(stage === 2){
-        if(airspeed >= rotate){
-            levelchange.active = true;
-            stage++;
-        }
-    }
-    else if(stage === 3){
-        if(climbspd - airspeed < 10){
-            if(takeofflnav){write("navon", true);}
-            if(takeoffvnav){vnavSystem.active = true;}
-
-            write("spdon", true);
-            stage++;
-        }
-    }
-    else{
-        autotakeoff.active = false;
-    }
-
-    autotakeoff.stage = stage;
-});
-
-const updatefpl = new autofunction("updatefpl", -1, [], ["fplinfo"], [], data => {
+const updatefpl = new Autofunction("updatefpl", -1, [], ["fplinfo"], [], data => {
     const states = data.states;
 
     const fplinfo = states.get("fplinfo") as string;
@@ -729,7 +740,7 @@ const updatefpl = new autofunction("updatefpl", -1, [], ["fplinfo"], [], data =>
     }
 });
 
-const vnavSystem = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopilot", "groundspeed", "altitude", "vnavon"], [], data => {
+const vnavSystem = new Autofunction("vnav", 1000, [], ["fplinfo", "onground", "autopilot", "groundspeed", "altitude", "vnavon"], [], data => {
     const states = data.states;
 
     const fplinfo = states.get("fplinfo") as string;
@@ -739,12 +750,12 @@ const vnavSystem = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "a
     const altitude = states.get("altitude") as number;
     const vnavon = states.get("vnavon") as boolean;
 
-	if(onground || !autopilot || vnavon || levelchange.active) {
+	if(onground || !autopilot || vnavon || levelchange.isActive()) {
 		vnavSystem.error();
         return;
 	}
 
-    updatefpl.active = true;
+    updatefpl.setActive(true);
 
     const fpl:fplStruct = JSON.parse(fplinfo);
 	const flightPlanItems = fpl.detailedInfo.flightPlanItems;
@@ -756,10 +767,7 @@ const vnavSystem = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "a
         altitude:0,
         altitudeRestriction:[],
         altitudeRestrictionDistance:0,
-        restrictionLocation:{
-            lat:0,
-            long:0
-        }
+        restrictionLocation:{lat:0, long:0}
     };
 
 	let stage = vnavSystem.stage;
@@ -816,9 +824,9 @@ const vnavSystem = new autofunction("vnav", 1000, [], ["fplinfo", "onground", "a
 	vnavSystem.stage = stage;
 });
 
-let calloutFlags:boolean[];
+let calloutFlags:boolean[] = [];
 
-const callout = new autofunction("callout", 250, ["rotate", "minumuns"], ["onrunway", "airspeed", "verticalspeed", "throttle", "gear", "altitudeAGL", "altitude"], [], data => {
+const callout = new Autofunction("callout", 250, ["rotate", "minumuns"], ["onrunway", "airspeed", "verticalspeed", "throttle", "gear", "altitudeAGL", "altitude"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -836,7 +844,7 @@ const callout = new autofunction("callout", 250, ["rotate", "minumuns"], ["onrun
     const v1 = rotate;
     const v2 = rotate + 10;
 
-    const elevation = autofunction.cache.load("altref").get("altref") as number;
+    const elevation = Autofunction.cache.load("altref") as number|null;
     const alt = (elevation === null) ? altitudeAGL : altitude - elevation;
 
     let stage = callout.stage;
@@ -882,4 +890,4 @@ const callout = new autofunction("callout", 250, ["rotate", "minumuns"], ["onrun
     callout.stage = stage;
 });
 
-const autofunctions = [autotrim, autolights, autogear, autoflaps, levelchange, markposition, setrunway, flyto, flypattern, rejecttakeoff, takeoffconfig, autotakeoff, autoland, goaround, autospeed, autobrakes, vnavSystem, callout, updatefpl, autospoilers];
+const autofunctions = [autobrakes, autoflaps, autogear, autoland, autolights, autospeed, autospoilers, autotakeoff, autotrim, callout, flypattern, flyto, goaround, levelchange, markposition, rejecttakeoff, setrunway, takeoffconfig, updatefpl, vnavSystem];

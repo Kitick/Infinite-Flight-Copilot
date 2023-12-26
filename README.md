@@ -1,4 +1,6 @@
-Ensure:
+# Welcome to Infinite Flight Copilot!
+
+To get started, ensure:
 - You have the Infinite Flight Connect setting checked on.
 - Both devices are connected to the same network.
 - If using an IP address, ensure it is the correct private address. (i.e. starting in 192.168)
