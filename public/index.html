@@ -125,6 +125,14 @@
                     	<option value="agl">AGL</option>
                 	</select>
 				</div>
+                <div class="input-option-container">
+					<input id="flcinputref" class="input-option-s" type="number" placeholder="Climb Rate" min="0">
+                	<select id="flcmoderef" class="input-option-l">
+                        <option value="f">V/S (ft/min)</option>
+                    	<option value="g">Gradient (ft/nm)</option>
+						<option value="v">VPA (deg)</option>
+                	</select>
+				</div>
 				<button id="takeoffconfig" style="width: 15rem;">CONFIGURE FOR TAKEOFF</button>
 				<button id="autotakeoff" style="width: 15rem;">AUTO TAKEOFF</button>
 				<button id="reject" style="width: 15rem;">REJECT TAKEOFF</button>
@@ -149,6 +157,8 @@
 				<input id="flytolong" type="number" placeholder="Longitude (deg)" min="-180" max="180">
 				<input id="flytohdg" type="number" placeholder="Heading (deg)" min="0" max="360" step="1">
 				<button id="flyto" style="width: 15rem;">FLY TO</button>
+                <br><br>
+
 				<div class="input-option-container">
 					<input id="flcinput" class="input-option-s" type="number" placeholder="Climb Rate" min="0">
                 	<select id="flcmode" class="input-option-l">
