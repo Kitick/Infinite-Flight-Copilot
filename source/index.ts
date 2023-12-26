@@ -51,10 +51,12 @@ function setHidden(hidden:boolean):void {
 
 function reset():void {
     setHidden(true);
-
+    
     autofunctions.forEach(autofunc => {
         if(autofunc.isActive()){autofunc.setActive(false);}
     });
+
+    storage.load(ProfileStorage.defaultName);
 }
 
 function log(message:string){

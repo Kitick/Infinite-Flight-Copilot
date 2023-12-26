@@ -1,13 +1,21 @@
 class ProfileStorage {
+    static defaultName:string = "#default";
+
     #selectDOM:HTMLSelectElement;
 
     constructor(dom:HTMLSelectElement){
         this.#selectDOM = dom;
+
+        const name = ProfileStorage.defaultName;
+
+        if(localStorage.getItem(name) === null){this.save(name);}
+
         this.#build();
+        this.load(name);
     }
 
     #build():void {
-        let configs = [""];
+        let configs = [];
         for(let i = 0, length = localStorage.length; i < length; i++){
             configs.push(localStorage.key(i) as string);
         }
@@ -33,11 +41,10 @@ class ProfileStorage {
         while(name === ""){name = prompt("Name cannot be blank:");}
         if(name === null){return;}
 
-        localStorage.setItem(name, "");
-        this.#build();
+        this.save(name);
 
+        this.#build();
         this.#selectDOM.value = name;
-        this.save();
     }
 
     save(name:string = this.#selectDOM.value):void {
@@ -60,14 +67,18 @@ class ProfileStorage {
 
         if(name === "" || profileString === null){this.#flash("load", "error"); return;}
 
+        this.#selectDOM.value = name;
+        const loadEmpty = (document.getElementById("loadempty") as HTMLInputElement).checked;
+
         const profile = JSON.parse(profileString);
         for(let id in profile){
-            let value = profile[id];
+            let value = profile[id] as dataValue;
 
             if(value !== null){
                 let testValue = parseFloat(value.toString());
                 if(!isNaN(testValue)){value = testValue;}
             }
+            else if(!loadEmpty){continue;}
 
             Autofunction.cache.save(id, value);
         }
