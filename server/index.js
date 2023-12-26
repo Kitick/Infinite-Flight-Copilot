@@ -9,29 +9,31 @@ app.use(Express.static(__dirname + "/public"));
 io.on("connection", socket => {
     socket.on("disconnect", () => {
         console.log("Client Disconnected");
-        Controller.remove(socket);
+        manager.remove(socket);
     });
 
 	socket.on("bridge", (address) => {
-        Controller.log(socket, "Connection Requested");
-		Controller.bridge(socket, address);
+        manager.log(socket, "Connection Requested");
+		manager.bridge(socket, address);
 	});
 
 	socket.on("break", () => {
-        Controller.log(socket, "Closure Requested");
-		Controller.close(socket);
+        manager.log(socket, "Closure Requested");
+		manager.close(socket);
 	});
 
 	socket.on("read", (command, callback) => {
-		Controller.read(socket, command, callback);
+		manager.read(socket, command, callback);
 	});
 
 	socket.on("write", (command, value) => {
-		Controller.write(socket, command, value);
+		manager.write(socket, command, value);
 	});
 
     console.log("New Client Connected");
 });
+
+const manager = new ClientManager();
 
 console.log("\nLoading Complete, Server Ready");
 console.log("\nOpen Browser to localhost:8080\n");
