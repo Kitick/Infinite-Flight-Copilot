@@ -289,10 +289,12 @@ const setrunway = new Autofunction("setrunway", -1, [], ["route", "coordinates"]
         return;
     }
 
+    const runway = fpl[rwIndex][2] + fpl[rwIndex][3] + "0";
     const runwayCoords = coordinates.split(" ")[rwIndex].split(",");
+
     const latref = parseFloat(runwayCoords[0]);
     const longref = parseFloat(runwayCoords[1]);
-    const hdgref = parseInt(route[rwIndex][2] + route[rwIndex][3] + "0");
+    const hdgref = parseInt(runway);
 
     Autofunction.cache.save("latref", latref);
     Autofunction.cache.save("longref", longref);
