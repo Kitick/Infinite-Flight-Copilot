@@ -136,8 +136,8 @@ class Autofunction {
     }
 
     error():void {
-        this.#active = false;
+        this.setActive(false);
         this.#button.className = "error";
-        this.#timeout = setTimeout(() => {this.#updateButton();}, 2000);
+        setTimeout(() => {this.#updateButton();}, 2000);
     }
 }

@@ -249,9 +249,7 @@ const levelchange = new Autofunction("levelchange", 1000, ["flcinput", "flcmode"
         output *= Math.sign(diffrence) * (airspeed / 60);
     }
 
-    output = Math.round(output / 100) * 100;
-
-    if(output !== vs){write("vs", output);}
+    write("vs", output);
 });
 
 const markposition = new Autofunction("markposition", -1, [], ["latitude", "longitude", "altitude", "heading"], [], data => {
@@ -585,8 +583,6 @@ const goaround = new Autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     const altitude = states.get("altitude") as number;
     const vs = states.get("vs") as number;
 
-    const flapto = Autofunction.cache.load("flapto") as number|null;
-
     if(onground){
         goaround.error();
         console.log("Cannot goaround on the ground");
@@ -595,9 +591,9 @@ const goaround = new Autofunction("goaround", -1, ["climbalt", "climbspd", "clim
 
     autoland.error();
 
+    Autofunction.cache.save("leg", "u");
     Autofunction.cache.save("flcinput", flcinputref);
     Autofunction.cache.save("flcmode", flcmoderef);
-    Autofunction.cache.save("leg", "u");
 
     let alt = climbalt;
     if(climbtype === "agl"){
@@ -611,13 +607,7 @@ const goaround = new Autofunction("goaround", -1, ["climbalt", "climbspd", "clim
     write("alton", true);
     write("hdgon", true);
 
-    if(autoflaps.isActive() && flapto !== null){write("flaps", flapto);}
-
-    if(vs < 0){write("vs", 0);}
-
-    setTimeout(() => {
-        levelchange.setActive(true);
-    }, 500);
+    levelchange.setActive(true);
 });
 
 const autoland = new Autofunction("autoland", 1000, ["latref", "longref", "altref", "hdgref", "vparef", "flare", "touchdown", "option", "flcinputref", "flcmoderef"], ["latitude", "longitude", "altitude", "groundspeed", "onrunway"], [flypattern, goaround], data => {
@@ -650,7 +640,11 @@ const autoland = new Autofunction("autoland", 1000, ["latref", "longref", "altre
     const touchdownZone = calcLLfromHD({lat:latref, long:longref}, hdgref, touchdown / 6076.12);
     const touchdownDistance = 6076.12 * calcLLdistance({lat:latitude, long:longitude}, touchdownZone); // nm to ft
 
-    if(autoland.stage >= 2 || touchdownDistance <= 1000){
+    if(autoland.stage === 1 && touchdownDistance <= 1000){
+        autoland.stage++;
+    }
+
+    if(autoland.stage >= 2){
         if(autoland.stage === 2){
             autoland.stage++;
 
@@ -671,10 +665,11 @@ const autoland = new Autofunction("autoland", 1000, ["latref", "longref", "altre
             autoland.setActive(false);
             setTimeout(() => {goaround.setActive(true);}, 10000);
         }
-        else if(option === "l"){
+        else if(option === "l" && onrunway){
             autoland.setActive(false);
             flypattern.setActive(false);
             flyto.setActive(false);
+            write("autopilot", false);
         }
         else if(option === "t" && onrunway){
             autoland.setActive(false);
@@ -695,7 +690,7 @@ const autoland = new Autofunction("autoland", 1000, ["latref", "longref", "altre
     if(touchdownDistance <= 6076){mod = 0.5;}
 
     let vpaout = currentVPA - mod * (vparef - currentVPA);
-    vpaout = Math.round(vpaout * 10) / 10;
+    vpaout = Math.round(vpaout * 100) / 100;
 
     vpaout = Math.min(vpaout, vparef + 0.5);
     if(vpaout < vparef - 0.5){vpaout = 0;}
