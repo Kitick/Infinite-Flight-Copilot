@@ -61,15 +61,14 @@ class Autofunction {
             this.#run();
             return;
         }
-
-        if(this.#timeout !== null){
+        else if(this.#timeout !== null){
             clearTimeout(this.#timeout);
             this.#timeout = null;
         }
     }
 
     #updateButton():void {
-        this.#button.className = this.#active ? "active" : "off";
+        this.#button.className = this.isActive() ? "active" : "off";
     }
 
     #run():void {
@@ -95,7 +94,7 @@ class Autofunction {
                 return;
             }
 
-            if(this.#active && this.#timeout === null){
+            if(this.#active){
                 this.#timeout = setTimeout(() => {this.#timeout = null; this.#run();}, this.delay);
             }
         });
