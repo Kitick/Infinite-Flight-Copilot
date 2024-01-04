@@ -220,7 +220,7 @@ const autospeed = new Autofunction("autospeed", 1000, ["latref", "longref", "cli
     }
 });
 
-const levelchange = new Autofunction("levelchange", 1000, ["flcinput", "flcmode"], ["airspeed", "altitude", "alt", "vs"], [], data => {
+const levelchange = new Autofunction("levelchange", 1000, ["flcinput", "flcmode"], ["airspeed", "altitude", "alt"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -230,7 +230,6 @@ const levelchange = new Autofunction("levelchange", 1000, ["flcinput", "flcmode"
     const airspeed = states.get("airspeed") as number;
     const altitude = states.get("altitude") as number;
     const alt = states.get("alt") as number;
-    const vs = states.get("vs") as number;
 
     let output = flcinput;
 
@@ -246,8 +245,10 @@ const levelchange = new Autofunction("levelchange", 1000, ["flcinput", "flcmode"
     }
 
     if(flcmode !== "f"){
-        output *= Math.sign(diffrence) * (airspeed / 60);
+        output *= airspeed / 60;
     }
+
+    output *= Math.sign(diffrence);
 
     write("vs", output);
 });
@@ -314,6 +315,7 @@ const rejecttakeoff = new Autofunction("reject", -1, [], ["onrunway"], [], data 
         autotakeoff.error();
     }
 
+    write("autopilot", false);
     write("throttle", -100);
 });
 
