@@ -240,13 +240,8 @@ const levelchange = new Autofunction("levelchange", 1000, ["flcinput", "flcmode"
         return;
     }
 
-    if(flcmode === "v"){
-        output = 6076.12 * Math.tan(output * toRad);
-    }
-
-    if(flcmode !== "f"){
-        output *= airspeed / 60;
-    }
+    if(flcmode === "v"){output = 6076.12 * Math.tan(output * toRad);}
+    if(flcmode !== "f"){output *= airspeed / 60;}
 
     output *= Math.sign(diffrence);
 
@@ -354,7 +349,7 @@ const takeoffconfig = new Autofunction("takeoffconfig", -1, ["climbalt", "climbt
     write("parkingbrake", false);
 });
 
-const autotakeoff = new Autofunction("autotakeoff", 500, ["rotate", "climbspd", "climbthrottle", "takeoffspool", "takeofflnav", "takeoffvnav"], ["onrunway", "n1", "airspeed"], [takeoffconfig, rejecttakeoff], data => {
+const autotakeoff = new Autofunction("autotakeoff", 500, ["rotate", "climbspd", "climbthrottle", "takeoffspool", "takeofflnav", "takeoffvnav"], ["onground", "n1", "airspeed"], [takeoffconfig, rejecttakeoff], data => {
     const inputs = data.inputs;
     const states = data.states;
 
@@ -365,7 +360,7 @@ const autotakeoff = new Autofunction("autotakeoff", 500, ["rotate", "climbspd", 
     const takeofflnav = inputs.get("takeofflnav") as boolean;
     const takeoffvnav = inputs.get("takeoffvnav") as boolean;
 
-    const onrunway = states.get("onrunway") as boolean;
+    const onground = states.get("onground") as boolean;
     const n1 = states.get("n1") as number|null;
     const airspeed = states.get("airspeed") as number;
 
@@ -374,7 +369,7 @@ const autotakeoff = new Autofunction("autotakeoff", 500, ["rotate", "climbspd", 
     let stage = autotakeoff.stage;
 
     if(stage === 0){
-        if(!onrunway){
+        if(!onground){
             autotakeoff.error();
             console.log("Not on a runway");
             return;
@@ -571,19 +566,18 @@ const flypattern = new Autofunction("flypattern", 1000, ["latref", "longref", "h
     flyto.setActive(true);
 });
 
-const goaround = new Autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype", "flcinputref", "flcmoderef"], ["onground", "altitude", "vs"], [], data => {
+const goaround = new Autofunction("goaround", -1, ["climbalt", "climbspd", "climbtype", "altref", "flcinputref", "flcmoderef"], ["onground"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
     const climbalt = inputs.get("climbalt") as number;
     const climbspd = inputs.get("climbspd") as number;
     const climbtype = inputs.get("climbtype") as altType;
+    const altref = inputs.get("altref") as number;
     const flcinputref = inputs.get("flcinputref") as number;
     const flcmoderef = inputs.get("flcmoderef") as climbType;
 
     const onground = states.get("onground") as boolean;
-    const altitude = states.get("altitude") as number;
-    const vs = states.get("vs") as number;
 
     if(onground){
         goaround.error();
@@ -599,7 +593,7 @@ const goaround = new Autofunction("goaround", -1, ["climbalt", "climbspd", "clim
 
     let alt = climbalt;
     if(climbtype === "agl"){
-        const agl = Math.round(altitude / 100) * 100;
+        const agl = Math.round(altref / 100) * 100;
         alt += agl;
     }
 
