@@ -6,7 +6,7 @@
     "bin": "index.js",
     "scripts": {
         "buildServer": "tsc -p server",
-        "postbuildServer": "terser index.js -o index.js -c -m",
+        "postbuildServer": "terser index.js -o index.js -c -m --toplevel",
 
         "buildSource": "tsc -p source",
         "postbuildSource": "terser public/index.js -o public/index.js -c -m",
