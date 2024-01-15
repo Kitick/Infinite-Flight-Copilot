@@ -27,20 +27,19 @@ class StateCache {
 
     addArray(ids:string[]):void {
         ids.forEach(id => {
-            if(this.#data.get(id) === undefined){
-                const element = document.getElementById(id);
+            if(this.#data.get(id) !== undefined){return;}
 
-                if(element !== null){
-                    const dom = element as inputHTML;
+            const element = document.getElementById(id);
+            if(element === null){return;}
 
-                    dom.addEventListener("change", () => {
-                        this.#parse(dom);
-                    });
+            const dom = element as inputHTML;
 
-                    this.#data.set(dom.id, {dom:dom, value:null});
-                    this.#parse(dom);
-                }
-            }
+            dom.addEventListener("change", () => {
+                this.#parse(dom);
+            });
+
+            this.#data.set(dom.id, {dom:dom, value:null});
+            this.#parse(dom);
         });
     }
 
@@ -51,7 +50,9 @@ class StateCache {
 
         ids.forEach(id => {
             const value = this.load(id);
-            if(value !== undefined){returnMap.set(id, value);}
+            if(value === undefined){return;}
+
+            returnMap.set(id, value);
         });
 
         return returnMap;
@@ -84,7 +85,7 @@ class StateCache {
             return;
         }
 
-        if(value === null){value = "";}
+        value = value ?? "";
         dom.value = value.toString();
     }
 

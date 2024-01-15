@@ -131,30 +131,27 @@ function config():void {
     let inputArray:string[] = [];
 
     configs.forEach(config => {
-        if(config.checked){
-            const functions = [config.instance];
-            functions.concat(config.instance.getDependents());
+        if(!config.checked){return;}
 
-            functions.forEach(func => {
-                func.getInputs().forEach(id => {
-                    if(inputArray.indexOf(id) === -1){
-                        inputArray.push(id);
-                    }
-                });
+        const functions = [config.instance];
+        functions.concat(config.instance.getDependents());
+
+        functions.forEach(func => {
+            func.getInputs().forEach(id => {
+                if(inputArray.indexOf(id) !== -1){return;}
+                inputArray.push(id);
             });
-        }
+        });
     });
 
     inputArray.forEach(input => {
         const dom = document.getElementById(input) as HTMLInputElement|null;
+        if(dom === null || dom.type !== "number"){return;}
 
-        if(dom !== null && dom.type === "number"){
-            const value = prompt(dom.placeholder + "\nLeave blank to not change");
+        const value = prompt(dom.placeholder + "\nLeave blank to not change");
+        if(value === null || value === ""){return;}
 
-            if(value !== null && value !== ""){
-                Autofunction.cache.save(input, value);
-            }
-        }
+        Autofunction.cache.save(input, value);
     });
 };
 

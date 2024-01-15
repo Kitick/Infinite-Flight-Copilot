@@ -29,13 +29,13 @@ class Autofunction {
 
         this.#inputs.forEach(input => {
             let element = document.getElementById(input);
-            if(element !== null && element.tagName === "INPUT" && (element as HTMLInputElement).type === "number"){
-                const inputElement = element as HTMLInputElement;
-                const tooltip = document.getElementById("tooltip") as HTMLHeadingElement;
+            if(element === null || element.tagName !== "INPUT" || (element as HTMLInputElement).type !== "number"){return;}
 
-                inputElement.addEventListener("mouseenter", () => {tooltip.innerText = inputElement.placeholder;});
-                inputElement.addEventListener("mouseout", () => {tooltip.innerText = "Tooltip";});
-            }
+            const inputElement = element as HTMLInputElement;
+            const tooltip = document.getElementById("tooltip") as HTMLHeadingElement;
+
+            inputElement.addEventListener("mouseenter", () => {tooltip.innerText = inputElement.placeholder;});
+            inputElement.addEventListener("mouseout", () => {tooltip.innerText = "Tooltip";});
         });
 
         states.forEach(state => {

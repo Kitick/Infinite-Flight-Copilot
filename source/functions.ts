@@ -61,7 +61,7 @@ const autogear = new Autofunction("gear", 1000, [], ["gear", "altitudeAGL", "ver
 
     let newState = gear;
 
-    if(altitudeAGL < 100 || (verticalspeed <= -500 && altitudeAGL < 1500)){
+    if(altitudeAGL < 100 || (verticalspeed <= -500 && altitudeAGL < 1200)){
         newState = true;
     }
     else if(verticalspeed >= 500 || altitudeAGL >= 2000){
