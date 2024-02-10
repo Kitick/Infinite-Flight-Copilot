@@ -1,3 +1,5 @@
+declare function io(): any;
+
 type stateValue = string | number | bigint | boolean;
 type dataValue = stateValue | null;
 type dataMap = Map<string, dataValue>;

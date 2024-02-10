@@ -1,5 +1,5 @@
 {
-"files":["types.ts", "cache.ts", "profile.ts", "autofunction.ts", "helpers.ts", "functions.ts", "index.ts", "socket.js"],
+"files":["types.ts", "cache.ts", "profile.ts", "autofunction.ts", "helpers.ts", "functions.ts", "index.ts"],
 "compilerOptions": {
     "target": "esnext",
     "outFile": "../public/index.js",

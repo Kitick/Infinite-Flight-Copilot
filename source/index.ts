@@ -64,8 +64,8 @@ function log(message:string){
     console.log(message);
 }
 
-let statLog = document.getElementById("status") as HTMLSpanElement;
-let panels = document.getElementsByClassName("panel") as HTMLCollectionOf<HTMLDivElement>;
+const statLog = document.getElementById("status") as HTMLSpanElement;
+const panels = document.getElementsByClassName("panel") as HTMLCollectionOf<HTMLDivElement>;
 
 const storage = new ProfileStorage(document.getElementById("configselect") as HTMLSelectElement);
 
@@ -75,3 +75,27 @@ for(let i = 0, length = voices.length; i < length; i++){
     const newOption = new Option(voices[i].lang, i.toString());
     select.add(newOption);
 }
+
+const socket = io();
+
+socket.on("connect", () => {
+    log("Connected to Server");
+});
+
+socket.on("disconnect", () => {
+    reset();
+    log("Server Disconnected\n\nPlease Restart Server");
+});
+
+socket.on("connect_error", () => {
+    console.clear();
+});
+
+socket.on("ready", (address:string) => {
+    (document.getElementById("address") as HTMLInputElement).value = address;
+    setHidden(false);
+});
+
+socket.on("log", (response:string) => {
+    log(response);
+});
