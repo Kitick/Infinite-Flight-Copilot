@@ -155,25 +155,25 @@ const autospoilers = new Autofunction("spoilers", 1000, [], ["spoilers", "airspe
     if(onrunway || (!onground && altitudeAGL < 1000)){
         newSpoilers = 2;
     }
-    else if(airspeed - spd >= 20 && altitude < 28000){
+    else if((airspeed - spd >= 20 || (spd > 255 && altitude < 12000)) && altitude < 28000){
         newSpoilers = 1;
     }
 
     if(newSpoilers !== spoilers){write("spoilers", newSpoilers);}
 });
 
-const autospeed = new Autofunction("autospeed", 1000, ["latref", "longref", "climbspd", "spdref", "cruisespd"], ["onground", "airspeed", "verticalspeed", "altitudeAGL", "altitude", "latitude", "longitude", "spd"], [], data => {
+const autospeed = new Autofunction("autospeed", 1000, ["latref", "longref", "climbspd", "climbalt", "spdref", "cruisespd"], ["onground", "verticalspeed", "altitudeAGL", "altitude", "latitude", "longitude", "spd"], [], data => {
     const inputs = data.inputs;
     const states = data.states;
 
     const latref = inputs.get("latref") as number;
     const longref = inputs.get("longref") as number;
     const climbspd = inputs.get("climbspd") as number;
+    const climbalt = inputs.get("climbalt") as number;
     const spdref = inputs.get("spdref") as number;
     const cruisespd = inputs.get("cruisespd") as number;
 
     const onground = states.get("onground") as boolean;
-    const airspeed = states.get("airspeed") as number;
     const verticalspeed = states.get("verticalspeed") as number;
     const altitudeAGL = states.get("altitudeAGL") as number;
     const altitude = states.get("altitude") as number;
@@ -191,6 +191,8 @@ const autospeed = new Autofunction("autospeed", 1000, ["latref", "longref", "cli
     //const cruisespd = autofunction.cache.load("cruisespd").get("cruisespd") as number|null;
     const alt = (elevation === null) ? altitudeAGL : altitude - elevation;
 
+    let newSpeed = spd;
+
     if(autoland.isActive()){
         const distance = calcLLdistance({lat:latitude, long:longitude}, {lat:latref, long:longref});
         
@@ -199,25 +201,22 @@ const autospeed = new Autofunction("autospeed", 1000, ["latref", "longref", "cli
         speed = Math.round(speed / 10) * 10;
         speed = Math.max(speed, spdref);
 
-        write("spd", speed);
+        newSpeed = speed;
     }
     else if(flypattern.isActive()){
+        newSpeed = 200;
+    }
+    else if(altitude <= climbalt){
+        newSpeed = climbspd;
+    }
+    else if(altitude < 10000 || (altitude < 12000 && verticalspeed <= -500)){
+        newSpeed = 250;
+    }
+    else if(alt >= 10000){
+        newSpeed = cruisespd;
+    }
 
-    }
-    else if(autotakeoff.isActive()){
-        if(verticalspeed > 500 && alt <= 10000 && climbspd - airspeed < 10){
-            write("spd", climbspd);
-            write("spdon", true);
-        }
-    }
-
-    if(verticalspeed < -500 && alt <= 12000 && alt >= 10000){
-        write("spd", 250);
-    }
-
-    if(cruisespd !== null && verticalspeed > 500 && alt > 10000){
-        write("spd", cruisespd);
-    }
+    if(newSpeed !== spd){write("spd", newSpeed);}
 });
 
 const levelchange = new Autofunction("levelchange", 1000, ["flcinput", "flcmode"], ["airspeed", "altitude", "alt"], [], data => {
