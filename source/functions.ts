@@ -6,7 +6,7 @@ const autotrim = new Autofunction("trim", 1000, [], ["pitch", "trim", "onground"
     const trim = states.get("trim") as number;
 
     if(onground){
-        autotrim.arm();
+        if(trim !== 0){write("trim", 0);}
         return;
     }
 

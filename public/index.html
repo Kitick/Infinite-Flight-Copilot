@@ -200,13 +200,13 @@
                 <h3>RUNWAY REFRENCE</h3>
 				<input id="latref" type="number" placeholder="Latitude Reference (deg)" min="-90" max="90">
 				<input id="longref" type="number" placeholder="Longitude Reference (deg)" min="-180" max="180">
+                <input id="altref" type="number" placeholder="Airport Elevation (ft)" min="0" step="1">
 				<input id="hdgref" type="number" placeholder="HDG Reference (deg)" min="0" max="360" step="1">
 				<button id="markposition" style="width: 15rem;">MARK POSITION</button>
 				<button id="setrunway" style="width: 15rem;">SET RUNWAY</button>
 			</div>
             <div class="panel" hidden>
 				<h2 class="module-name">AUTO APPROACH AND LAND</h2>
-                <input id="altref" type="number" step="1" placeholder="Airport Elevation (ft)" min="0">
                 <input id="spdref" type="number" step="5" placeholder="Landing Speed VRef (kts)" min="0">
                	<input id="flare" type="number" placeholder="Flare Height (ft)" min="0" step="5">
                	<input id="touchdown" type="number" placeholder="Distance from threshold (ft)" min="0" step="100">
