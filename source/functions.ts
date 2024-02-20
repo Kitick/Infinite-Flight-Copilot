@@ -155,7 +155,7 @@ const autospoilers = new Autofunction("spoilers", 1000, [], ["spoilers", "airspe
     if(onrunway || (!onground && altitudeAGL < 1000)){
         newSpoilers = 2;
     }
-    else if((airspeed - spd >= 20 || (spd > 255 && altitude < 12000)) && altitude < 28000){
+    else if((airspeed - spd >= 20 || (spd > 255 && altitude < 10000)) && altitude < 28000){
         newSpoilers = 1;
     }
 
@@ -203,10 +203,7 @@ const autospeed = new Autofunction("autospeed", 1000, ["latref", "longref", "cli
 
         newSpeed = speed;
     }
-    else if(flypattern.isActive()){
-        newSpeed = 200;
-    }
-    else if(altitude <= climbalt){
+    else if(flypattern.isActive() || altitude <= climbalt){
         newSpeed = climbspd;
     }
     else if(altitude < 10000 || (altitude < 12000 && verticalspeed <= -500)){
@@ -215,6 +212,8 @@ const autospeed = new Autofunction("autospeed", 1000, ["latref", "longref", "cli
     else if(alt >= 10000){
         newSpeed = cruisespd;
     }
+
+    newSpeed = Math.min(newSpeed, cruisespd);
 
     if(newSpeed !== spd){write("spd", newSpeed);}
 });
@@ -682,13 +681,21 @@ const autoland = new Autofunction("autoland", 1000, ["latref", "longref", "altre
     const currentVPA = Math.asin(altDiffrence / touchdownDistance) * toDeg;
 
     let mod = 2;
-    if(touchdownDistance <= 6076){mod = 0.5;}
+    let limit = 1;
+
+    if(touchdownDistance <= 6076){
+        mod = 0.5;
+        limit = 0.5;
+    }
 
     let vpaout = currentVPA - mod * (vparef - currentVPA);
     vpaout = Math.round(vpaout * 100) / 100;
 
-    vpaout = Math.min(vpaout, vparef + 0.5);
-    if(vpaout < vparef - 0.5){vpaout = 0;}
+    if(vpaout < vparef - limit || (vpaout < vparef - 0.25 && Autofunction.cache.load("flcinput") === 0)){
+        vpaout = 0;
+    }
+
+    vpaout = Math.min(vpaout, vparef + limit);
 
     Autofunction.cache.save("flcinput", vpaout);
 
