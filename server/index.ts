@@ -6,13 +6,13 @@ const io = require("socket.io")(server);
 app.use(Express.static(__dirname + "/public"));
 
 // Sockets
-io.on("connection", socket => {
+io.on("connection", (socket:any) => {
     socket.on("disconnect", () => {
         console.log("Client Disconnected");
         manager.remove(socket);
     });
 
-	socket.on("bridge", (address) => {
+	socket.on("bridge", (address:string) => {
         manager.log(socket, "Connection Requested");
 		manager.bridge(socket, address);
 	});
@@ -22,11 +22,11 @@ io.on("connection", socket => {
 		manager.close(socket);
 	});
 
-	socket.on("read", (command, callback) => {
+	socket.on("read", (command:string, callback:(data:stateValue|undefined|null) => void) => {
 		manager.read(socket, command, callback);
 	});
 
-	socket.on("write", (command, value) => {
+	socket.on("write", (command:string, value:stateValue) => {
 		manager.write(socket, command, value);
 	});
 
